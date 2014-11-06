@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -16,6 +17,8 @@ public class MainActivity extends ActionBarActivity {
 	private TextView lastPost;
 	private Button submitButton;
 	private EditText newPostText; 
+	private BluetoothAdapter mBluetoothAdapter;
+	private static int REQUEST_ENABLE_BT = 7;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +28,7 @@ public class MainActivity extends ActionBarActivity {
         boolean isBluetoothSupported = isBluetoothSupported();
         
         if (isBluetoothSupported) {
-        	startApplication();
+        	requestBluetoothAndStart();
         } else {
         	setErrorMessage();
         }
@@ -54,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
     
     private boolean isBluetoothSupported() {
     	boolean isSupported = true;
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             // Device does not support Bluetooth
         	isSupported = false;
@@ -78,5 +81,24 @@ public class MainActivity extends ActionBarActivity {
             	lastPost.setText(newPostText.getText());
             }
         });
+    }
+    
+    private void requestBluetoothAndStart() {
+    	if (!mBluetoothAdapter.isEnabled()) {
+    	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+    	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+    	} else {
+    		startApplication();
+    	}
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    	if(requestCode == REQUEST_ENABLE_BT) {
+    		if(resultCode == RESULT_OK){
+        		startApplication();
+    		} else {
+    			setErrorMessage();
+    		}
+    	}
     }
 }
