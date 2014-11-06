@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid;
 
+import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -21,15 +22,13 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        submitButton = (Button) findViewById(R.id.submit_button);
-        lastPost = (TextView) findViewById(R.id.last_post);
-        newPostText = (EditText) findViewById(R.id.new_post_text);
+        boolean isBluetoothSupported = isBluetoothSupported();
         
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	lastPost.setText(newPostText.getText());
-            }
-        });
+        if (isBluetoothSupported) {
+        	startApplication();
+        } else {
+        	setErrorMessage();
+        }
 
     }
 
@@ -51,5 +50,33 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    private boolean isBluetoothSupported() {
+    	boolean isSupported = true;
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            // Device does not support Bluetooth
+        	isSupported = false;
+        }
+        return isSupported;
+    }
+    
+    private void setErrorMessage() {
+    	lastPost = (TextView) findViewById(R.id.last_post);
+    	String errorMsg = "Sorry Bluetooth is not supported on your phone";
+    	lastPost.setText(errorMsg);
+    }
+    
+    private void startApplication() {
+        submitButton = (Button) findViewById(R.id.submit_button);
+        lastPost = (TextView) findViewById(R.id.last_post);
+        newPostText = (EditText) findViewById(R.id.new_post_text);
+        
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	lastPost.setText(newPostText.getText());
+            }
+        });
     }
 }
