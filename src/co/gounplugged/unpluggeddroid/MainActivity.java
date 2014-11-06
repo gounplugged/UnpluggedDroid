@@ -1,17 +1,36 @@
 package co.gounplugged.unpluggeddroid;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
-
+	
+	private TextView lastPost;
+	private Button submitButton;
+	private EditText newPostText; 
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        submitButton = (Button) findViewById(R.id.submit_button);
+        lastPost = (TextView) findViewById(R.id.last_post);
+        newPostText = (EditText) findViewById(R.id.new_post_text);
+        
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	lastPost.setText(newPostText.getText());
+            }
+        });
+
     }
 
 
