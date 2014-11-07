@@ -1,9 +1,16 @@
 package co.gounplugged.unpluggeddroid;
 
+import java.util.UUID;
+
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,15 +20,25 @@ import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+	private final String TAG = "MainActivity";
 	
 	private TextView lastPost;
 	private Button submitButton;
 	private EditText newPostText; 
 	private BluetoothAdapter mBluetoothAdapter;
-	private static int REQUEST_ENABLE_BT = 7;
+	private BroadcastReceiver mBroadcastReceiver;
+	
+	private static int REQUEST_ENABLE_BT = 1;
+	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
+	
+	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
+	
+	private final String uUUID = "UnpluggedUUID";
+    private final UUID uuid = UUID.nameUUIDFromBytes(uUUID.getBytes());
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    	Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
@@ -32,9 +49,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
         	setErrorMessage();
         }
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,6 +86,12 @@ public class MainActivity extends ActionBarActivity {
     	lastPost.setText(errorMsg);
     }
     
+    private void setGoodMessage() {
+    	lastPost = (TextView) findViewById(R.id.last_post);
+    	String errorMsg = "This is good";
+    	lastPost.setText(errorMsg);
+    }
+    
     private void startApplication() {
         submitButton = (Button) findViewById(R.id.submit_button);
         lastPost = (TextView) findViewById(R.id.last_post);
@@ -81,6 +102,8 @@ public class MainActivity extends ActionBarActivity {
             	lastPost.setText(newPostText.getText());
             }
         });
+        
+        startMesh();
     }
     
     private void requestBluetoothAndStart() {
@@ -93,12 +116,57 @@ public class MainActivity extends ActionBarActivity {
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-    	if(requestCode == REQUEST_ENABLE_BT) {
-    		if(resultCode == RESULT_OK){
+    	Log.d(TAG, "onActivityResult, requestCode: " + requestCode + ", resultCode: " + resultCode);
+    	if (requestCode == REQUEST_ENABLE_BT) {
+    		if (resultCode == RESULT_OK){
         		startApplication();
     		} else {
     			setErrorMessage();
     		}
+    	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) {
+    		if(resultCode == DISCOVERABLE_PERIOD){
+        		// start server prob
+    		} else if (resultCode == RESULT_CANCELED){
+    			setErrorMessage();
+    		}
     	}
     }
+    
+    private void startMesh(){
+    	Log.d(TAG, "startMesh");
+    	Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_PERIOD);
+		startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE);
+		
+		Log.d(TAG, "Create BroadcastReceiver");
+		// Create a BroadcastReceiver for ACTION_FOUND
+		mBroadcastReceiver = new BroadcastReceiver() {
+		    public void onReceive(Context context, Intent intent) {
+		    	Log.d(TAG, "onReceive BroadcastReceiver");
+		        String action = intent.getAction();
+		        // When discovery finds a device
+		        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+		        	Log.d(TAG, "ACTION_FOUND BroadcastReceiver");
+		            // Get the BluetoothDevice object from the Intent
+		            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		            setGoodMessage();
+		        }
+		    }
+		};
+		
+		Log.d(TAG, "Start BroadhcastReceiver");
+		// Register the BroadcastReceiver
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(mBroadcastReceiver, filter); // Don't forget to unregister during onDestroy
+
+//    	new Thread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				
+//			}
+//    		
+//    	}).start();
+    }
+
 }
