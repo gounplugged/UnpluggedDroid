@@ -20,22 +20,30 @@ import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+	// Debug
 	private final String TAG = "MainActivity";
 	
+	// Constants
+	private static boolean IS_SERVER = true;
+	private static int REQUEST_ENABLE_BT = 1;
+	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
+	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
+	private final String serviceName = "Unplugged";
+    private final UUID uuid = UUID.nameUUIDFromBytes(serviceName.getBytes());
+	
+	// GUI
 	private TextView lastPost;
 	private Button submitButton;
 	private EditText newPostText; 
+	
+	// Bluetooth SDK
 	private BluetoothAdapter mBluetoothAdapter;
 	private BroadcastReceiver mBroadcastReceiver;
 	
-	private static int REQUEST_ENABLE_BT = 1;
-	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
-	
-	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
-	
-	private final String uUUID = "UnpluggedUUID";
-    private final UUID uuid = UUID.nameUUIDFromBytes(uUUID.getBytes());
-	
+	// Unplugged Objects
+	private UnpluggedBluetoothClient unpluggedBluetoothClient;
+	private UnpluggedBluetoothServer unpluggedBluetoothServer;
+		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	Log.d(TAG, "onCreate");
@@ -50,6 +58,12 @@ public class MainActivity extends ActionBarActivity {
         	setErrorMessage();
         }
     }
+    
+   @Override
+   protected void onStop() {
+	   unpluggedBluetoothClient.cancel();
+	   unpluggedBluetoothServer.cancel();	   
+   }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -107,7 +121,7 @@ public class MainActivity extends ActionBarActivity {
     }
     
     private void requestBluetoothAndStart() {
-    	if (!mBluetoothAdapter.isEnabled()) {
+    	if (!mBluetoothAdapter.isEnabled()) { //sets mBluetoothAdapter
     	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
     	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
     	} else {
@@ -117,28 +131,41 @@ public class MainActivity extends ActionBarActivity {
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
     	Log.d(TAG, "onActivityResult, requestCode: " + requestCode + ", resultCode: " + resultCode);
-    	if (requestCode == REQUEST_ENABLE_BT) {
+    	if (requestCode == REQUEST_ENABLE_BT)  { // Response to Enable Bluetooth
     		if (resultCode == RESULT_OK){
         		startApplication();
     		} else {
     			setErrorMessage();
     		}
-    	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) {
+    	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
     		if(resultCode == DISCOVERABLE_PERIOD){
-        		// start server prob
+        		unpluggedBluetoothServer = new UnpluggedBluetoothServer(mBluetoothAdapter, serviceName, uuid);
+            	new Thread(unpluggedBluetoothServer).start();
     		} else if (resultCode == RESULT_CANCELED){
     			setErrorMessage();
     		}
     	}
     }
     
-    private void startMesh(){
+    private void startMesh() {
     	Log.d(TAG, "startMesh");
+
+		if (IS_SERVER){
+			startServerDiscovery();
+		} else {
+			startClientDiscovery();
+		}
+    }
+    
+    private void startServerDiscovery() {
+    	Log.d(TAG, "startServerDiscovery");
     	Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_PERIOD);
 		startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE);
-		
-		Log.d(TAG, "Create BroadcastReceiver");
+    }
+    
+    private void startClientDiscovery() {
+		Log.d(TAG, "startClientDiscovery");
 		// Create a BroadcastReceiver for ACTION_FOUND
 		mBroadcastReceiver = new BroadcastReceiver() {
 		    public void onReceive(Context context, Intent intent) {
@@ -148,8 +175,10 @@ public class MainActivity extends ActionBarActivity {
 		        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 		        	Log.d(TAG, "ACTION_FOUND BroadcastReceiver");
 		            // Get the BluetoothDevice object from the Intent
-		            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		            BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 		            setGoodMessage();
+		        	unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid);
+		        	new Thread(unpluggedBluetoothClient).start();
 		        }
 		    }
 		};
@@ -158,15 +187,7 @@ public class MainActivity extends ActionBarActivity {
 		// Register the BroadcastReceiver
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(mBroadcastReceiver, filter); // Don't forget to unregister during onDestroy
-
-//    	new Thread(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				
-//			}
-//    		
-//    	}).start();
+		
+		mBluetoothAdapter.startDiscovery();
     }
-
 }

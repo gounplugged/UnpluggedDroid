@@ -1,88 +1,68 @@
 package co.gounplugged.unpluggeddroid;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
+import android.util.Log;
 
-public class UnpluggedBluetoothClient extends Thread {
-//    private final BluetoothSocket mBluetoothSocket;
-//    private final BluetoothDevice mBluetoothDevice;
-//	private BluetoothAdapter mBluetoothAdapter;
-////	
-//	public UnpluggedBluetoothClient(BluetoothAdapter mBluetoothAdapter) {
-//		
-//	}
-}
-	/*
-	// Create a BroadcastReceiver for ACTION_FOUND
-	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-	    public void onReceive(Context context, Intent intent) {
-	        String action = intent.getAction();
-	        // When discovery finds a device
-	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-	            // Get the BluetoothDevice object from the Intent
-	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-	            // Add the name and address to an array adapter to show in a ListView
-	            mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-	        }
-	    }
-	};
-	// Register the BroadcastReceiver
-	IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-	registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
-}
-
-private class ConnectThread extends Thread {
-    private final BluetoothSocket mmSocket;
-    private final BluetoothDevice mmDevice;
- 
-    public ConnectThread(BluetoothDevice device) {
+public class UnpluggedBluetoothClient implements Runnable {
+	
+	// Constants
+	private String TAG = "UnpluggedBluetoothClient";
+	
+	// Bluetooth SDK
+    private final BluetoothSocket mBluetoothSocket;
+    private final BluetoothDevice mBluetoothDevice;
+	private BluetoothAdapter mBluetoothAdapter;
+	
+	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid) {
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
-        BluetoothSocket tmp = null;
-        mmDevice = device;
+        this.mBluetoothDevice = bluetoothDevice;
+        this.mBluetoothAdapter = bluetoothAdapter;
+        BluetoothSocket tBluetoothSocket = null;
  
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
             // MY_UUID is the app's UUID string, also used by the server code
-            tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+        	tBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid);
         } catch (IOException e) { }
-        mmSocket = tmp;
-    }
- 
+        mBluetoothSocket = tBluetoothSocket;
+    	Log.d(TAG, "socket set");
+	}
+	
     public void run() {
+    	Log.d(TAG, "run");
+
         // Cancel discovery because it will slow down the connection
         mBluetoothAdapter.cancelDiscovery();
  
         try {
+        	Log.d(TAG, "attempting connection");
             // Connect the device through the socket. This will block
             // until it succeeds or throws an exception
-            mmSocket.connect();
+        	mBluetoothSocket.connect();
+        	Log.d(TAG, "connection accepted");
+
         } catch (IOException connectException) {
             // Unable to connect; close the socket and get out
             try {
-                mmSocket.close();
+            	mBluetoothSocket.close();
             } catch (IOException closeException) { }
             return;
         }
  
         // Do work to manage the connection (in a separate thread)
-        manageConnectedSocket(mmSocket);
+//        manageConnectedSocket(mBluetoothSocket);
     }
  
 
     public void cancel() {
         try {
-            mmSocket.close();
+        	mBluetoothSocket.close();
         } catch (IOException e) { }
     }
 }
-    /** Will cancel an in-progress connection, and close the socket */
