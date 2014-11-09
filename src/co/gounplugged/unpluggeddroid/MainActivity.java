@@ -13,9 +13,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -64,6 +66,7 @@ public class MainActivity extends ActionBarActivity {
                 
         submitButton = (Button) findViewById(R.id.submit_button);
         newPostText = (EditText) findViewById(R.id.new_post_text);
+        newPostText.setOnEditorActionListener(mWriteListener);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         
         mChatArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
@@ -135,13 +138,7 @@ public class MainActivity extends ActionBarActivity {
     private void startApplication() {
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	String str = newPostText.getText().toString();        	
-        		if (unpluggedBluetoothServer != null){
-        			unpluggedBluetoothServer.chat(str);
-        		} else if (unpluggedBluetoothClient != null){
-        			unpluggedBluetoothClient.chat(str);
-        		}
-        		newPostText.setText("");
+            	sendMessage();
             }
         });
         
@@ -223,6 +220,29 @@ public class MainActivity extends ActionBarActivity {
 	    	unpluggedBluetoothClient.start();
 	        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
     	}
+    }
+    
+    // The action listener for the EditText widget, to listen for the return key
+    private TextView.OnEditorActionListener mWriteListener =
+	    new TextView.OnEditorActionListener() {
+		    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+			    // If the action is a key-up event on the return key, send the message
+			    if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
+				    String message = view.getText().toString();
+				    sendMessage();
+			    }
+			    return true;
+		    }
+    	};
+    	
+    private void sendMessage() {
+    	String str = newPostText.getText().toString();        	
+		if (unpluggedBluetoothServer != null){
+			unpluggedBluetoothServer.chat(str);
+		} else if (unpluggedBluetoothClient != null){
+			unpluggedBluetoothClient.chat(str);
+		}
+		newPostText.setText("");
     }
 
 }
