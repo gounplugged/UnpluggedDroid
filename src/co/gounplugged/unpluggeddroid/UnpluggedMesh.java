@@ -4,10 +4,6 @@ import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
 
@@ -15,32 +11,26 @@ public class UnpluggedMesh {
 	private static final String TAG = "UnpluggedMesh";
 	
 	// Constants
-	private final boolean IS_SERVER;
+	private final boolean isServer;
 	private final String serviceName;
     private final UUID uuid;
-    
-    public final static int STATE_NONE = 0;
-    public final static int STATE_RUNNING = 1;
-    private int state;
     
     // GUI
     // The Handler that gets information back from the ConnectedThread
     private Handler mHandler;
-	
 	private BluetoothAdapter mBluetoothAdapter;
-	private BroadcastReceiver mBroadcastReceiver;
-	
 	private UnpluggedBluetoothClient unpluggedBluetoothClient;
 	private UnpluggedBluetoothServer unpluggedBluetoothServer;
+	private ChatActivity parentActivity;
 	
-	public UnpluggedMesh(boolean isServer, String serviceName_, UUID uuid_) {
+	public UnpluggedMesh(boolean isServer_, String serviceName_, UUID uuid_, ChatActivity activity) {
 		 this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		 this.IS_SERVER = isServer;
+		 this.isServer = isServer_;
 		 this.serviceName = serviceName_;
 		 this.uuid = uuid_;
-		 state = STATE_NONE;
+		 this.parentActivity = activity;
 	}
-	
+		
 	public boolean isBluetoothSupported() {
 		return !(mBluetoothAdapter == null);
 	}
@@ -53,12 +43,15 @@ public class UnpluggedMesh {
     	Log.d(TAG, "start()");
     	stop();
     	
-		if (IS_SERVER){
+		if (isServer) {
+			parentActivity.startBroadcast();
 			startAccepting();
+		} else {
+			startDiscovery();
 		}
 	}
 	
-	public void startAccepting() {
+	public synchronized void startAccepting() {
 		if (unpluggedBluetoothServer == null) unpluggedBluetoothServer = new UnpluggedBluetoothServer(mBluetoothAdapter, serviceName, uuid, mHandler);
 		unpluggedBluetoothServer.accept();
 	}
@@ -67,8 +60,28 @@ public class UnpluggedMesh {
 		this.mHandler = handler;
 	}
 	
-	public int getState() {
-		return this.state;
+	public synchronized void connectClient(BluetoothDevice bluetoothDevice) {
+		if(unpluggedBluetoothClient == null) unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
+//		if (unpluggedBluetoothClient.state == UnpluggedNode.DISCONNECTED) 
+			unpluggedBluetoothClient.connect();
+        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
+	}
+	
+	public boolean isDiscovering() {
+		return mBluetoothAdapter.isDiscovering();
+	}
+	
+	public void stopDiscovery() {
+		Log.d(TAG, "stopDiscovery"); 
+		if (isDiscovering()) {
+			mBluetoothAdapter.cancelDiscovery();
+    	}
+	}
+	
+	public synchronized void startDiscovery() {
+		stopDiscovery();
+		Log.d(TAG, "startDiscovery"); 
+		mBluetoothAdapter.startDiscovery();
 	}
 	
 	public void stop() {
@@ -86,20 +99,15 @@ public class UnpluggedMesh {
     	unpluggedBluetoothServer = null;
     }
     
-    private void connectClient(BluetoothDevice bluetoothDevice) {
-    	if(bluetoothDevice.getName().equals("motop")){
-    		if(unpluggedBluetoothClient == null) unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
-    		if (unpluggedBluetoothClient.state == UnpluggedNode.DISCONNECTED) unpluggedBluetoothClient.connect();
-	        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
-    	}
-    }
-   
-    
     public void sendMessage(String str) {
 		if (unpluggedBluetoothServer != null){
 			unpluggedBluetoothServer.chat(str);
 		} else if (unpluggedBluetoothClient != null){
 			unpluggedBluetoothClient.chat(str);
 		}
+    }
+    
+    public boolean isServer() {
+    	return isServer;
     }
 }

@@ -3,8 +3,11 @@ package co.gounplugged.unpluggeddroid;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -40,7 +43,7 @@ public class ChatActivity extends ActionBarActivity {
 	private ListView mChatView;
 	
 	// Bluetooth SDK
-	private BroadcastReceiver mBroadcastReceiver;
+	private BroadcastReceiver mDiscoveryBroadcastReceiver;
 	
 	// Unplugged
 	private UnpluggedMesh unpluggedMesh;
@@ -51,7 +54,7 @@ public class ChatActivity extends ActionBarActivity {
         
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_chat);       
-        unpluggedMesh = new UnpluggedMesh(true, "Unplugged", UUID.nameUUIDFromBytes("Unplugged".getBytes()));
+        unpluggedMesh = new UnpluggedMesh(false, "Unplugged", UUID.nameUUIDFromBytes("Unplugged".getBytes()), this);
         
         if (!unpluggedMesh.isBluetoothSupported()) {
 			 Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
@@ -72,9 +75,9 @@ public class ChatActivity extends ActionBarActivity {
     }
     
     @Override
-    protected void onResume() {
+    protected synchronized void onResume() {
     	super.onResume();
-    	if(unpluggedMesh.getState() == UnpluggedMesh.STATE_NONE) unpluggedMesh.start();
+//    	unpluggedMesh.start();
     }
     
    @Override
@@ -98,6 +101,8 @@ public class ChatActivity extends ActionBarActivity {
     protected void onDestroy() {
     	super.onDestroy();
     	unpluggedMesh.stop();
+    	// Unregister broadcast listeners
+    	if(mDiscoveryBroadcastReceiver != null) this.unregisterReceiver(mDiscoveryBroadcastReceiver);
     }
     
     private void sendMessage() {
@@ -105,6 +110,66 @@ public class ChatActivity extends ActionBarActivity {
     	unpluggedMesh.sendMessage(str);
 		newPostText.setText("");
     }
+    
+    public void startBroadcast() {
+    	Log.d(TAG, "startBroadcast");
+    	stopDiscovery();
+		Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_PERIOD);
+		startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE);
+    }
+    
+    public void startDiscovery() {
+    	unpluggedMesh.startDiscovery();
+    }
+    
+    private void stopDiscovery() {
+    	unpluggedMesh.stopDiscovery();
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    	Log.d(TAG, "onActivityResult, requestCode: " + requestCode + ", resultCode: " + resultCode);
+    	if (requestCode == REQUEST_ENABLE_BT)  { // Response to Enable Bluetooth
+    		if (resultCode == RESULT_OK){
+        		loadGui();
+    		} else {
+    			 Log.d(TAG, "BT not enabled");
+//    			 Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+    			 finish();
+    		}
+    	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
+    		if(resultCode == DISCOVERABLE_PERIOD) {
+    			
+    		} else if (resultCode == RESULT_CANCELED){
+    		}
+    	}
+    }
+    
+    public BroadcastReceiver newDiscoveryBroadcastReceiver() {
+    	return new BroadcastReceiver() {
+    		 
+    		@Override
+    		 public void onReceive(Context context, Intent intent) {
+	    		 String action = intent.getAction();
+	    		 // When discovery finds a device
+	    		 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+	    		 // Get the BluetoothDevice object from the Intent
+	    		 BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	    		 // If it's already paired, skip it, because it's been listed already
+	    		 if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
+			    	if(bluetoothDevice.getName().equals("motop")){
+			    		Log.d(TAG, "Try the connect");
+			    		unpluggedMesh.connectClient(bluetoothDevice);
+    			    }
+	    		 }
+	    		 // When discovery is finished, change the Activity title
+	    		 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+	    			 // could restart discovery
+	    		 }
+    		 }
+    	};
+    }
+    
     
     /*
      * 
@@ -150,10 +215,23 @@ public class ChatActivity extends ActionBarActivity {
 	        mChatView.setAdapter(mChatArrayAdapter);
 	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, connectionStatus));
 	        
+	        // Discovered broadcast receiver
+	        if(!unpluggedMesh.isServer()) {
+	        	mDiscoveryBroadcastReceiver = newDiscoveryBroadcastReceiver();
+	        	// Register for broadcasts when a device is discovered
+	        	IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+	        	this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
+	        	
+	        	// Register for broadcasts when discovery has finished
+	        	filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+	        	this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
+	        }
+	        
 	        guiLoaded = true;
     	}
     }
-    
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -161,70 +239,3 @@ public class ChatActivity extends ActionBarActivity {
         return true;
     }
 }
-
-/*
-private void startClientDiscovery() {
-	Log.d(TAG, "startClientDiscovery");
-	// Create a BroadcastReceiver for ACTION_FOUND
-	mBroadcastReceiver = new BroadcastReceiver() {
-	    public void onReceive(Context context, Intent intent) {
-	    	Log.d(TAG, "onReceive BroadcastReceiver");
-	        String action = intent.getAction();
-	        // When discovery finds a device
-	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-	        	Log.d(TAG, "ACTION_FOUND BroadcastReceiver");
-	            // Get the BluetoothDevice object from the Intent
-	            BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//	            	setGoodMessage();
-//	            bluetoothDevice.fetchUuidsWithSdp();
-	            if(bluetoothDevice == null) {
-	            	Log.d(TAG, "null device");
-	            } else {
-	            	connectClient(bluetoothDevice);
-	            }
-	            
-	        }
-	    }
-	};
-	
-	Log.d(TAG, "Start BroadhcastReceiver");
-	// Register the BroadcastReceiver
-	IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-	registerReceiver(mBroadcastReceiver, filter); // Don't forget to unregister during onDestroy
-	
-	mBluetoothAdapter.startDiscovery();
-}
-    private void startServerDiscovery() {
-    	Log.d(TAG, "startServerDiscovery");
-    	Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_PERIOD);
-		startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE);
-    }
-    
-
-    private void connectClient(BluetoothDevice bluetoothDevice) {
-    	if(bluetoothDevice.getName().equals("motop")){
-    		if(unpluggedBluetoothClient == null) unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
-    		if (unpluggedBluetoothClient.state == UnpluggedNode.DISCONNECTED) unpluggedBluetoothClient.scan();
-	        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
-    	}
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-    	Log.d(TAG, "onActivityResult, requestCode: " + requestCode + ", resultCode: " + resultCode);
-    	if (requestCode == REQUEST_ENABLE_BT)  { // Response to Enable Bluetooth
-    		if (resultCode == RESULT_OK){
-        		loadGui();
-    		} else {
-    			 Log.d(TAG, "BT not enabled");
-//    			 Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-    			 finish();
-    		}
-    	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
-    		if(resultCode == DISCOVERABLE_PERIOD) {
-    			unpluggedMesh.startBroadcast();
-    		} else if (resultCode == RESULT_CANCELED){
-    		}
-    	}
-    }
-*/

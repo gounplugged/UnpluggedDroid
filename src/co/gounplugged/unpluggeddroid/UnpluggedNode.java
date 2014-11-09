@@ -13,7 +13,6 @@ public class UnpluggedNode extends Thread {
 	public static final int DISCONNECTED = 0;
 	public static final int CONNECTED = 1;
 	public static final int ACCEPTING = 2;
-	public static final int BROADCASTING = 3;
 	public static final int CONNECTING = 3;
 	protected int state;
 	
@@ -38,11 +37,11 @@ public class UnpluggedNode extends Thread {
     	}
     }
     
-    public int getConnectionState() {
+    public synchronized int getConnectionState() {
     	return this.state;
     }
     
-    protected void setState(int state_) {
+    protected synchronized void setState(int state_) {
     	Log.d(TAG, "setState() " + state + " -> " + state_);
     	this.state = state_;
     	// Give the new state to the Handler so the UI Activity can update

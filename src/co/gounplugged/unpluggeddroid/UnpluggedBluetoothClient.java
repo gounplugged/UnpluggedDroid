@@ -6,10 +6,6 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
 
@@ -22,8 +18,8 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
     private final BluetoothSocket mBluetoothSocket;
     private final BluetoothDevice mBluetoothDevice;
 	
-	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
-		super(handler, bluetoothAdapter, uuid);
+	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid_, Handler handler) {
+		super(handler, bluetoothAdapter, uuid_);
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
         this.mBluetoothDevice = bluetoothDevice;
@@ -33,7 +29,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
             // MY_UUID is the app's UUID string, also used by the server code
-        	tBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+        	tBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid_);
         } catch (IOException e) { }
         mBluetoothSocket = tBluetoothSocket;
 
@@ -55,10 +51,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
 	        	Log.d(TAG, "connection accepted");
 	        	connectedThread = new UnpluggedConnectedThread(mBluetoothSocket, this);
 	        	connectedThread.start();
-	        	state = CONNECTED;
-	        	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
-	//        	Connected
-        	
+	        	setState(CONNECTED);       	
 	        } catch (IOException connectException) {
 	        	Log.d(TAG, "connection failed");
 	            cancel();
@@ -74,14 +67,12 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
         try {
         	mBluetoothSocket.close();
         	connectedThread = null;
-    		state = DISCONNECTED;
-    		mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+        	setState(DISCONNECTED);
         } catch (IOException e) { Log.e(TAG, "close() of client failed", e); }
     }
     
-    public void connect() {
-    	state = CONNECTING;
-    	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+    public synchronized void connect() {
+    	setState(CONNECTING);
     	start();
     }
     

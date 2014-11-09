@@ -18,9 +18,9 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	// Bluetooth SDK
 	private final BluetoothServerSocket mBluetoothServerSocket;
 		
-	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid, Handler handler) {
+	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName_, UUID uuid, Handler handler) {
 		super(handler, bluetoothAdapter, uuid);
-		this.serviceName = serviceName;
+		this.serviceName = serviceName_;
 		
         // Use a temporary object that is later assigned to mBluetoothServerSocket,
         // because mBluetoothServerSocket is final
@@ -47,16 +47,17 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	        // If a connection was accepted
 	        if (bluetoothSocket != null) {
 	        	if (state != ACCEPTING){
+	        		Log.d(TAG, "rejecting");
 	        		try {
 						bluetoothSocket.close();
 					} catch (IOException e) {
 						Log.e(TAG, "Could not close unwanted socket", e);
 					}
 	        	} else {
+	        		Log.d(TAG, "connection really accepted");
 	        		connectedThread = new UnpluggedConnectedThread(bluetoothSocket, this);
 		        	connectedThread.start();
-		        	state = CONNECTED;
-		        	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+		        	setState(CONNECTED);
 	        	}
 	        }
 	    }
@@ -68,8 +69,7 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
         try {
         	mBluetoothServerSocket.close();
         	connectedThread = null;
-    		state = DISCONNECTED;
-    		mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+        	setState(DISCONNECTED);
         } catch (IOException e) { Log.e(TAG, "close() of server failed", e); }
     }
     
