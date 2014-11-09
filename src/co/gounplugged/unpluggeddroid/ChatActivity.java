@@ -25,9 +25,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class ChatActivity extends ActionBarActivity {
 	// Debug
-	private final String TAG = "MainActivity";
+	private final String TAG = "ChatActivity";
 	
 	// Constants
 	private static boolean IS_SERVER = false;
@@ -36,17 +36,13 @@ public class MainActivity extends ActionBarActivity {
 	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
 	private final String serviceName = "Unplugged";
     private final UUID uuid = UUID.nameUUIDFromBytes(serviceName.getBytes());
-    
-    // Message types sent from the BluetoothChatService Handler
-    public static final int MESSAGE_READ = 1;
-    public static final int MESSAGE_WRITE = 2;
 	
 	// GUI
 	private Button submitButton;
 	private EditText newPostText; 
 	private ArrayAdapter<String> mChatArrayAdapter;
 	private ListView mChatView;
-	// The Handler that gets information back from the BluetoothChatService
+	// The Handler that gets information back from the ConnectedThread
     private Handler mHandler;
 	
 	// Bluetooth SDK
@@ -56,48 +52,66 @@ public class MainActivity extends ActionBarActivity {
 	// Unplugged Objects
 	private UnpluggedBluetoothClient unpluggedBluetoothClient;
 	private UnpluggedBluetoothServer unpluggedBluetoothServer;
-	
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    	Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-                
-        submitButton = (Button) findViewById(R.id.submit_button);
-        newPostText = (EditText) findViewById(R.id.new_post_text);
-        newPostText.setOnEditorActionListener(mWriteListener);
+        
+        Log.d(TAG, "onCreate");
+        setContentView(R.layout.activity_chat);       
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         
+        if (isBluetoothSupported()) {
+        	if (!mBluetoothAdapter.isEnabled()) { //sets mBluetoothAdapter
+        	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        	} else {
+        		startApplication();
+        	}
+        } else {
+    		//show fail screen
+    	}
+    }
+     
+    /*
+     * 
+     */
+    private void startApplication() {
+    	loadGui();
+        startMesh();
+    }
+    
+    /*
+     * 
+     */
+    public void loadGui() {
+    	Log.d(TAG, "loadGui");
+    	
+    	// Submit Button
+    	submitButton = (Button) findViewById(R.id.submit_button);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	sendMessage();
+            }
+        });
+    	
+        // Enter pressed submission
+    	newPostText = (EditText) findViewById(R.id.new_post_text);
+        newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+			    // If the action is a key-up event on the return key, send the message
+			    if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
+				    sendMessage();
+			    }
+			    return true;
+		    }
+    	});
+        
+        // Chat log
         mChatArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
         mChatView = (ListView) findViewById(R.id.chats);
         mChatView.setAdapter(mChatArrayAdapter);
-        mHandler = new Handler() {
-    	    @Override
-    	    public void handleMessage(Message msg) {
-    		    switch (msg.what) {
-    			    case MESSAGE_WRITE:
-    			    byte[] writeBuf = (byte[]) msg.obj;
-    			    // construct a string from the buffer
-    			    String writeMessage = new String(writeBuf);
-    			    mChatArrayAdapter.add("Me: " + writeMessage);
-    			    break;
-    			    
-    			    case MESSAGE_READ:
-    			    byte[] readBuf = (byte[]) msg.obj;
-    			    // construct a string from the valid bytes in the buffer
-    			    String readMessage = new String(readBuf, 0, msg.arg1);
-    			    mChatArrayAdapter.add("SOMEONE: " + readMessage);
-    			    break;
-    		    }
-    	    }
-        };
-
-        if (isBluetoothSupported()) {
-        	requestBluetoothAndStart();
-        } else {
-
-        }
+        mHandler = new UnpluggedMessageHandler(mChatArrayAdapter);
     }
     
    @Override
@@ -134,26 +148,11 @@ public class MainActivity extends ActionBarActivity {
     private boolean isBluetoothSupported() {
         return !(mBluetoothAdapter == null);
     }
-    
-    private void startApplication() {
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	sendMessage();
-            }
-        });
         
-        startMesh();
-    }
-    
-    private void requestBluetoothAndStart() {
-    	if (!mBluetoothAdapter.isEnabled()) { //sets mBluetoothAdapter
-    	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-    	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    	} else {
-    		startApplication();
-    	}
-    }
-    
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int, android.content.Intent)
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
     	Log.d(TAG, "onActivityResult, requestCode: " + requestCode + ", resultCode: " + resultCode);
     	if (requestCode == REQUEST_ENABLE_BT)  { // Response to Enable Bluetooth
@@ -222,18 +221,7 @@ public class MainActivity extends ActionBarActivity {
     	}
     }
     
-    // The action listener for the EditText widget, to listen for the return key
-    private TextView.OnEditorActionListener mWriteListener =
-	    new TextView.OnEditorActionListener() {
-		    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-			    // If the action is a key-up event on the return key, send the message
-			    if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-				    String message = view.getText().toString();
-				    sendMessage();
-			    }
-			    return true;
-		    }
-    	};
+
     	
     private void sendMessage() {
     	String str = newPostText.getText().toString();        	

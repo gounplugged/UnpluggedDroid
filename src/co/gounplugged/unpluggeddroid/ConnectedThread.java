@@ -53,7 +53,7 @@ public class ConnectedThread extends Thread {
                 // Send the obtained bytes to the UI activity
 //                mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
 //                        .sendToTarget();
-            	mHandler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1, buffer)
+            	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer)
             	.sendToTarget();
                 String str = new String(buffer, "UTF-8");
             	Log.d(TAG, "reveived chat" + str);
@@ -69,7 +69,7 @@ public class ConnectedThread extends Thread {
         try {
         	mOutputStream.write(bytes);
         	// Share the sent message back to the UI Activity
-        	mHandler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
+        	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
         	Log.d(TAG, "chat wrote");
         } catch (IOException e) { }
     }
