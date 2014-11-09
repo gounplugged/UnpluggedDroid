@@ -9,31 +9,18 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
-public class UnpluggedBluetoothServer extends Thread {
-	
-	// State
-	public static final int DISCONNECTED = 0;
-	public static final int CONNECTED = 1;
-	private int state;
+public class UnpluggedBluetoothServer extends UnpluggedNode {
 	
 	// Constants
 	private String TAG = "UnpluggedBluetoothServer";
 	private String serviceName;
-	private UUID uuid;
 	
 	// Bluetooth SDK
-	private BluetoothAdapter mBluetoothAdapter;
 	private final BluetoothServerSocket mBluetoothServerSocket;
-	
-	// Unplugged Objects
-	ConnectedThread connectedThread;
-	private final Handler mHandler;
-	
+		
 	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid, Handler handler) {
-		this.mBluetoothAdapter = bluetoothAdapter;
+		super(handler, bluetoothAdapter, uuid);
 		this.serviceName = serviceName;
-		this.uuid = uuid;
-		state = DISCONNECTED;
 		
         // Use a temporary object that is later assigned to mBluetoothServerSocket,
         // because mBluetoothServerSocket is final
@@ -44,7 +31,6 @@ public class UnpluggedBluetoothServer extends Thread {
         	Log.d(TAG, "listenUsingInsecureRfcommWithServiceRecord");
         } catch (IOException e) {  Log.e(TAG, "listen() failed", e); }
         mBluetoothServerSocket = tBluetoothServerSocket;
-        mHandler = handler;
 	}
 	
 	public void run() {
@@ -60,16 +46,17 @@ public class UnpluggedBluetoothServer extends Thread {
 	        }
 	        // If a connection was accepted
 	        if (bluetoothSocket != null) {
-	        	if (state == CONNECTED){
+	        	if (state != ACCEPTING){
 	        		try {
 						bluetoothSocket.close();
 					} catch (IOException e) {
 						Log.e(TAG, "Could not close unwanted socket", e);
 					}
 	        	} else {
-	        		connectedThread = new ConnectedThread(bluetoothSocket, mHandler);
+	        		connectedThread = new UnpluggedConnectedThread(bluetoothSocket, this);
 		        	connectedThread.start();
 		        	state = CONNECTED;
+		        	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
 	        	}
 	        }
 	    }
@@ -80,15 +67,17 @@ public class UnpluggedBluetoothServer extends Thread {
     public void cancel() {
         try {
         	mBluetoothServerSocket.close();
+        	connectedThread = null;
     		state = DISCONNECTED;
+    		mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
         } catch (IOException e) { Log.e(TAG, "close() of server failed", e); }
     }
     
-    public void chat(String str) {
-    	Log.d(TAG, "writing chat");
-    	if (state == CONNECTED) {
-    		Log.d(TAG, "writing chat cuz connected");
-    		connectedThread.write(str.getBytes());		
+    public void accept() {
+    	if(state == DISCONNECTED) {
+	    	state = ACCEPTING;
+	    	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+	    	start();
     	}
     }
 }

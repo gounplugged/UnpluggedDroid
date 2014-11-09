@@ -6,35 +6,29 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
 
-public class UnpluggedBluetoothClient extends Thread {
-	
-	// State
-	public static final int DISCONNECTED = 0;
-	public static final int CONNECTED = 1;
-	private int state;
+public class UnpluggedBluetoothClient extends UnpluggedNode {
 	
 	// Constants
 	private String TAG = "UnpluggedBluetoothClient";
-	
+
 	// Bluetooth SDK
     private final BluetoothSocket mBluetoothSocket;
     private final BluetoothDevice mBluetoothDevice;
-	private BluetoothAdapter mBluetoothAdapter;
-	
-	// Unplugged Objects
-	ConnectedThread connectedThread;
-	private final Handler mHandler;
 	
 	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
+		super(handler, bluetoothAdapter, uuid);
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
         this.mBluetoothDevice = bluetoothDevice;
-        this.mBluetoothAdapter = bluetoothAdapter;
+   
         BluetoothSocket tBluetoothSocket = null;
-		state = DISCONNECTED;
  
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
@@ -42,7 +36,7 @@ public class UnpluggedBluetoothClient extends Thread {
         	tBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid);
         } catch (IOException e) { }
         mBluetoothSocket = tBluetoothSocket;
-        mHandler = handler;
+
     	Log.d(TAG, "socket set");
 	}
 	
@@ -52,37 +46,44 @@ public class UnpluggedBluetoothClient extends Thread {
         // Cancel discovery because it will slow down the connection
         mBluetoothAdapter.cancelDiscovery();
  
-        try {
-        	Log.d(TAG, "attempting connection w " + mBluetoothDevice.getName());
-            // Connect the device through the socket. This will block
-            // until it succeeds or throws an exception
-        	mBluetoothSocket.connect();
-        	Log.d(TAG, "connection accepted");
-        	connectedThread = new ConnectedThread(mBluetoothSocket, mHandler);
-        	connectedThread.start();
-        	state = CONNECTED;
-//        	Connected
-
-        } catch (IOException connectException) {
-        	Log.d(TAG, "connection failed");
-            cancel();
+        if(state == CONNECTING) {
+        	try {
+	        	Log.d(TAG, "attempting connection w " + mBluetoothDevice.getName());
+	            // Connect the device through the socket. This will block
+	            // until it succeeds or throws an exception
+	        	mBluetoothSocket.connect();
+	        	Log.d(TAG, "connection accepted");
+	        	connectedThread = new UnpluggedConnectedThread(mBluetoothSocket, this);
+	        	connectedThread.start();
+	        	state = CONNECTED;
+	        	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+	//        	Connected
+        	
+	        } catch (IOException connectException) {
+	        	Log.d(TAG, "connection failed");
+	            cancel();
+	        }
         }
  
         // Do work to manage the connection (in a separate thread)
 //        manageConnectedSocket(mBluetoothSocket);
     }
-    
-    public void chat(String str) {
-    	if (state == CONNECTED) {
-    		connectedThread.write(str.getBytes());		
-    	}
-    }
- 
+
 
     public void cancel() {
         try {
         	mBluetoothSocket.close();
+        	connectedThread = null;
     		state = DISCONNECTED;
+    		mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
         } catch (IOException e) { Log.e(TAG, "close() of client failed", e); }
     }
+    
+    public void connect() {
+    	state = CONNECTING;
+    	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+    	start();
+    }
+    
+
 }

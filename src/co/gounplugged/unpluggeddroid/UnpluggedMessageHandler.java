@@ -2,36 +2,54 @@ package co.gounplugged.unpluggeddroid;
 
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Adapter;
+import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 public class UnpluggedMessageHandler extends Handler {
+	private static final String TAG = "UnpluggedMessageHandler";
+	
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_READ = 1;
     public static final int MESSAGE_WRITE = 2;
+    public static final int STATE_CHANGED = 3;
     
-    private ArrayAdapter mArrayAdapter;
+    private ArrayAdapter<String> mArrayAdapter;
+    private TextView connectionStatus;
 
-	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter) {
+	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, TextView connectionStatus_) {
     	this.mArrayAdapter = arrayAdapter;
+    	this.connectionStatus = connectionStatus_;
     }
     
 	@Override
     public void handleMessage(Message msg) {
 	    switch (msg.what) {
 		    case MESSAGE_WRITE:
-		    byte[] writeBuf = (byte[]) msg.obj;
-		    // construct a string from the buffer
-		    String writeMessage = new String(writeBuf);
-		    mArrayAdapter.add("Me: " + writeMessage);
-		    break;
+			    byte[] writeBuf = (byte[]) msg.obj;
+			    // construct a string from the buffer
+			    String writeMessage = new String(writeBuf);
+			    mArrayAdapter.add("Me: " + writeMessage);
+			    break;
 		    
 		    case MESSAGE_READ:
-		    byte[] readBuf = (byte[]) msg.obj;
-		    // construct a string from the valid bytes in the buffer
-		    String readMessage = new String(readBuf, 0, msg.arg1);
-		    mArrayAdapter.add("SOMEONE: " + readMessage);
-		    break;
+			    byte[] readBuf = (byte[]) msg.obj;
+			    // construct a string from the valid bytes in the buffer
+			    String readMessage = new String(readBuf, 0, msg.arg1);
+			    mArrayAdapter.add("SOMEONE: " + readMessage);
+			    break;
+		    
+		    case STATE_CHANGED:
+		    	 switch (msg.arg1) {
+			    	 case UnpluggedNode.DISCONNECTED:
+			    		 connectionStatus.setText("Disconnected");
+				    	 break;
+			    	 case UnpluggedNode.CONNECTED:
+			    		 connectionStatus.setText("Connected");
+				    	 break;
+		    	 }
+		    	 Log.d(TAG, msg.what + " " + msg.arg1);
+		    	 break;
 	    }
     }
 }

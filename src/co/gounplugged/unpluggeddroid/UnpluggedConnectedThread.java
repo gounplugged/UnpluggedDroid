@@ -5,28 +5,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
 import android.util.Log;
 
-public class ConnectedThread extends Thread {
+public class UnpluggedConnectedThread extends Thread {
 	
 	// Constants
-	private String TAG = "ConnectedThread";
-	
-	// State
-	public static final int DISCONNECTED = 0;
-	public static final int STREAMING = 1;
-	private int state;
+	private String TAG = "UnpluggedConnectedThread";
 	
 	// Bluetooth SDK
     private final InputStream mInputStream;
     private final OutputStream mOutputStream;
-    private final Handler mHandler;
+    private final UnpluggedNode unpluggedNode;
  
-    public ConnectedThread(BluetoothSocket bluetoothSocket, Handler handler) {
+    public UnpluggedConnectedThread(BluetoothSocket bluetoothSocket, UnpluggedNode unpluggedNode_) {
         InputStream tInputStream = null;
         OutputStream tOutputStream = null;
-        state = DISCONNECTED;
  
         // Get the input and output streams, using temp objects because
         // member streams are final
@@ -35,9 +28,9 @@ public class ConnectedThread extends Thread {
         	tOutputStream = bluetoothSocket.getOutputStream();
         } catch (IOException e) { }
  
-        mInputStream = tInputStream;
-        mOutputStream = tOutputStream;
-        mHandler = handler;
+        this.mInputStream = tInputStream;
+        this.mOutputStream = tOutputStream;
+        this.unpluggedNode = unpluggedNode_;
     }
  
     public void run() {
@@ -48,16 +41,13 @@ public class ConnectedThread extends Thread {
         while (true) {
             try {
                 // Read from the InputStream
-//                bytes = mInputStream.read(buffer);
             	bytes = mInputStream.read(buffer);
                 // Send the obtained bytes to the UI activity
-//                mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-//                        .sendToTarget();
-            	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer)
-            	.sendToTarget();
+            	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 String str = new String(buffer, "UTF-8");
             	Log.d(TAG, "reveived chat" + str);
             } catch (IOException e) {
+            	unpluggedNode.setState(UnpluggedNode.DISCONNECTED);
                 break;
             }
         }
@@ -69,8 +59,9 @@ public class ConnectedThread extends Thread {
         try {
         	mOutputStream.write(bytes);
         	// Share the sent message back to the UI Activity
-        	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
+        	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
         	Log.d(TAG, "chat wrote");
         } catch (IOException e) { }
     }
+    
 }
