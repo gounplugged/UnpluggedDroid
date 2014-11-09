@@ -24,7 +24,7 @@ public class MainActivity extends ActionBarActivity {
 	private final String TAG = "MainActivity";
 	
 	// Constants
-	private static boolean IS_SERVER = true;
+	private static boolean IS_SERVER = false;
 	private static int REQUEST_ENABLE_BT = 1;
 	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
 	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
@@ -49,10 +49,13 @@ public class MainActivity extends ActionBarActivity {
     	Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        boolean isBluetoothSupported = isBluetoothSupported();
-        
-        if (isBluetoothSupported) {
+                
+        submitButton = (Button) findViewById(R.id.submit_button);
+        lastPost = (TextView) findViewById(R.id.last_post);
+        newPostText = (EditText) findViewById(R.id.new_post_text);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (isBluetoothSupported()) {
         	requestBluetoothAndStart();
         } else {
         	setErrorMessage();
@@ -61,8 +64,14 @@ public class MainActivity extends ActionBarActivity {
     
    @Override
    protected void onStop() {
-	   unpluggedBluetoothClient.cancel();
-	   unpluggedBluetoothServer.cancel();	   
+	   super.onStop();
+	   if (unpluggedBluetoothServer != null){
+			unpluggedBluetoothServer.cancel();
+			unpluggedBluetoothServer = null;
+		} else if (unpluggedBluetoothClient != null) {
+			unpluggedBluetoothClient.cancel();
+			unpluggedBluetoothClient = null;
+		}
    }
 
     @Override
@@ -85,35 +94,32 @@ public class MainActivity extends ActionBarActivity {
     }
     
     private boolean isBluetoothSupported() {
-    	boolean isSupported = true;
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            // Device does not support Bluetooth
-        	isSupported = false;
-        }
-        return isSupported;
+        return !(mBluetoothAdapter == null);
     }
     
     private void setErrorMessage() {
-    	lastPost = (TextView) findViewById(R.id.last_post);
-    	String errorMsg = "Sorry Bluetooth is not supported on your phone";
-    	lastPost.setText(errorMsg);
+    	setText("Sorry Bluetooth is not supported on your phone");
     }
     
     private void setGoodMessage() {
-    	lastPost = (TextView) findViewById(R.id.last_post);
-    	String errorMsg = "This is good";
-    	lastPost.setText(errorMsg);
+    	setText("This is good");
+    }
+    
+    public void setText(String text) {
+    	lastPost.setText(text);
     }
     
     private void startApplication() {
-        submitButton = (Button) findViewById(R.id.submit_button);
-        lastPost = (TextView) findViewById(R.id.last_post);
-        newPostText = (EditText) findViewById(R.id.new_post_text);
-        
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	lastPost.setText(newPostText.getText());
+            	String str = newPostText.getText().toString();
+            	setText(str);
+            	
+        		if (unpluggedBluetoothServer != null){
+        			unpluggedBluetoothServer.chat(str);
+        		} else if (unpluggedBluetoothClient != null){
+        			unpluggedBluetoothClient.chat(str);
+        		}
             }
         });
         
@@ -140,7 +146,7 @@ public class MainActivity extends ActionBarActivity {
     	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
     		if(resultCode == DISCOVERABLE_PERIOD){
         		unpluggedBluetoothServer = new UnpluggedBluetoothServer(mBluetoothAdapter, serviceName, uuid);
-            	new Thread(unpluggedBluetoothServer).start();
+            	unpluggedBluetoothServer.start();
     		} else if (resultCode == RESULT_CANCELED){
     			setErrorMessage();
     		}
@@ -176,9 +182,11 @@ public class MainActivity extends ActionBarActivity {
 		        	Log.d(TAG, "ACTION_FOUND BroadcastReceiver");
 		            // Get the BluetoothDevice object from the Intent
 		            BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-		            setGoodMessage();
+//		            	setGoodMessage();
 		        	unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid);
-		        	new Thread(unpluggedBluetoothClient).start();
+		        	unpluggedBluetoothClient.start();
+		            Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
+		            
 		        }
 		    }
 		};

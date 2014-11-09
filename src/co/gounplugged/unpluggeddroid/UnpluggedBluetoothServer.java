@@ -8,7 +8,12 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-public class UnpluggedBluetoothServer implements Runnable {
+public class UnpluggedBluetoothServer extends Thread {
+	
+	// State
+	public static final int DISCONNECTED = 0;
+	public static final int CONNECTED = 1;
+	private int state;
 	
 	// Constants
 	private String TAG = "UnpluggedBluetoothServer";
@@ -19,10 +24,14 @@ public class UnpluggedBluetoothServer implements Runnable {
 	private BluetoothAdapter mBluetoothAdapter;
 	private final BluetoothServerSocket mBluetoothServerSocket;
 	
+	// Unplugged Objects
+	ConnectedThread connectedThread;
+	
 	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid_) {
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.serviceName = serviceName;
 		this.uuid = uuid_;
+		state = DISCONNECTED;
 		
         // Use a temporary object that is later assigned to mBluetoothServerSocket,
         // because mBluetoothServerSocket is final
@@ -36,19 +45,21 @@ public class UnpluggedBluetoothServer implements Runnable {
 	}
 	
 	public void run() {
-		BluetoothSocket socket = null;
+		BluetoothSocket bluetoothSocket = null;
 	    // Keep listening until exception occurs or a socket is returned
 	    while (true) {
 	        try {
 	        	Log.d(TAG, "attempting connection");
-	            socket = mBluetoothServerSocket.accept();
+	        	bluetoothSocket = mBluetoothServerSocket.accept();
 	        	Log.d(TAG, "connection accepted");
-
+	        	connectedThread = new ConnectedThread(bluetoothSocket);
+	        	connectedThread.start();
+	        	state = CONNECTED;
 	        } catch (IOException e) {
 	            break;
 	        }
 	        // If a connection was accepted
-	        if (socket != null) {
+	        if (bluetoothSocket != null) {
 	        	Log.d(TAG, "connection accepted");
 	            // Do work to manage the connection (in a separate thread)
 //	            manageConnectedSocket(socket);
@@ -62,6 +73,14 @@ public class UnpluggedBluetoothServer implements Runnable {
     public void cancel() {
         try {
         	mBluetoothServerSocket.close();
+    		state = DISCONNECTED;
         } catch (IOException e) { }
+    }
+    
+    public void chat(String str) {
+    	Log.d(TAG, "writing chat");
+    	if (state == CONNECTED) {
+    		connectedThread.write(str.getBytes());		
+    	}
     }
 }

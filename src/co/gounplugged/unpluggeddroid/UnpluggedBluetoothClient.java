@@ -8,7 +8,12 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-public class UnpluggedBluetoothClient implements Runnable {
+public class UnpluggedBluetoothClient extends Thread {
+	
+	// State
+	public static final int DISCONNECTED = 0;
+	public static final int CONNECTED = 1;
+	private int state;
 	
 	// Constants
 	private String TAG = "UnpluggedBluetoothClient";
@@ -18,12 +23,17 @@ public class UnpluggedBluetoothClient implements Runnable {
     private final BluetoothDevice mBluetoothDevice;
 	private BluetoothAdapter mBluetoothAdapter;
 	
+	// Unplugged Objects
+	ConnectedThread connectedThread;
+	
 	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid) {
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
         this.mBluetoothDevice = bluetoothDevice;
         this.mBluetoothAdapter = bluetoothAdapter;
         BluetoothSocket tBluetoothSocket = null;
+		state = DISCONNECTED;
+		
  
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
@@ -46,23 +56,30 @@ public class UnpluggedBluetoothClient implements Runnable {
             // until it succeeds or throws an exception
         	mBluetoothSocket.connect();
         	Log.d(TAG, "connection accepted");
+        	connectedThread = new ConnectedThread(mBluetoothSocket);
+        	connectedThread.start();
+        	state = CONNECTED;
+//        	Connected
 
         } catch (IOException connectException) {
-            // Unable to connect; close the socket and get out
-            try {
-            	mBluetoothSocket.close();
-            } catch (IOException closeException) { }
-            return;
+            cancel();
         }
  
         // Do work to manage the connection (in a separate thread)
 //        manageConnectedSocket(mBluetoothSocket);
+    }
+    
+    public void chat(String str) {
+    	if (state == CONNECTED) {
+    		connectedThread.write(str.getBytes());		
+    	}
     }
  
 
     public void cancel() {
         try {
         	mBluetoothSocket.close();
+    		state = DISCONNECTED;
         } catch (IOException e) { }
     }
 }
