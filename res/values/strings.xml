@@ -3,5 +3,6 @@
 
     <string name="app_name">Unplugged</string>
     <string name="action_settings">Settings</string>
+    <string name="submitButton">Send</string>
 
 </resources>

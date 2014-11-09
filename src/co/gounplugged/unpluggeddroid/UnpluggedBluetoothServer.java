@@ -6,6 +6,7 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 import android.util.Log;
 
 public class UnpluggedBluetoothServer extends Thread {
@@ -26,11 +27,12 @@ public class UnpluggedBluetoothServer extends Thread {
 	
 	// Unplugged Objects
 	ConnectedThread connectedThread;
+	private final Handler mHandler;
 	
-	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid_) {
+	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid, Handler handler) {
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.serviceName = serviceName;
-		this.uuid = uuid_;
+		this.uuid = uuid;
 		state = DISCONNECTED;
 		
         // Use a temporary object that is later assigned to mBluetoothServerSocket,
@@ -38,10 +40,11 @@ public class UnpluggedBluetoothServer extends Thread {
         BluetoothServerSocket tBluetoothServerSocket = null;
         try {
             // MY_UUID is the app's UUID string, also used by the client code
-        	tBluetoothServerSocket = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(serviceName, uuid_);
+        	tBluetoothServerSocket = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(serviceName, uuid);
         	Log.d(TAG, "listenUsingInsecureRfcommWithServiceRecord");
-        } catch (IOException e) { }
+        } catch (IOException e) {  Log.e(TAG, "listen() failed", e); }
         mBluetoothServerSocket = tBluetoothServerSocket;
+        mHandler = handler;
 	}
 	
 	public void run() {
@@ -52,7 +55,7 @@ public class UnpluggedBluetoothServer extends Thread {
 	        	Log.d(TAG, "attempting connection");
 	        	bluetoothSocket = mBluetoothServerSocket.accept();
 	        	Log.d(TAG, "connection accepted");
-	        	connectedThread = new ConnectedThread(bluetoothSocket);
+	        	connectedThread = new ConnectedThread(bluetoothSocket, mHandler);
 	        	connectedThread.start();
 	        	state = CONNECTED;
 	        } catch (IOException e) {
@@ -74,7 +77,7 @@ public class UnpluggedBluetoothServer extends Thread {
         try {
         	mBluetoothServerSocket.close();
     		state = DISCONNECTED;
-        } catch (IOException e) { }
+        } catch (IOException e) { Log.e(TAG, "close() of server failed", e); }
     }
     
     public void chat(String str) {

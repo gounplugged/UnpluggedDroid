@@ -9,13 +9,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -24,17 +28,24 @@ public class MainActivity extends ActionBarActivity {
 	private final String TAG = "MainActivity";
 	
 	// Constants
-	private static boolean IS_SERVER = false;
+	private static boolean IS_SERVER = true;
 	private static int REQUEST_ENABLE_BT = 1;
 	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
 	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
 	private final String serviceName = "Unplugged";
     private final UUID uuid = UUID.nameUUIDFromBytes(serviceName.getBytes());
+    
+    // Message types sent from the BluetoothChatService Handler
+    public static final int MESSAGE_READ = 1;
+    public static final int MESSAGE_WRITE = 2;
 	
 	// GUI
-	private TextView lastPost;
 	private Button submitButton;
 	private EditText newPostText; 
+	private ArrayAdapter<String> mChatArrayAdapter;
+	private ListView mChatView;
+	// The Handler that gets information back from the BluetoothChatService
+    private Handler mHandler;
 	
 	// Bluetooth SDK
 	private BluetoothAdapter mBluetoothAdapter;
@@ -43,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
 	// Unplugged Objects
 	private UnpluggedBluetoothClient unpluggedBluetoothClient;
 	private UnpluggedBluetoothServer unpluggedBluetoothServer;
+	
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,14 +63,37 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
                 
         submitButton = (Button) findViewById(R.id.submit_button);
-        lastPost = (TextView) findViewById(R.id.last_post);
         newPostText = (EditText) findViewById(R.id.new_post_text);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        
+        mChatArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
+        mChatView = (ListView) findViewById(R.id.chats);
+        mChatView.setAdapter(mChatArrayAdapter);
+        mHandler = new Handler() {
+    	    @Override
+    	    public void handleMessage(Message msg) {
+    		    switch (msg.what) {
+    			    case MESSAGE_WRITE:
+    			    byte[] writeBuf = (byte[]) msg.obj;
+    			    // construct a string from the buffer
+    			    String writeMessage = new String(writeBuf);
+    			    mChatArrayAdapter.add("Me: " + writeMessage);
+    			    break;
+    			    
+    			    case MESSAGE_READ:
+    			    byte[] readBuf = (byte[]) msg.obj;
+    			    // construct a string from the valid bytes in the buffer
+    			    String readMessage = new String(readBuf, 0, msg.arg1);
+    			    mChatArrayAdapter.add("SOMEONE: " + readMessage);
+    			    break;
+    		    }
+    	    }
+        };
 
         if (isBluetoothSupported()) {
         	requestBluetoothAndStart();
         } else {
-        	setErrorMessage();
+
         }
     }
     
@@ -97,29 +132,16 @@ public class MainActivity extends ActionBarActivity {
         return !(mBluetoothAdapter == null);
     }
     
-    private void setErrorMessage() {
-    	setText("Sorry Bluetooth is not supported on your phone");
-    }
-    
-    private void setGoodMessage() {
-    	setText("This is good");
-    }
-    
-    public void setText(String text) {
-    	lastPost.setText(text);
-    }
-    
     private void startApplication() {
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	String str = newPostText.getText().toString();
-            	setText(str);
-            	
+            	String str = newPostText.getText().toString();        	
         		if (unpluggedBluetoothServer != null){
         			unpluggedBluetoothServer.chat(str);
         		} else if (unpluggedBluetoothClient != null){
         			unpluggedBluetoothClient.chat(str);
         		}
+        		newPostText.setText("");
             }
         });
         
@@ -141,14 +163,12 @@ public class MainActivity extends ActionBarActivity {
     		if (resultCode == RESULT_OK){
         		startApplication();
     		} else {
-    			setErrorMessage();
     		}
     	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
     		if(resultCode == DISCOVERABLE_PERIOD){
-        		unpluggedBluetoothServer = new UnpluggedBluetoothServer(mBluetoothAdapter, serviceName, uuid);
+        		unpluggedBluetoothServer = new UnpluggedBluetoothServer(mBluetoothAdapter, serviceName, uuid, mHandler);
             	unpluggedBluetoothServer.start();
     		} else if (resultCode == RESULT_CANCELED){
-    			setErrorMessage();
     		}
     	}
     }
@@ -183,10 +203,8 @@ public class MainActivity extends ActionBarActivity {
 		            // Get the BluetoothDevice object from the Intent
 		            BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 //		            	setGoodMessage();
-		        	unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid);
-		        	unpluggedBluetoothClient.start();
-		            Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
-		            
+//		            bluetoothDevice.fetchUuidsWithSdp();
+		            connectClient(bluetoothDevice);
 		        }
 		    }
 		};
@@ -198,4 +216,11 @@ public class MainActivity extends ActionBarActivity {
 		
 		mBluetoothAdapter.startDiscovery();
     }
+    
+    private void connectClient(BluetoothDevice bluetoothDevice) {
+    	unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
+    	unpluggedBluetoothClient.start();
+        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
+    }
+
 }
