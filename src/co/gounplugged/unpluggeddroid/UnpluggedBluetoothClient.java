@@ -64,6 +64,7 @@ public class UnpluggedBluetoothClient extends Thread {
 //        	Connected
 
         } catch (IOException connectException) {
+        	Log.d(TAG, "connection failed");
             cancel();
         }
  

@@ -28,7 +28,7 @@ public class MainActivity extends ActionBarActivity {
 	private final String TAG = "MainActivity";
 	
 	// Constants
-	private static boolean IS_SERVER = true;
+	private static boolean IS_SERVER = false;
 	private static int REQUEST_ENABLE_BT = 1;
 	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
 	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
@@ -218,9 +218,11 @@ public class MainActivity extends ActionBarActivity {
     }
     
     private void connectClient(BluetoothDevice bluetoothDevice) {
-    	unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
-    	unpluggedBluetoothClient.start();
-        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
+    	if(bluetoothDevice.getName().equals("motop")){
+	    	unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
+	    	unpluggedBluetoothClient.start();
+	        Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
+    	}
     }
 
 }

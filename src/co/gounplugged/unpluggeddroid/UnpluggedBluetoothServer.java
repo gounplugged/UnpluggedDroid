@@ -55,22 +55,26 @@ public class UnpluggedBluetoothServer extends Thread {
 	        	Log.d(TAG, "attempting connection");
 	        	bluetoothSocket = mBluetoothServerSocket.accept();
 	        	Log.d(TAG, "connection accepted");
-	        	connectedThread = new ConnectedThread(bluetoothSocket, mHandler);
-	        	connectedThread.start();
-	        	state = CONNECTED;
 	        } catch (IOException e) {
 	            break;
 	        }
 	        // If a connection was accepted
 	        if (bluetoothSocket != null) {
-	        	Log.d(TAG, "connection accepted");
-	            // Do work to manage the connection (in a separate thread)
-//	            manageConnectedSocket(socket);
-	            cancel();
-	            break;
+	        	if (state == CONNECTED){
+	        		try {
+						bluetoothSocket.close();
+					} catch (IOException e) {
+						Log.e(TAG, "Could not close unwanted socket", e);
+					}
+	        	} else {
+	        		connectedThread = new ConnectedThread(bluetoothSocket, mHandler);
+		        	connectedThread.start();
+		        	state = CONNECTED;
+	        	}
 	        }
 	    }
 	}
+	
 	
     /** Will cancel the listening socket, and cause the thread to finish */
     public void cancel() {
@@ -83,6 +87,7 @@ public class UnpluggedBluetoothServer extends Thread {
     public void chat(String str) {
     	Log.d(TAG, "writing chat");
     	if (state == CONNECTED) {
+    		Log.d(TAG, "writing chat cuz connected");
     		connectedThread.write(str.getBytes());		
     	}
     }
