@@ -15,8 +15,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
 	private String TAG = "UnpluggedBluetoothClient";
 
 	// Bluetooth SDK
-    private final BluetoothSocket mBluetoothSocket;
-    private final BluetoothDevice mBluetoothDevice;
+    private BluetoothDevice mBluetoothDevice;
 	
 	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
 		super(handler, bluetoothAdapter, uuid, " client ");
@@ -64,11 +63,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
 
 
     public synchronized void cancel() {
-        try {
-        	mBluetoothSocket.close();
-        	connectedThread = null;
-        	setState(DISCONNECTED);
-        } catch (IOException e) { Log.e(TAG, "close() of client failed", e); }
+        super.cancel();
     }
     
     public void connect() {

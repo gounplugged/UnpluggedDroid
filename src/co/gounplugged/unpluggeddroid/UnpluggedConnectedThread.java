@@ -31,23 +31,25 @@ public class UnpluggedConnectedThread extends Thread {
         this.mInputStream = tInputStream;
         this.mOutputStream = tOutputStream;
         this.unpluggedNode = unpluggedNode_;
+        Log.d(TAG, "created a new");
     }
  
     public void run() {
+    	Log.d(TAG, "running chat stream");
         byte[] buffer = new byte[1024];  // buffer store for the stream
         int bytes; // bytes returned from read()
  
         // Keep listening to the InputStream until an exception occurs
         while (true) {
+        	Log.d(TAG, "new message received");
             try {
                 // Read from the InputStream
             	bytes = mInputStream.read(buffer);
                 // Send the obtained bytes to the UI activity
             	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 String str = new String(buffer, "UTF-8");
-            	Log.d(TAG, "reveived chat" + str);
+            	Log.d(TAG, "reveived chat: " + str);
             } catch (IOException e) {
-            	unpluggedNode.setState(UnpluggedNode.DISCONNECTED);
             	unpluggedNode.cancel();
                 break;
             }
@@ -63,6 +65,16 @@ public class UnpluggedConnectedThread extends Thread {
         	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
         	Log.d(TAG, "chat wrote");
         } catch (IOException e) { }
+    }
+    
+    public void cancel() {
+    	try {
+			mOutputStream.close();
+			mInputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
 }

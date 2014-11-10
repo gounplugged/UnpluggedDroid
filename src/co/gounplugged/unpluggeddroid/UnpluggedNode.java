@@ -1,12 +1,14 @@
 package co.gounplugged.unpluggeddroid;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
-public abstract class UnpluggedNode extends Thread {
+public class UnpluggedNode extends Thread {
 	private static final String TAG = "UnpluggedNode";
 	private final String note;
 	
@@ -21,6 +23,7 @@ public abstract class UnpluggedNode extends Thread {
 	protected UUID uuid;
 	protected BluetoothAdapter mBluetoothAdapter;
 	protected UnpluggedConnectedThread connectedThread;
+	protected BluetoothSocket mBluetoothSocket;
 	protected final Handler mHandler;
 	
 	public UnpluggedNode(Handler handler, BluetoothAdapter bluetoothAdapter, UUID uuid_, String note_) {
@@ -54,6 +57,20 @@ public abstract class UnpluggedNode extends Thread {
     	return this.mHandler;
     }
     
-    abstract public void cancel();
+    protected void cancel() {
+       	
+		try {
+			if (connectedThread != null) {
+				connectedThread.cancel();
+				connectedThread = null;
+			}
+			if (mBluetoothSocket != null) {
+				mBluetoothSocket.close();
+				mBluetoothSocket = null;
+			}
+			setState(DISCONNECTED);
+		} catch (IOException e) {} 		
+		
+	}
 
 }

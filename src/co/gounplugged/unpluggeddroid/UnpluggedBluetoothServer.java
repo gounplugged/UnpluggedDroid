@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
@@ -17,7 +16,6 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	
 	// Bluetooth SDK
 	private BluetoothServerSocket mBluetoothServerSocket;
-	private BluetoothSocket bluetoothSocket;
 		
 	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName_, UUID uuid, Handler handler) {
 		super(handler, bluetoothAdapter, uuid, " server ");
@@ -35,28 +33,28 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	}
 	
 	public void run() {
-		bluetoothSocket = null;
+		mBluetoothSocket = null;
 	    // Keep listening until exception occurs or a socket is returned
 	    while (true) {
 	        try {
 	        	Log.d(TAG, "attempting connection");
-	        	bluetoothSocket = mBluetoothServerSocket.accept();
+	        	mBluetoothSocket = mBluetoothServerSocket.accept();
 	        	Log.d(TAG, "connection accepted");
 	        } catch (IOException e) {
 	            break;
 	        }
 	        // If a connection was accepted
-	        if (bluetoothSocket != null) {
-	        	if (state != ACCEPTING){
+	        if (mBluetoothSocket != null) {
+	        	if (state == CONNECTED){
 	        		Log.d(TAG, "rejecting");
 	        		try {
-						bluetoothSocket.close();
+	        			mBluetoothSocket.close();
 					} catch (IOException e) {
 						Log.e(TAG, "Could not close unwanted socket", e);
 					}
 	        	} else {
 	        		Log.d(TAG, "connection really accepted");
-	        		connectedThread = new UnpluggedConnectedThread(bluetoothSocket, this);
+	        		connectedThread = new UnpluggedConnectedThread(mBluetoothSocket, this);
 		        	connectedThread.start();
 		        	setState(CONNECTED);
 	        	}
@@ -68,10 +66,11 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
     /** Will cancel the listening socket, and cause the thread to finish */
     public synchronized void cancel() {
         try {
-        	if (bluetoothSocket != null) bluetoothSocket.close();
-        	mBluetoothServerSocket.close();
-        	connectedThread = null;
-        	setState(DISCONNECTED);
+        	if (mBluetoothServerSocket != null) { 
+        		mBluetoothServerSocket.close();
+        		mBluetoothServerSocket = null;
+        	}
+        	super.cancel();   	
         } catch (IOException e) { Log.e(TAG, "close() of server failed", e); }
     }
     
