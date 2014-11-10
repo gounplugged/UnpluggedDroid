@@ -84,17 +84,17 @@ public class UnpluggedMesh {
 		mBluetoothAdapter.startDiscovery();
 	}
 	
-	public void stop() {
+	public synchronized void stop() {
     	if(unpluggedBluetoothClient != null) killUnpluggedBluetoothClient();
     	if(unpluggedBluetoothServer != null) killUnpluggedBluetoothServer();
 	}
 	
-    private void killUnpluggedBluetoothClient() {
+    private synchronized void killUnpluggedBluetoothClient() {
     	unpluggedBluetoothClient.cancel();
     	unpluggedBluetoothClient = null;
     }
     
-    private void killUnpluggedBluetoothServer() {
+    private synchronized void killUnpluggedBluetoothServer() {
     	unpluggedBluetoothServer.cancel();
     	unpluggedBluetoothServer = null;
     }

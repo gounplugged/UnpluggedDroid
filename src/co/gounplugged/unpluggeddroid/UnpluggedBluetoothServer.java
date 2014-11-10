@@ -16,7 +16,8 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	private String serviceName;
 	
 	// Bluetooth SDK
-	private final BluetoothServerSocket mBluetoothServerSocket;
+	private BluetoothServerSocket mBluetoothServerSocket;
+	private BluetoothSocket bluetoothSocket;
 		
 	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName_, UUID uuid, Handler handler) {
 		super(handler, bluetoothAdapter, uuid);
@@ -34,7 +35,7 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	}
 	
 	public void run() {
-		BluetoothSocket bluetoothSocket = null;
+		bluetoothSocket = null;
 	    // Keep listening until exception occurs or a socket is returned
 	    while (true) {
 	        try {
@@ -65,18 +66,18 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	
 	
     /** Will cancel the listening socket, and cause the thread to finish */
-    public void cancel() {
+    public synchronized void cancel() {
         try {
         	mBluetoothServerSocket.close();
+        	if (bluetoothSocket != null) bluetoothSocket.close();
         	connectedThread = null;
         	setState(DISCONNECTED);
         } catch (IOException e) { Log.e(TAG, "close() of server failed", e); }
     }
     
-    public void accept() {
+    public synchronized void accept() {
     	if(state == DISCONNECTED) {
-	    	state = ACCEPTING;
-	    	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
+    		setState(ACCEPTING);
 	    	start();
     	}
     }

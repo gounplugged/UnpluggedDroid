@@ -63,7 +63,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
     }
 
 
-    public void cancel() {
+    public synchronized void cancel() {
         try {
         	mBluetoothSocket.close();
         	connectedThread = null;
