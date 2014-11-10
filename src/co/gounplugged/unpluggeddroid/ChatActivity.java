@@ -71,13 +71,14 @@ public class ChatActivity extends ActionBarActivity {
     	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
     	} else {
     		loadGui();
+//    		unpluggedMesh.start();
     	}
     }
     
     @Override
     protected synchronized void onResume() {
     	super.onResume();
-//    	unpluggedMesh.start();
+//    	unpluggedMesh.restart();
     }
     
    @Override
@@ -110,7 +111,7 @@ public class ChatActivity extends ActionBarActivity {
     	String str = newPostText.getText().toString();   
     	unpluggedMesh.sendMessage(str);
 		newPostText.setText("");
-    }
+    } 
     
     public void startBroadcast() {
     	Log.d(TAG, "startBroadcast");
@@ -140,8 +141,9 @@ public class ChatActivity extends ActionBarActivity {
     		}
     	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
     		if(resultCode == DISCOVERABLE_PERIOD) {
-    			
+    			unpluggedMesh.setBroadcasting(true);
     		} else if (resultCode == RESULT_CANCELED){
+    			unpluggedMesh.setBroadcasting(false);
     		}
     	}
     }
