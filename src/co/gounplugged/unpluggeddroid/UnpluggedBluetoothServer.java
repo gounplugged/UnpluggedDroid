@@ -20,7 +20,7 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	private BluetoothSocket bluetoothSocket;
 		
 	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName_, UUID uuid, Handler handler) {
-		super(handler, bluetoothAdapter, uuid);
+		super(handler, bluetoothAdapter, uuid, " server ");
 		this.serviceName = serviceName_;
 		
         // Use a temporary object that is later assigned to mBluetoothServerSocket,
@@ -68,17 +68,19 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
     /** Will cancel the listening socket, and cause the thread to finish */
     public synchronized void cancel() {
         try {
-        	mBluetoothServerSocket.close();
         	if (bluetoothSocket != null) bluetoothSocket.close();
+        	mBluetoothServerSocket.close();
         	connectedThread = null;
         	setState(DISCONNECTED);
         } catch (IOException e) { Log.e(TAG, "close() of server failed", e); }
     }
     
     public synchronized void accept() {
+    	Log.d(TAG, "Accept");
     	if(state == DISCONNECTED) {
     		setState(ACCEPTING);
 	    	start();
     	}
     }
+    
 }

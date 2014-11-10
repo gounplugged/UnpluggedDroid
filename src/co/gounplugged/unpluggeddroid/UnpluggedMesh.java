@@ -11,7 +11,6 @@ public class UnpluggedMesh {
 	private static final String TAG = "UnpluggedMesh";
 	
 	// Constants
-	private final boolean isServer;
 	private final String serviceName;
     private final UUID uuid;
     
@@ -23,9 +22,8 @@ public class UnpluggedMesh {
 	private UnpluggedBluetoothServer unpluggedBluetoothServer;
 	private ChatActivity parentActivity;
 	
-	public UnpluggedMesh(boolean isServer_, String serviceName_, UUID uuid_, ChatActivity activity) {
+	public UnpluggedMesh(String serviceName_, UUID uuid_, ChatActivity activity) {
 		 this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		 this.isServer = isServer_;
 		 this.serviceName = serviceName_;
 		 this.uuid = uuid_;
 		 this.parentActivity = activity;
@@ -43,12 +41,17 @@ public class UnpluggedMesh {
     	Log.d(TAG, "start()");
     	stop();
     	
-		if (isServer) {
-			parentActivity.startBroadcast();
-			startAccepting();
-		} else {
-			startDiscovery();
-		}
+		parentActivity.startBroadcast();
+		startAccepting();
+		startDiscovery();
+
+    	
+//		if (isServer) {
+//			parentActivity.startBroadcast();
+//			startAccepting();
+//		} else {
+//			startDiscovery();
+//		}
 	}
 	
 	public synchronized void startAccepting() {
@@ -107,7 +110,14 @@ public class UnpluggedMesh {
 		}
     }
     
-    public boolean isServer() {
-    	return isServer;
+    public BluetoothDevice isBonded(BluetoothDevice bluetoothDevice) {
+    	for(BluetoothDevice device : mBluetoothAdapter.getBondedDevices()) {
+    		if((device.getName()).equals(bluetoothDevice.getName())) return device;
+    	}
+    	return null;
+    }
+    
+    public BluetoothDevice actualFromBonded(BluetoothDevice bondedBluetoothDevice) {
+    	return mBluetoothAdapter.getRemoteDevice(bondedBluetoothDevice.getAddress());
     }
 }

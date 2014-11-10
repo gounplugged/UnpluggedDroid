@@ -54,7 +54,7 @@ public class ChatActivity extends ActionBarActivity {
         
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_chat);       
-        unpluggedMesh = new UnpluggedMesh(false, "Unplugged", UUID.nameUUIDFromBytes("Unplugged".getBytes()), this);
+        unpluggedMesh = new UnpluggedMesh("Unplugged", UUID.nameUUIDFromBytes("Unplugged".getBytes()), this);
         
         if (!unpluggedMesh.isBluetoothSupported()) {
 			 Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
@@ -102,7 +102,8 @@ public class ChatActivity extends ActionBarActivity {
     	super.onDestroy();
     	unpluggedMesh.stop();
     	// Unregister broadcast listeners
-    	if(mDiscoveryBroadcastReceiver != null) this.unregisterReceiver(mDiscoveryBroadcastReceiver);
+//    	if(mDiscoveryBroadcastReceiver != null) 
+    	this.unregisterReceiver(mDiscoveryBroadcastReceiver);
     }
     
     private void sendMessage() {
@@ -149,25 +150,32 @@ public class ChatActivity extends ActionBarActivity {
     	return new BroadcastReceiver() {
     		 
     		@Override
-    		 public void onReceive(Context context, Intent intent) {
+    		 public synchronized void onReceive(Context context, Intent intent) {
 	    		 String action = intent.getAction();
 	    		 // When discovery finds a device
 	    		 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-	    		 // Get the BluetoothDevice object from the Intent
-	    		 BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-	    		 // If it's already paired, skip it, because it's been listed already
-	    		 if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
-			    	if(bluetoothDevice.getName().equals("motop")){
-			    		Log.d(TAG, "Try the connect");
-			    		unpluggedMesh.connectClient(bluetoothDevice);
-    			    }
+		    		 // Get the BluetoothDevice object from the Intent
+		    		 BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		    		 Log.d(TAG, "FOUND BROADCAST " + bluetoothDevice.getName());
+		    		 // If it's already paired, skip it, because it's been listed already
+		    		 if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
+		    			 Log.d(TAG, "bluetooth device not previously bonded");
+				    	if(bluetoothDevice.getName().equals("motop")){
+				    		Log.d(TAG, "Matches device name (motop). Establishing a connection.");
+				    		unpluggedMesh.connectClient(bluetoothDevice);
+	    			    }
+		    		 } else {
+		    			 Log.d(TAG, "bluetooth device already bonded");
+		    			 BluetoothDevice bondedBluetoothDevice = unpluggedMesh.isBonded(bluetoothDevice);
+				    	if( bondedBluetoothDevice != null) bluetoothDevice = unpluggedMesh.actualFromBonded(bondedBluetoothDevice);
+				    	unpluggedMesh.connectClient(bluetoothDevice);
+		    		 }
+		    		 // When discovery is finished, change the Activity title
+		    		 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+		    			 // could restart discovery
+		    		 }
 	    		 }
-	    		 // When discovery is finished, change the Activity title
-	    		 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-	    			 // could restart discovery
-	    		 }
-    		 }
-    	};
+	    	};
     }
     
     
@@ -216,7 +224,7 @@ public class ChatActivity extends ActionBarActivity {
 	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, connectionStatus));
 	        
 	        // Discovered broadcast receiver
-	        if(!unpluggedMesh.isServer()) {
+//	        if(!unpluggedMesh.isServer()) {
 	        	mDiscoveryBroadcastReceiver = newDiscoveryBroadcastReceiver();
 	        	// Register for broadcasts when a device is discovered
 	        	IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -225,7 +233,7 @@ public class ChatActivity extends ActionBarActivity {
 	        	// Register for broadcasts when discovery has finished
 	        	filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 	        	this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
-	        }
+//	        }
 	        
 	        guiLoaded = true;
     	}

@@ -6,8 +6,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.Handler;
 import android.util.Log;
 
-public class UnpluggedNode extends Thread {
+public abstract class UnpluggedNode extends Thread {
 	private static final String TAG = "UnpluggedNode";
+	private final String note;
 	
 	// State
 	public static final int DISCONNECTED = 0;
@@ -22,11 +23,12 @@ public class UnpluggedNode extends Thread {
 	protected UnpluggedConnectedThread connectedThread;
 	protected final Handler mHandler;
 	
-	public UnpluggedNode(Handler handler, BluetoothAdapter bluetoothAdapter, UUID uuid_) {
+	public UnpluggedNode(Handler handler, BluetoothAdapter bluetoothAdapter, UUID uuid_, String note_) {
 		this.state = DISCONNECTED;
 		this.mHandler = handler;
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.uuid = uuid_;
+		this.note = note_;
 	}
 
     public void chat(String str) {
@@ -42,7 +44,7 @@ public class UnpluggedNode extends Thread {
     }
     
     protected synchronized void setState(int state_) {
-    	Log.d(TAG, "setState() " + state + " -> " + state_);
+    	Log.d(TAG, note + "setState() " + state + " -> " + state_);
     	this.state = state_;
     	// Give the new state to the Handler so the UI Activity can update
     	mHandler.obtainMessage(UnpluggedMessageHandler.STATE_CHANGED, state, -1).sendToTarget();
@@ -51,5 +53,7 @@ public class UnpluggedNode extends Thread {
     public Handler getHandler() {
     	return this.mHandler;
     }
+    
+    abstract public void cancel();
 
 }

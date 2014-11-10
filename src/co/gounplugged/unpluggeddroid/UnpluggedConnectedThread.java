@@ -48,6 +48,7 @@ public class UnpluggedConnectedThread extends Thread {
             	Log.d(TAG, "reveived chat" + str);
             } catch (IOException e) {
             	unpluggedNode.setState(UnpluggedNode.DISCONNECTED);
+            	unpluggedNode.cancel();
                 break;
             }
         }

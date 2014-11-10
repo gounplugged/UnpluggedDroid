@@ -18,8 +18,8 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
     private final BluetoothSocket mBluetoothSocket;
     private final BluetoothDevice mBluetoothDevice;
 	
-	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid_, Handler handler) {
-		super(handler, bluetoothAdapter, uuid_);
+	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
+		super(handler, bluetoothAdapter, uuid, " client ");
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
         this.mBluetoothDevice = bluetoothDevice;
@@ -29,7 +29,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
             // MY_UUID is the app's UUID string, also used by the server code
-        	tBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid_);
+        	tBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid);
         } catch (IOException e) { }
         mBluetoothSocket = tBluetoothSocket;
 
@@ -71,7 +71,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
         } catch (IOException e) { Log.e(TAG, "close() of client failed", e); }
     }
     
-    public synchronized void connect() {
+    public void connect() {
     	setState(CONNECTING);
     	start();
     }
