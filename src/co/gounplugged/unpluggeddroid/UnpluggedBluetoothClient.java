@@ -20,7 +20,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
 	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
 		super(handler, bluetoothAdapter, uuid, " client ");
         // Use a temporary object that is later assigned to mmSocket,
-        // because mmSocket is final
+        // because mmSocket WAS final
         this.mBluetoothDevice = bluetoothDevice;
    
         BluetoothSocket tBluetoothSocket = null;
@@ -56,9 +56,6 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
 	            cancel();
 	        }
         }
- 
-        // Do work to manage the connection (in a separate thread)
-//        manageConnectedSocket(mBluetoothSocket);
     }
 
 
