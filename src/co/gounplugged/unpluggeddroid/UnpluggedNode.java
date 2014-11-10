@@ -1,12 +1,14 @@
 package co.gounplugged.unpluggeddroid;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
+import es.theedg.hydra.HydraPost;
 
 public class UnpluggedNode extends Thread {
 	private static final String TAG = "UnpluggedNode";
@@ -26,12 +28,16 @@ public class UnpluggedNode extends Thread {
 	protected BluetoothSocket mBluetoothSocket;
 	protected final Handler mHandler;
 	
+	// Unplugged
+	protected ArrayList<HydraPost> hydraPosts;
+	
 	public UnpluggedNode(Handler handler, BluetoothAdapter bluetoothAdapter, UUID uuid_, String note_) {
 		this.state = DISCONNECTED;
 		this.mHandler = handler;
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.uuid = uuid_;
 		this.note = note_;
+		this.hydraPosts = new ArrayList<HydraPost>();
 	}
 
     public void chat(String str) {
@@ -70,7 +76,11 @@ public class UnpluggedNode extends Thread {
 			}
 			setState(DISCONNECTED);
 		} catch (IOException e) {} 		
-		
 	}
+    
+    protected void sendHydraMsg(byte[] bytes) {
+    	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
+    	
+    }
 
 }

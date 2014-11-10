@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import es.theedg.hydra.HydraMsg;
+
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
@@ -47,6 +49,7 @@ public class UnpluggedConnectedThread extends Thread {
             	bytes = mInputStream.read(buffer);
                 // Send the obtained bytes to the UI activity
             	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+//            	new HydraMsg(buffer).send(mOutputStream);
                 String str = new String(buffer, "UTF-8");
             	Log.d(TAG, "reveived chat: " + str);
             } catch (IOException e) {
@@ -61,8 +64,9 @@ public class UnpluggedConnectedThread extends Thread {
     	Log.d(TAG, "writing chat");
         try {
         	mOutputStream.write(bytes);
+        	unpluggedNode.sendHydraMsg(bytes);
         	// Share the sent message back to the UI Activity
-        	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
+        	
         	Log.d(TAG, "chat wrote");
         } catch (IOException e) { }
     }
