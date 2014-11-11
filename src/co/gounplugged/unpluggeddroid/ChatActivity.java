@@ -117,7 +117,7 @@ public class ChatActivity extends ActionBarActivity {
     
     private void sendMessage() {
     	String str = newPostText.getText().toString(); 
-    	unpluggedMesh.newHydraPost(str);
+    	unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_WRITE, str);
     	//    	unpluggedMesh.sendMessage(str);
 		newPostText.setText("");
     } 

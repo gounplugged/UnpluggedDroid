@@ -7,6 +7,7 @@ import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.UnpluggedConnectedThread;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
+import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 
 public class HydraMsg {
 	private static final String TAG = "HydraMsg";
@@ -55,14 +56,18 @@ public class HydraMsg {
 			Log.d(TAG, "END HELLO" );
     	} else if (id.equals(HELLO_OK)) {
     		this.setPostId(parsePostId());
-    		HydraPost postToReq = haveHydraPost(postId, posts);
-    		if (postToReq == null) {
-    			output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
+    		
+    		if(!postId.equals("null")) {
+    			Log.d(TAG, "Passed null test");
+	    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
+	    		if (postToReq == null) {
+	    			output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
+	    		}
     		}
     		Log.d(TAG, "END HELLO_OK" );
     	} else if (id.equals(GET_POST)) {
     		this.setPostId(parsePostId());
-    		HydraPost postToReq = haveHydraPost(postId, posts);
+    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
     		if (postToReq != null) {
     			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
     		}
@@ -70,21 +75,14 @@ public class HydraMsg {
     		this.setPostId(parsePostId());
     		this.setTimestamp(parseTimestamp());
     		this.setContent(parseContent());
-    		HydraPost postToReq = haveHydraPost(postId, posts);
+    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
     		if (postToReq == null) {
-    			unpluggedMesh.newHydraPost(new HydraPost(postId, timestamp, content));
+    			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
     		}
     	}
     }
     
     private static String newestHydraPost(ArrayList<HydraPost> posts) {
-    	return null;
-    }
-    
-    private static HydraPost haveHydraPost(String postId_, ArrayList<HydraPost> posts) {
-    	for(HydraPost p : posts) {
-    		if (p.getId().equals(postId_)) return p;
-    	}
     	return null;
     }
     

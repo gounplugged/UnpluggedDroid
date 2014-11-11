@@ -1,5 +1,6 @@
 package es.theedg.hydra;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class HydraPost {
@@ -31,4 +32,14 @@ public class HydraPost {
 		return content;
 	}
 
+	public boolean equals(HydraPost p) {
+		return this.id.equals(p.getId());
+	}
+	
+    public static HydraPost findHydraPost(String postId_, ArrayList<HydraPost> posts) {
+    	for(HydraPost p : posts) {
+    		if (p.getId().equals(postId_)) return p;
+    	}
+    	return null;
+    }
 }

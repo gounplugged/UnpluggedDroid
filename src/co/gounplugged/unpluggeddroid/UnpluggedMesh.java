@@ -145,12 +145,12 @@ public class UnpluggedMesh extends Thread {
 		return this.hydraPosts;
 	}
 	
-	public void newHydraPost(String content) {
+	public void newHydraPost(int msgCode, String content) {
 		hydraPosts.add(new HydraPost(content));
 		mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, content.getBytes()).sendToTarget();
 	}
 	
-	public void newHydraPost(HydraPost p) {
+	public void newHydraPost(int msgCode, HydraPost p) {
 		hydraPosts.add(p);
 		mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, p.getContent().getBytes()).sendToTarget();
 	}

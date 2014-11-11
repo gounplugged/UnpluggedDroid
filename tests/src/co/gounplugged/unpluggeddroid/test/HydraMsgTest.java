@@ -24,12 +24,12 @@ public class HydraMsgTest extends AndroidTestCase {
     public void testInstantiateWithID() {
     	String a = "1";
     	HydraMsg hydraMsg = new HydraMsg( a.getBytes(Charset.forName("UTF-8")) );
-	    assertEquals(hydraMsg.getId(), 1);
+	    assertEquals(hydraMsg.getId(), "1");
 	    
 	    String b = HydraMsg.SEPARATOR;
 
 	    hydraMsg = new HydraMsg( (a+b).getBytes(Charset.forName("UTF-8")) );
-	    assertEquals(hydraMsg.getId(), 1);
+	    assertEquals(hydraMsg.getId(), "1");
 	}
     
     public void testGetMessageSegments() {
