@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import es.theedg.hydra.HydraMsg;
 
@@ -36,6 +37,7 @@ public class UnpluggedConnectedThread extends Thread {
         Log.d(TAG, "created a new");
     }
  
+    @Override
     public void run() {
     	Log.d(TAG, "running chat stream");
         byte[] buffer = new byte[1024];  // buffer store for the stream
@@ -47,26 +49,33 @@ public class UnpluggedConnectedThread extends Thread {
             try {
                 // Read from the InputStream
             	bytes = mInputStream.read(buffer);
-                // Send the obtained bytes to the UI activity
-            	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-//            	new HydraMsg(buffer).send(mOutputStream);
-                String str = new String(buffer, "UTF-8");
-            	Log.d(TAG, "reveived chat: " + str);
+            	handleRead(bytes, buffer);
             } catch (IOException e) {
             	unpluggedNode.cancel();
                 break;
             }
         }
     }
+    
+    public void handleRead(int bytes, byte[] buffer) {
+        // Send the obtained bytes to the UI activity
+    	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+    	
+		try {
+			String str = new String(buffer, "UTF-8");
+			Log.d(TAG, "reveived chat: " + str);
+			HydraMsg hydraMsg = new HydraMsg(buffer);
+			hydraMsg.send(this, unpluggedNode.getUnpluggedMesh());
+		} catch (UnsupportedEncodingException e) {	}
+    	
+    }
  
     /* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
-    	Log.d(TAG, "writing chat");
+    	Log.d(TAG, "writing HydraMsg");
         try {
         	mOutputStream.write(bytes);
-        	unpluggedNode.sendHydraMsg(bytes);
-        	// Share the sent message back to the UI Activity
-        	
+//        	unpluggedNode.sendHydraMsg(bytes);
         	Log.d(TAG, "chat wrote");
         } catch (IOException e) { }
     }
@@ -80,5 +89,6 @@ public class UnpluggedConnectedThread extends Thread {
 			e.printStackTrace();
 		}
     }
+    
     
 }

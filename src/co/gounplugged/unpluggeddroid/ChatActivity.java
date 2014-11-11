@@ -79,6 +79,7 @@ public class ChatActivity extends ActionBarActivity {
     protected synchronized void onResume() {
     	super.onResume();
 //    	unpluggedMesh.restart();
+//    	unpluggedMesh.start();
     }
     
    @Override
@@ -101,15 +102,16 @@ public class ChatActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
     	super.onDestroy();
-    	unpluggedMesh.stop();
+    	unpluggedMesh.stopAll();
     	// Unregister broadcast listeners
 //    	if(mDiscoveryBroadcastReceiver != null) 
     	this.unregisterReceiver(mDiscoveryBroadcastReceiver);
     }
     
     private void sendMessage() {
-    	String str = newPostText.getText().toString();   
-    	unpluggedMesh.sendMessage(str);
+    	String str = newPostText.getText().toString(); 
+    	unpluggedMesh.newHydraPost(str);
+    	//    	unpluggedMesh.sendMessage(str);
 		newPostText.setText("");
     } 
     
@@ -203,7 +205,7 @@ public class ChatActivity extends ActionBarActivity {
 	        refreshButton = (Button) findViewById(R.id.refresh_button);
 	        refreshButton.setOnClickListener(new View.OnClickListener() {
 	        	public void onClick(View v) {
-	        		unpluggedMesh.start();
+	        		unpluggedMesh.startAll();
 	        	}
 	        });
 	    	

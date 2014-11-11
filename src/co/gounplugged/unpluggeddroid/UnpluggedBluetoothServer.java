@@ -17,8 +17,8 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	// Bluetooth SDK
 	private BluetoothServerSocket mBluetoothServerSocket;
 		
-	public UnpluggedBluetoothServer(BluetoothAdapter bluetoothAdapter, String serviceName_, UUID uuid, Handler handler) {
-		super(handler, bluetoothAdapter, uuid, " server ");
+	public UnpluggedBluetoothServer(UnpluggedMesh unpluggedMesh, BluetoothAdapter bluetoothAdapter, String serviceName_, UUID uuid, Handler handler) {
+		super(unpluggedMesh, handler, bluetoothAdapter, uuid, " server ");
 		this.serviceName = serviceName_;
 		
         // Use a temporary object that is later assigned to mBluetoothServerSocket,

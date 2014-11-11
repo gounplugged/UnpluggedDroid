@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
+import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraPost;
 
 public class UnpluggedNode extends Thread {
@@ -27,27 +28,17 @@ public class UnpluggedNode extends Thread {
 	protected UnpluggedConnectedThread connectedThread;
 	protected BluetoothSocket mBluetoothSocket;
 	protected final Handler mHandler;
+	protected final UnpluggedMesh mUnpluggedMesh;
 	
-	// Unplugged
-	protected ArrayList<HydraPost> hydraPosts;
-	
-	public UnpluggedNode(Handler handler, BluetoothAdapter bluetoothAdapter, UUID uuid_, String note_) {
+	public UnpluggedNode(UnpluggedMesh unpluggedMesh, Handler handler, BluetoothAdapter bluetoothAdapter, UUID uuid_, String note_) {
 		this.state = DISCONNECTED;
 		this.mHandler = handler;
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.uuid = uuid_;
 		this.note = note_;
-		this.hydraPosts = new ArrayList<HydraPost>();
+		this.mUnpluggedMesh = unpluggedMesh;
 	}
-
-    public void chat(String str) {
-    	Log.d(TAG, "writing chat");
-    	if (state == CONNECTED) {
-    		Log.d(TAG, "writing chat cuz connected");
-    		connectedThread.write(str.getBytes());		
-    	}
-    }
-    
+	
     public synchronized int getConnectionState() {
     	return this.state;
     }
@@ -61,6 +52,10 @@ public class UnpluggedNode extends Thread {
     
     public Handler getHandler() {
     	return this.mHandler;
+    }
+    
+    public UnpluggedConnectedThread getConnectedThread() {
+    	return this.connectedThread;
     }
     
     protected void cancel() {
@@ -78,9 +73,16 @@ public class UnpluggedNode extends Thread {
 		} catch (IOException e) {} 		
 	}
     
-    protected void sendHydraMsg(byte[] bytes) {
-    	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
-    	
+//    protected void sendHydraMsg(byte[] bytes) {
+//    	mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, bytes).sendToTarget();
+//    }
+    
+    public ArrayList<HydraPost> getHydraPosts() {
+    	return mUnpluggedMesh.getHydraPosts();
+    }
+    
+    public UnpluggedMesh getUnpluggedMesh() {
+    	return this.mUnpluggedMesh;
     }
 
 }

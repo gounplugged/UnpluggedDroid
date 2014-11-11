@@ -1,13 +1,17 @@
 package co.gounplugged.unpluggeddroid;
 
+import java.util.ArrayList;
 import java.util.UUID;
+
+import es.theedg.hydra.HydraMsg;
+import es.theedg.hydra.HydraPost;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.util.Log;
 
-public class UnpluggedMesh {
+public class UnpluggedMesh extends Thread {
 	private static final String TAG = "UnpluggedMesh";
 	
 	// Constants
@@ -23,6 +27,7 @@ public class UnpluggedMesh {
 	private ChatActivity parentActivity;
 	
 	private boolean isBroadcasting;
+	protected ArrayList<HydraPost> hydraPosts;
 	
 	public UnpluggedMesh(String serviceName_, UUID uuid_, ChatActivity activity) {
 		 this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -30,6 +35,7 @@ public class UnpluggedMesh {
 		 this.uuid = uuid_;
 		 this.parentActivity = activity;
 		 this.setBroadcasting(false);
+		 this.hydraPosts = new ArrayList<HydraPost>();
 	}
 		
 	public boolean isBluetoothSupported() {
@@ -40,11 +46,11 @@ public class UnpluggedMesh {
 		return mBluetoothAdapter.isEnabled();
 	}
 	
-	public synchronized void start() {
+	public synchronized void startAll() {
 		Log.d(TAG, ">>START: Broadcasting: " + isBroadcasting() + ", Server: " + isServerConnected() + ", Client: " + isClientConnected() + ", Discovering: " + isDiscovering());
 
     	Log.d(TAG, "start()");
-    	stop();
+    	stopAll();
     	restart();
 	}
 	
@@ -58,7 +64,7 @@ public class UnpluggedMesh {
 	}
 	
 	public synchronized void startAccepting() {
-		if (unpluggedBluetoothServer == null) unpluggedBluetoothServer = new UnpluggedBluetoothServer(mBluetoothAdapter, serviceName, uuid, mHandler);
+		if (unpluggedBluetoothServer == null) unpluggedBluetoothServer = new UnpluggedBluetoothServer(this, mBluetoothAdapter, serviceName, uuid, mHandler);
 		if (unpluggedBluetoothServer.state == UnpluggedNode.DISCONNECTED) unpluggedBluetoothServer.accept();
 	}
 	
@@ -67,7 +73,7 @@ public class UnpluggedMesh {
 	}
 	
 	public synchronized void connectClient(BluetoothDevice bluetoothDevice) {
-		if(unpluggedBluetoothClient == null) unpluggedBluetoothClient = new UnpluggedBluetoothClient(bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
+		if(unpluggedBluetoothClient == null) unpluggedBluetoothClient = new UnpluggedBluetoothClient(this, bluetoothDevice, mBluetoothAdapter, uuid, mHandler);
 		if (unpluggedBluetoothClient.state == UnpluggedNode.DISCONNECTED) unpluggedBluetoothClient.connect();
         Log.d(TAG, "useless device " + bluetoothDevice.getName()); 
 	}
@@ -100,7 +106,7 @@ public class UnpluggedMesh {
 		Log.d(TAG, "discovering now: " + isDiscovering());
 	}
 	
-	public synchronized void stop() {
+	public synchronized void stopAll() {
     	if(unpluggedBluetoothClient != null) killUnpluggedBluetoothClient();
     	if(unpluggedBluetoothServer != null) killUnpluggedBluetoothServer();
     	stopDiscovery();
@@ -114,14 +120,6 @@ public class UnpluggedMesh {
     private synchronized void killUnpluggedBluetoothServer() {
     	this.unpluggedBluetoothServer.cancel();
     	this.unpluggedBluetoothServer = null;
-    }
-    
-    public void sendMessage(String str) {
-		if (unpluggedBluetoothServer != null && unpluggedBluetoothServer.getConnectionState() == UnpluggedNode.CONNECTED){
-			unpluggedBluetoothServer.chat(str);
-		} else if (unpluggedBluetoothClient != null && unpluggedBluetoothClient.getConnectionState() == UnpluggedNode.CONNECTED){
-			unpluggedBluetoothClient.chat(str);
-		}
     }
     
     public BluetoothDevice isBonded(BluetoothDevice bluetoothDevice) {
@@ -141,6 +139,38 @@ public class UnpluggedMesh {
 
 	public void setBroadcasting(boolean isBroadcasting) {
 		this.isBroadcasting = isBroadcasting;
+	}
+	
+	public ArrayList<HydraPost> getHydraPosts() {
+		return this.hydraPosts;
+	}
+	
+	public void newHydraPost(String content) {
+		hydraPosts.add(new HydraPost(content));
+		mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, content.getBytes()).sendToTarget();
+	}
+	
+	public void newHydraPost(HydraPost p) {
+		hydraPosts.add(p);
+		mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, p.getContent().getBytes()).sendToTarget();
+	}
+	
+	@Override
+	public void run() {
+		while(true) {
+			HydraMsg ping = HydraMsg.newHelloMsg();
+			if (unpluggedBluetoothServer != null && unpluggedBluetoothServer.getConnectionState() == UnpluggedNode.CONNECTED){
+				ping.send(unpluggedBluetoothServer.getConnectedThread(), this);
+			} else if (unpluggedBluetoothClient != null && unpluggedBluetoothClient.getConnectionState() == UnpluggedNode.CONNECTED){
+				ping.send(unpluggedBluetoothClient.getConnectedThread(), this);
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

@@ -17,8 +17,8 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
 	// Bluetooth SDK
     private BluetoothDevice mBluetoothDevice;
 	
-	public UnpluggedBluetoothClient(BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
-		super(handler, bluetoothAdapter, uuid, " client ");
+	public UnpluggedBluetoothClient(UnpluggedMesh unpluggedMesh, BluetoothDevice bluetoothDevice, BluetoothAdapter bluetoothAdapter, UUID uuid, Handler handler) {
+		super(unpluggedMesh, handler, bluetoothAdapter, uuid, " client ");
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket WAS final
         this.mBluetoothDevice = bluetoothDevice;
@@ -35,6 +35,7 @@ public class UnpluggedBluetoothClient extends UnpluggedNode {
     	Log.d(TAG, "socket set");
 	}
 	
+	@Override
     public void run() {
     	Log.d(TAG, "run");
 
