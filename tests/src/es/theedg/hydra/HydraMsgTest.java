@@ -23,11 +23,7 @@ public class HydraMsgTest extends AndroidTestCase {
 		// TODO Auto-generated method stub
 		super.setUp();
 		
-	    pipeInput = new PipedInputStream();
-	    reader = new BufferedReader(new InputStreamReader(pipeInput));
-	    out = new BufferedOutputStream(new PipedOutputStream(pipeInput));
-		
-		t = new TestUnpluggedConnectedThread(out);
+		reset();
 	}
 
 	@Override
@@ -42,19 +38,59 @@ public class HydraMsgTest extends AndroidTestCase {
     	db.newHydraPost(0, p);
     	
     	HydraMsg m = HydraMsg.newHelloMsg();
+
+    	
+    	String l = testHydraMsg(m, db);
+    	
+    	Log.d("HydraMsgTest", l);
+    	assertEquals(l, HydraMsg.HELLO_OK + HydraMsg.SEPARATOR + p.getId());
+	}
+    
+    public void testNullHello() {
+    	TestHydraPostDb db = new TestHydraPostDb();
+    	
+    	HydraMsg m = HydraMsg.newHelloMsg();
+    	
+    	String l = testHydraMsg(m, db);
+    	
+    	Log.d("HydraMsgTest", l);
+    	assertEquals(l, HydraMsg.HELLO_OK + HydraMsg.SEPARATOR + "null");
+	}
+    
+    public void testHelloOK() {
+    	TestHydraPostDb db = new TestHydraPostDb();
+    	HydraMsg m = new HydraMsg(HydraMsg.serializeHydraPostMsg(HydraMsg.HELLO_OK, "cat"));
+    	
+    	String l = testHydraMsg(m, db);
+    	
+    	Log.d("HydraMsgTest", l);
+    	assertEquals(l, HydraMsg.GET_POST + HydraMsg.SEPARATOR + "cat");
+	}
+    
+    public String testHydraMsg(HydraMsg m, TestHydraPostDb db) {
     	m.send(t, db);
     	t.close();
-    	
     	String l = null;
-//    	pipeInput.read();
     	
     	try {
     		l = reader.readLine();
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	return l;
+    }
+    
+    public void reset() {
+	    try {
+	    	pipeInput = new PipedInputStream();
+		    reader = new BufferedReader(new InputStreamReader(pipeInput));
+			out = new BufferedOutputStream(new PipedOutputStream(pipeInput));
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	Log.d("HydraMsgTest", l);
-    	assertEquals(l, HydraMsg.HELLO_OK + HydraMsg.SEPARATOR + p.getId());
-	}
+		
+		t = new TestUnpluggedConnectedThread(out);
+    }
 }
