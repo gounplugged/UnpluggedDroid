@@ -4,9 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import android.util.Log;
-
-import co.gounplugged.unpluggeddroid.UnpluggedConnectedThread;
-import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 
 public class HydraMsg {
@@ -28,7 +25,6 @@ public class HydraMsg {
 
     //  Structure of our class
     private String id;                     //  HydraMsg message ID
-//    private byte[] input;
     private String input;
     private String postId;
     private long timestamp;
@@ -47,14 +43,19 @@ public class HydraMsg {
     	return new HydraMsg(serializeHydraMsg(HELLO));
     }
     
-    public void send(UnpluggedConnectedThread output, UnpluggedMesh unpluggedMesh) {
+    public void send(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
     	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
     	Log.d(TAG, "RECEIVED msg " + id);
     	if(id.equals(HELLO)) {
     		HydraPost newestPost = HydraPost.newestHydraPost(posts);
-			output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, newestPost.getId()));
-			Log.d(TAG, "REPLIED WITH " + HELLO_OK + newestPost.getId());
-			Log.d(TAG, "END HELLO" );
+    		String newestPostId;
+			if(newestPost == null) {
+				newestPostId = "null";
+			} else {
+				newestPostId = newestPost.getId();
+			}
+    		output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, newestPostId));
+			Log.d(TAG, "END HELLO" + newestPostId );
     	} else if (id.equals(HELLO_OK)) {
     		this.setPostId(parsePostId());
     		Log.d(TAG, "HELLO_OK for post: " + postId);

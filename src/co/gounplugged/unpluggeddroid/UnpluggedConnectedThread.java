@@ -7,21 +7,23 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import es.theedg.hydra.HydraMsg;
+import es.theedg.hydra.HydraMsgOutput;
 
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-public class UnpluggedConnectedThread extends Thread {
+public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 	
 	// Constants
 	private String TAG = "UnpluggedConnectedThread";
 	
 	// Bluetooth SDK
-    private final InputStream mInputStream;
-    private final OutputStream mOutputStream;
-    private final UnpluggedNode unpluggedNode;
+    protected final InputStream mInputStream;
+    protected final OutputStream mOutputStream;
+    private final UnpluggedMesh mUnpluggedMesh;
+    private final BluetoothSocket mBluetoothSocket;
  
-    public UnpluggedConnectedThread(BluetoothSocket bluetoothSocket, UnpluggedNode unpluggedNode_) {
+    public UnpluggedConnectedThread(BluetoothSocket bluetoothSocket, UnpluggedMesh unpluggedMesh) {
         InputStream tInputStream = null;
         OutputStream tOutputStream = null;
  
@@ -34,7 +36,8 @@ public class UnpluggedConnectedThread extends Thread {
  
         this.mInputStream = tInputStream;
         this.mOutputStream = tOutputStream;
-        this.unpluggedNode = unpluggedNode_;
+        this.mBluetoothSocket = bluetoothSocket;
+        this.mUnpluggedMesh = unpluggedMesh;
         Log.d(TAG, "created a new");
     }
  
@@ -54,7 +57,7 @@ public class UnpluggedConnectedThread extends Thread {
             	logBuffer(trimmedBuffer);
             	handleRead(bytes, trimmedBuffer);
             } catch (IOException e) {
-            	unpluggedNode.cancel();
+            	cancel();
                 break;
             }
         }
@@ -74,7 +77,7 @@ public class UnpluggedConnectedThread extends Thread {
 			String str = new String(buffer, "UTF-8");
 			Log.d(TAG, "reveived chat: " + str);
 			HydraMsg hydraMsg = new HydraMsg(buffer);
-			hydraMsg.send(this, unpluggedNode.getUnpluggedMesh());
+			hydraMsg.send(this, mUnpluggedMesh);
 		} catch (UnsupportedEncodingException e) {	}
     	
     }
@@ -93,20 +96,14 @@ public class UnpluggedConnectedThread extends Thread {
     	try {
 			mOutputStream.close();
 			mInputStream.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			mBluetoothSocket.close();
+		} catch (IOException e) {}
     }
     
     static byte[] trim(byte[] bytes)
     {
         int i = bytes.length - 1;
-        while (i >= 0 && bytes[i] == 0)
-        {
-            --i;
-        }
-
+        while (i >= 0 && bytes[i] == 0) { --i; }
         return Arrays.copyOf(bytes, i + 1);
     }
     

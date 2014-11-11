@@ -2,9 +2,8 @@ package co.gounplugged.unpluggeddroid.test;
 
 import java.nio.charset.Charset;
 
-import es.theedg.hydra.HydraMsg;
 import android.test.AndroidTestCase;
-import android.util.Log;
+import es.theedg.hydra.HydraMsg;
 
 public class HydraMsgTest extends AndroidTestCase {
 	private static final String TAG = "HydraMsgTest";

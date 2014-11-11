@@ -31,7 +31,7 @@ public class ChatActivity extends ActionBarActivity {
 	// Constants  
 	private static int REQUEST_ENABLE_BT = 1;
 	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
-	private static int DISCOVERABLE_PERIOD = 300; // 0 = always on
+	private static int DISCOVERABLE_PERIOD = 0; // 0 = always on
 	
 	// GUI
 	private boolean guiLoaded = false;
@@ -149,10 +149,10 @@ public class ChatActivity extends ActionBarActivity {
     			 finish();
     		}
     	} else if (requestCode == REQUEST_ENABLE_DISCOVERABLE) { //Response to Enable Bluetooth Discoverable
-    		if(resultCode == DISCOVERABLE_PERIOD) {
-    			unpluggedMesh.setBroadcasting(true);
+    		if(resultCode == DISCOVERABLE_PERIOD || resultCode == 1) {
+
     		} else if (resultCode == RESULT_CANCELED){
-    			unpluggedMesh.setBroadcasting(false);
+
     		}
     	}
     }
@@ -171,7 +171,7 @@ public class ChatActivity extends ActionBarActivity {
 		    		 // If it's already paired, skip it, because it's been listed already
 		    		 if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
 		    			 Log.d(TAG, "bluetooth device not previously bonded");
-				    	if(bluetoothDevice.getName().equals("motop")){
+				    	if(bluetoothDevice.getName() != null && bluetoothDevice.getName().equals("motop")){
 				    		Log.d(TAG, "Matches device name (motop). Establishing a connection.");
 				    		unpluggedMesh.connectClient(bluetoothDevice);
 	    			    }
@@ -212,7 +212,7 @@ public class ChatActivity extends ActionBarActivity {
 	        refreshButton = (Button) findViewById(R.id.refresh_button);
 	        refreshButton.setOnClickListener(new View.OnClickListener() {
 	        	public void onClick(View v) {
-	        		unpluggedMesh.startAll();
+	        		unpluggedMesh.restartConnection();
 	        	}
 	        });
 	    	

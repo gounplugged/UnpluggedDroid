@@ -41,10 +41,10 @@ public class UnpluggedMessageHandler extends Handler {
 		    
 		    case STATE_CHANGED:
 		    	 switch (msg.arg1) {
-			    	 case UnpluggedNode.DISCONNECTED:
+			    	 case UnpluggedMesh.STATE_DISCONNECTED:
 			    		 connectionStatus.setText("Disconnected");
 				    	 break;
-			    	 case UnpluggedNode.CONNECTED:
+			    	 case UnpluggedMesh.STATE_CONNECTED:
 			    		 connectionStatus.setText("Connected");
 				    	 break;
 		    	 }
