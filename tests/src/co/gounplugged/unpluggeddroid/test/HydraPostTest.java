@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid.test;
 import java.util.ArrayList;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 import es.theedg.hydra.HydraPost;
 
 public class HydraPostTest extends AndroidTestCase {
@@ -29,4 +30,30 @@ public class HydraPostTest extends AndroidTestCase {
     	assertEquals(p2, HydraPost.findHydraPost(p2.getId(), posts));
     	assertEquals(HydraPost.findHydraPost("FAIL", posts), null);
 	}
+    
+    public void testNewestHydraPost() {
+    	ArrayList<HydraPost> posts = new ArrayList<HydraPost>();
+    	assertEquals(HydraPost.newestHydraPost(posts), null);
+    	
+    	for(int i = 0; i < 10; i++) {
+    		posts.add(new HydraPost("test"));
+    		try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	HydraPost first = posts.get(9);
+    	HydraPost newest = HydraPost.newestHydraPost(posts);
+    	assertEquals(newest, first);
+    }
+    
+    public void testEquals() {
+    	HydraPost p1 = new HydraPost("cat", 1, "content");
+    	HydraPost p2 = new HydraPost("cat", 2, "dog");
+    	
+    	assertEquals(p1, p1);
+    	assertEquals(p1, p2);
+    }
 }

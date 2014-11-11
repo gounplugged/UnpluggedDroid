@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import es.theedg.hydra.HydraMsg;
 
@@ -40,7 +41,7 @@ public class UnpluggedConnectedThread extends Thread {
     @Override
     public void run() {
     	Log.d(TAG, "running chat stream");
-        byte[] buffer = new byte[1024];  // buffer store for the stream
+        byte[] buffer = new byte[50];  // buffer store for the stream
         int bytes; // bytes returned from read()
  
         // Keep listening to the InputStream until an exception occurs
@@ -49,7 +50,9 @@ public class UnpluggedConnectedThread extends Thread {
             try {
                 // Read from the InputStream
             	bytes = mInputStream.read(buffer);
-            	handleRead(bytes, buffer);
+            	byte[] trimmedBuffer = trim(buffer);
+            	logBuffer(trimmedBuffer);
+            	handleRead(bytes, trimmedBuffer);
             } catch (IOException e) {
             	unpluggedNode.cancel();
                 break;
@@ -57,10 +60,16 @@ public class UnpluggedConnectedThread extends Thread {
         }
     }
     
+    public void logBuffer(byte[] buffer) {
+    	int i = 0;
+    	for(byte b : buffer) {
+    		Log.d(TAG, "Byte " + Integer.toString(i) + ": " + b);
+    		i++;
+    	}
+    }
+    
     public void handleRead(int bytes, byte[] buffer) {
-        // Send the obtained bytes to the UI activity
-    	unpluggedNode.getHandler().obtainMessage(UnpluggedMessageHandler.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-    	
+        // Send the obtained bytes to the UI activity 	
 		try {
 			String str = new String(buffer, "UTF-8");
 			Log.d(TAG, "reveived chat: " + str);
@@ -90,5 +99,15 @@ public class UnpluggedConnectedThread extends Thread {
 		}
     }
     
+    static byte[] trim(byte[] bytes)
+    {
+        int i = bytes.length - 1;
+        while (i >= 0 && bytes[i] == 0)
+        {
+            --i;
+        }
+
+        return Arrays.copyOf(bytes, i + 1);
+    }
     
 }

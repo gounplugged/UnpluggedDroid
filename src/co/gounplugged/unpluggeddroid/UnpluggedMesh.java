@@ -147,12 +147,12 @@ public class UnpluggedMesh extends Thread {
 	
 	public void newHydraPost(int msgCode, String content) {
 		hydraPosts.add(new HydraPost(content));
-		mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, content.getBytes()).sendToTarget();
+		mHandler.obtainMessage(msgCode, -1, -1, content.getBytes()).sendToTarget();
 	}
 	
 	public void newHydraPost(int msgCode, HydraPost p) {
 		hydraPosts.add(p);
-		mHandler.obtainMessage(UnpluggedMessageHandler.MESSAGE_WRITE, -1, -1, p.getContent().getBytes()).sendToTarget();
+		mHandler.obtainMessage(msgCode, -1, -1, p.getContent().getBytes()).sendToTarget();
 	}
 	
 	@Override
@@ -167,7 +167,7 @@ public class UnpluggedMesh extends Thread {
 				ping.send(unpluggedBluetoothClient.getConnectedThread(), this);
 			}
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

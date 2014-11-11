@@ -51,17 +51,19 @@ public class HydraMsg {
     	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
     	Log.d(TAG, "RECEIVED msg " + id);
     	if(id.equals(HELLO)) {
-    		String postId_ = newestHydraPost(posts);
-			output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, postId_));
+    		HydraPost newestPost = HydraPost.newestHydraPost(posts);
+			output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, newestPost.getId()));
+			Log.d(TAG, "REPLIED WITH " + HELLO_OK + newestPost.getId());
 			Log.d(TAG, "END HELLO" );
     	} else if (id.equals(HELLO_OK)) {
     		this.setPostId(parsePostId());
-    		
+    		Log.d(TAG, "HELLO_OK for post: " + postId);
     		if(!postId.equals("null")) {
     			Log.d(TAG, "Passed null test");
 	    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
 	    		if (postToReq == null) {
 	    			output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
+	    			Log.d(TAG, "REPLIED WITH " + GET_POST + postId);
 	    		}
     		}
     		Log.d(TAG, "END HELLO_OK" );
@@ -69,21 +71,19 @@ public class HydraMsg {
     		this.setPostId(parsePostId());
     		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
     		if (postToReq != null) {
-    			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
+    			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
+    			Log.d(TAG, "REPLIED WITH " + GET_POST_OK + postToReq.getId());
     		}
-    	} else if (id.equals( GET_POST_OK)) {
+    	} else if (id.equals(GET_POST_OK)) {
     		this.setPostId(parsePostId());
     		this.setTimestamp(parseTimestamp());
     		this.setContent(parseContent());
     		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
     		if (postToReq == null) {
     			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
+    			Log.d(TAG, "ADDED NEW POST " + postId);
     		}
     	}
-    }
-    
-    private static String newestHydraPost(ArrayList<HydraPost> posts) {
-    	return null;
     }
     
     public static byte[] serializeHydraPostMsg(String id, String postId_) {
