@@ -27,5 +27,6 @@ public class HydraPostTest extends AndroidTestCase {
     	}
     	HydraPost p2 = posts.get(2);
     	assertEquals(p2, HydraPost.findHydraPost(p2.getId(), posts));
+    	assertEquals(HydraPost.findHydraPost("FAIL", posts), null);
 	}
 }
