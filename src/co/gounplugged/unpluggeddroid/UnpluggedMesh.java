@@ -160,8 +160,10 @@ public class UnpluggedMesh extends Thread {
 		while(true) {
 			HydraMsg ping = HydraMsg.newHelloMsg();
 			if (unpluggedBluetoothServer != null && unpluggedBluetoothServer.getConnectionState() == UnpluggedNode.CONNECTED){
+				Log.d(TAG, "Sending ping through server");
 				ping.send(unpluggedBluetoothServer.getConnectedThread(), this);
 			} else if (unpluggedBluetoothClient != null && unpluggedBluetoothClient.getConnectionState() == UnpluggedNode.CONNECTED){
+				Log.d(TAG, "Sending ping through client");
 				ping.send(unpluggedBluetoothClient.getConnectedThread(), this);
 			}
 			try {

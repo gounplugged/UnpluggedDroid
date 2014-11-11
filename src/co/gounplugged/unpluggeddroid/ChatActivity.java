@@ -42,6 +42,8 @@ public class ChatActivity extends ActionBarActivity {
 	private ArrayAdapter<String> mChatArrayAdapter;
 	private ListView mChatView;
 	
+	private boolean syncing;
+	
 	// Bluetooth SDK
 	private BroadcastReceiver mDiscoveryBroadcastReceiver;
 	
@@ -51,6 +53,7 @@ public class ChatActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        syncing = false;
         
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_chat);       
@@ -78,6 +81,10 @@ public class ChatActivity extends ActionBarActivity {
     @Override
     protected synchronized void onResume() {
     	super.onResume();
+    	if(!syncing) {
+    		unpluggedMesh.start();
+    		syncing = true;
+    	}
 //    	unpluggedMesh.restart();
 //    	unpluggedMesh.start();
     }
