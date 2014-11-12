@@ -90,6 +90,8 @@ public class ChatActivity extends ActionBarActivity {
 	   super.onStop();
    }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -132,6 +134,22 @@ public class ChatActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private MenuItem mItemConnectionStatus;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        mItemConnectionStatus = menu.findItem(R.id.action_connection_status);
+        // Hack: load gui again to make sure mItemConnectionStatus is passed on to UnpluggedMessageHandler
+        // so it can receive connection-updates
+        guiLoaded = false;
+        loadGui();
+
+        return true;
     }
                
     @Override
@@ -260,7 +278,7 @@ public class ChatActivity extends ActionBarActivity {
 	        mChatArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
 	        mChatView = (ListView) findViewById(R.id.chats);
 	        mChatView.setAdapter(mChatArrayAdapter);
-	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, connectionStatus));
+	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, connectionStatus, mItemConnectionStatus));
 	        
 	        // Discovered broadcast receiver
 //	        if(!unpluggedMesh.isServer()) {
@@ -279,10 +297,5 @@ public class ChatActivity extends ActionBarActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+
 }

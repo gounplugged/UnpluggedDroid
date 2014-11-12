@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -17,9 +18,12 @@ public class UnpluggedMessageHandler extends Handler {
     private ArrayAdapter<String> mArrayAdapter;
     private TextView connectionStatus;
 
-	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, TextView connectionStatus_) {
+    private MenuItem mItemConnectionStatus;
+
+	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, TextView connectionStatus_, MenuItem itemConnectionStatus) {
     	this.mArrayAdapter = arrayAdapter;
     	this.connectionStatus = connectionStatus_;
+        mItemConnectionStatus = itemConnectionStatus;
     }
     
 	@Override
@@ -43,10 +47,14 @@ public class UnpluggedMessageHandler extends Handler {
 		    	 switch (msg.arg1) {
 			    	 case UnpluggedMesh.STATE_DISCONNECTED:
 			    		 connectionStatus.setText("Disconnected");
+                         if (mItemConnectionStatus != null)
+                            mItemConnectionStatus.setTitle("Disconnected");
 				    	 break;
 			    	 case UnpluggedMesh.STATE_CONNECTED:
 			    		 connectionStatus.setText("Connected");
-				    	 break;
+                         if (mItemConnectionStatus != null)
+                             mItemConnectionStatus.setTitle("Connected");
+                         break;
 		    	 }
 		    	 Log.d(TAG, msg.what + " " + msg.arg1);
 		    	 break;
