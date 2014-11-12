@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -96,7 +97,31 @@ public class ChatActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_refresh:
+                final MenuItem menuItem = item;
+                menuItem.setActionView(R.layout.actionbar_progress);
+                menuItem.expandActionView();
+
                 unpluggedMesh.restartConnection();
+
+                //AsyncTask used to 'fake' progress by showing spinner for x seconds
+                new AsyncTask<Void, Void, String>() {
+
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String result) {
+                        menuItem.collapseActionView();
+                        menuItem.setActionView(null);
+                    }
+                }.execute();
                 break;
             case R.id.action_settings:
                 Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT)
