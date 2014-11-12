@@ -259,7 +259,7 @@ public class ChatActivity extends ActionBarActivity {
 	    	newPostText = (EditText) findViewById(R.id.new_post_text);
 	        newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-				    // If the action is a key-up event on the return key, send the message
+				    // If the action is a key-up event on the return key, send the list_item_message_outgoing
 				    if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
 					    sendMessage();
 				    }
@@ -268,7 +268,7 @@ public class ChatActivity extends ActionBarActivity {
 	    	});
 	        
 	        // Chat log
-	        mChatArrayAdapter = new MessageAdapter(this, new ArrayList<String>());
+	        mChatArrayAdapter = new MessageAdapter(this);
 	        mChatView = (ListView) findViewById(R.id.chats);
 	        mChatView.setAdapter(mChatArrayAdapter);
 	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));

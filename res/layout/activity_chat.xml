@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_above="@+id/layout_below"
             android:background="#DDE0EB"
-            android:dividerHeight="8dp"
+            android:dividerHeight="1dp"
             android:divider="@drawable/transparent_divider"
             android:stackFromBottom="true"
             />

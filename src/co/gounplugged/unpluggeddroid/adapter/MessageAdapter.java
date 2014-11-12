@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
 
 import java.util.ArrayList;
 
@@ -15,12 +16,12 @@ public class MessageAdapter extends BaseAdapter {
 
     private Context mContext;
     private LayoutInflater mInflater;
-    private ArrayList<String> mMessages;
+    private ArrayList<UnpluggedMessage> mMessages;
 
-    public MessageAdapter(Context context, ArrayList<String> messages) {
+    public MessageAdapter(Context context) {
         this.mContext = context;
         this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mMessages = messages;
+        this.mMessages = new ArrayList<UnpluggedMessage>();
     }
 
     @Override
@@ -40,19 +41,23 @@ public class MessageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        UnpluggedMessage message = mMessages.get(position);
+
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.message, parent, false);
+            if (message.isOutgoing()) {
+                convertView = mInflater.inflate(R.layout.list_item_message_outgoing, parent, false);
+            } else {
+                convertView = mInflater.inflate(R.layout.list_item_message_incoming, parent, false);
+            }
         }
 
-        String message = mMessages.get(position);
-
         TextView tvName = (TextView) convertView.findViewById(R.id.tv_message);
-        tvName.setText(message);
+        tvName.setText(message.getMessage());
 
         return convertView;
     }
 
-    public void addMessage(String message) {
+    public void addMessage(UnpluggedMessage message) {
         mMessages.add(message);
         notifyDataSetChanged();
     }

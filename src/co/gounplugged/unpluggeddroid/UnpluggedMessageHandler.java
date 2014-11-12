@@ -5,6 +5,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
 
 public class UnpluggedMessageHandler extends Handler {
 	private static final String TAG = "UnpluggedMessageHandler";
@@ -29,14 +30,18 @@ public class UnpluggedMessageHandler extends Handler {
 			    byte[] writeBuf = (byte[]) msg.obj;
 			    // construct a string from the buffer
 			    String writeMessage = new String(writeBuf);
-			    mMessageAdapter.addMessage("Me: " + writeMessage);
+                UnpluggedMessage unpluggedMessage = new UnpluggedMessage(writeMessage,
+                        UnpluggedMessage.TYPE_OUTGOING, System.currentTimeMillis());
+			    mMessageAdapter.addMessage(unpluggedMessage);
 			    break;
 		    
 		    case MESSAGE_READ:
 			    byte[] readBuf = (byte[]) msg.obj;
 			    // construct a string from the valid bytes in the buffer
 			    String readMessage = new String(readBuf);
-			    mMessageAdapter.addMessage("SOMEONE: " + readMessage);
+                UnpluggedMessage message = new UnpluggedMessage(readMessage,
+                        UnpluggedMessage.TYPE_INCOMING, System.currentTimeMillis());
+                mMessageAdapter.addMessage(message);
 			    break;
 		    
 		    case STATE_CHANGED:
