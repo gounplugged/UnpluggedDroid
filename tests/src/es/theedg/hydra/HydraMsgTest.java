@@ -12,6 +12,7 @@ import android.util.Log;
 import co.gounplugged.unpluggeddroid.test.TestUnpluggedConnectedThread;
 
 public class HydraMsgTest extends AndroidTestCase {
+	private static final String TAG = "HydraMsgTest";
 	
 	PipedInputStream pipeInput;
 	BufferedReader reader;
@@ -32,10 +33,26 @@ public class HydraMsgTest extends AndroidTestCase {
 		super.tearDown();
 	}
 	
-    public void testHello() {
+    public void testSimpleHello() {
     	TestHydraPostDb db = new TestHydraPostDb();
     	HydraPost p = new HydraPost("cat");
     	db.newHydraPost(0, p);
+      	HydraMsg m = HydraMsg.newHelloMsg();
+    	
+    	String l = testHydraMsg(m, db);
+    	assertEquals(l, HydraMsg.HELLO_OK + HydraMsg.SEPARATOR + p.getId());
+	}
+    
+    public void testComplexHello() {
+    	TestHydraPostDb db = new TestHydraPostDb();
+    	db.newHydraPost(0, new HydraPost("cat"));
+    	db.newHydraPost(0, new HydraPost("cat"));
+    	sleep();
+    	HydraPost old = new HydraPost("cat");
+    	sleep();
+    	HydraPost p = new HydraPost("cat");
+    	db.newHydraPost(0, p);
+    	db.newHydraPost(0, old);
     	
     	HydraMsg m = HydraMsg.newHelloMsg();
     	
@@ -45,8 +62,7 @@ public class HydraMsgTest extends AndroidTestCase {
     
     public void testNullHello() {
     	TestHydraPostDb db = new TestHydraPostDb();
-    	
-    	HydraMsg m = HydraMsg.newHelloMsg();
+     	HydraMsg m = HydraMsg.newHelloMsg();
     	
     	String l = testHydraMsg(m, db);
     	assertEquals(l, HydraMsg.HELLO_OK + HydraMsg.SEPARATOR + "null");
@@ -64,7 +80,6 @@ public class HydraMsgTest extends AndroidTestCase {
     	TestHydraPostDb db = new TestHydraPostDb();
     	HydraPost p = new HydraPost("cat");
     	db.newHydraPost(0, p);
-    	
     	HydraMsg m = new HydraMsg(HydraMsg.serializeHydraPostMsg(HydraMsg.GET_POST, p.getId()));
     	
     	String l = testHydraMsg(m, db);
@@ -75,9 +90,9 @@ public class HydraMsgTest extends AndroidTestCase {
     	reset();
     	TestHydraPostDb db = new TestHydraPostDb();
     	HydraPost p = new HydraPost("cat");
-    	
     	HydraMsg m = new HydraMsg(HydraMsg.serializeHydraMsgWPost(HydraMsg.GET_POST_OK, p.getId(), p.getTimestamp(), p.getContent()));
-//    	Log.d("HydraPostTest", )
+    	
+    	testHydraMsg(m, db);
     	assertEquals(HydraPost.findHydraPost(p.getId(), db.getHydraPosts()), p);
     }
     
@@ -86,8 +101,8 @@ public class HydraMsgTest extends AndroidTestCase {
     	HydraMsg m = new HydraMsg(s.getBytes());
     	assertEquals(m.parseId(), "id");
     	assertEquals(m.parsePostId(), "post_id");
-    	Log.d("HydraPostTest", m.getMessageSegments()[2]);
-    	assertEquals(m.parseTimestamp(), 12321);
+    	
+    	assertEquals(m.parseTimestamp(), "12321");
     	assertEquals(m.parseContent(), "contents");
     }
     
@@ -96,11 +111,7 @@ public class HydraMsgTest extends AndroidTestCase {
     	t.close();
     	String l = null;
     	
-    	try {
-    		l = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    	try { l = reader.readLine(); } catch (IOException e) { }
     	
     	return l;
     }
@@ -110,11 +121,14 @@ public class HydraMsgTest extends AndroidTestCase {
 	    	pipeInput = new PipedInputStream();
 		    reader = new BufferedReader(new InputStreamReader(pipeInput));
 			out = new BufferedOutputStream(new PipedOutputStream(pipeInput));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (IOException e) { }
 		
 		t = new TestUnpluggedConnectedThread(out);
+    }
+    
+    public void sleep() {
+    	try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {}
     }
 }

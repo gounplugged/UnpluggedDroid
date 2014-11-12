@@ -58,30 +58,28 @@ public class HydraMsg {
 			Log.d(TAG, "END HELLO" + newestPostId );
     	} else if (id.equals(HELLO_OK)) {
     		this.setPostId(parsePostId());
-    		Log.d(TAG, "HELLO_OK for post: " + postId);
     		if(!postId.equals("null")) {
-    			Log.d(TAG, "Passed null test");
 	    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
 	    		if (postToReq == null) {
 	    			output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
 	    			Log.d(TAG, "REPLIED WITH " + GET_POST + postId);
 	    		}
     		}
-    		Log.d(TAG, "END HELLO_OK" );
     	} else if (id.equals(GET_POST)) {
     		this.setPostId(parsePostId());
     		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
     		if (postToReq != null) {
     			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
-    			Log.d(TAG, "REPLIED WITH " + GET_POST_OK + postToReq.getId());
     		}
     	} else if (id.equals(GET_POST_OK)) {
+    		Log.d(TAG, "ENTERED GET_POST_OK");
     		this.setPostId(parsePostId());
     		this.setTimestamp(parseTimestamp());
     		this.setContent(parseContent());
     		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
     		Log.d(TAG, "weirdness " + postId);
     		if (postToReq == null) {
+    			Log.d(TAG, "PLZ ADD");
     			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
     			Log.d(TAG, "ADDED NEW POST " + postId);
     		}
