@@ -66,7 +66,7 @@ public class HydraMsg {
 			newestPostId = newestPost.getId();
 		}
 		output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, newestPostId));
-		Log.d(TAG, "END HELLO" + newestPostId );
+		Log.d(TAG, "END HELLO " + newestPostId );
     }
     
     public void respondToHelloOk(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
@@ -76,7 +76,7 @@ public class HydraMsg {
 			HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
 			if (postToReq == null) {
 				output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
-				Log.d(TAG, "REPLIED WITH " + GET_POST + postId);
+				Log.d(TAG, "REPLIED TO HELLO_OK: " + GET_POST + postId);
 			}
 		}
     }
@@ -86,7 +86,8 @@ public class HydraMsg {
 		this.setPostId(parsePostId());
 		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
 		if (postToReq != null) {
-			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
+			output.write(HydraMsg.serializeHydraMsg(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
+			Log.d(TAG, "REPLIED TO GET_POST: " + GET_POST_OK + postId);
 		}
     }
     
@@ -112,10 +113,6 @@ public class HydraMsg {
     
     public static byte[] serializeHydraMsg(String id) {
     	return (id).getBytes();
-    }
-    
-    public static byte[] serializeHydraMsgWPost(String id, String postId_, String timestamp_, String content_) {
-    	return (id + SEPARATOR + postId_ + SEPARATOR + timestamp_ + SEPARATOR + content_).getBytes();
     }
 
     public String parseId() {

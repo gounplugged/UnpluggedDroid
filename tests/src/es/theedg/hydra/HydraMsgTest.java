@@ -90,7 +90,7 @@ public class HydraMsgTest extends AndroidTestCase {
     	reset();
     	TestHydraPostDb db = new TestHydraPostDb();
     	HydraPost p = new HydraPost("cat");
-    	HydraMsg m = new HydraMsg(HydraMsg.serializeHydraMsgWPost(HydraMsg.GET_POST_OK, p.getId(), p.getTimestamp(), p.getContent()));
+    	HydraMsg m = new HydraMsg(HydraMsg.serializeHydraMsg(HydraMsg.GET_POST_OK, p.getId(), p.getTimestamp(), p.getContent()));
     	
     	testHydraMsg(m, db);
     	assertEquals(HydraPost.findHydraPost(p.getId(), db.getHydraPosts()), p);
