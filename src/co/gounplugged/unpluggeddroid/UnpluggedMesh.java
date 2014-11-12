@@ -1,16 +1,17 @@
 package co.gounplugged.unpluggeddroid;
 
-import java.util.ArrayList;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
+import co.gounplugged.unpluggeddroid.activity.ChatActivity;
 import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraPost;
 import es.theedg.hydra.HydraPostDb;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class UnpluggedMesh extends Thread implements HydraPostDb {
 	private static final String TAG = "UnpluggedMesh";

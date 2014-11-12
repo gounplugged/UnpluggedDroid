@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid;
+package co.gounplugged.unpluggeddroid.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,7 +16,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.UnpluggedMesh;
+import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
+import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 
@@ -33,7 +38,8 @@ public class ChatActivity extends ActionBarActivity {
 	private boolean guiLoaded = false;
 	private ImageButton submitButton;
 	private EditText newPostText;
-	private ArrayAdapter<String> mChatArrayAdapter;
+//	private ArrayAdapter<String> mChatArrayAdapter;
+	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
 	
 	private boolean syncing;
@@ -262,7 +268,7 @@ public class ChatActivity extends ActionBarActivity {
 	    	});
 	        
 	        // Chat log
-	        mChatArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
+	        mChatArrayAdapter = new MessageAdapter(this, new ArrayList<String>());
 	        mChatView = (ListView) findViewById(R.id.chats);
 	        mChatView.setAdapter(mChatArrayAdapter);
 	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));

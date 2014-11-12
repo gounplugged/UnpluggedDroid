@@ -4,8 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 
 public class UnpluggedMessageHandler extends Handler {
 	private static final String TAG = "UnpluggedMessageHandler";
@@ -15,11 +14,11 @@ public class UnpluggedMessageHandler extends Handler {
     public static final int MESSAGE_WRITE = 2;
     public static final int STATE_CHANGED = 3;
     
-    private ArrayAdapter<String> mArrayAdapter;
+    private MessageAdapter mMessageAdapter;
     private MenuItem mItemConnectionStatus;
 
-	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, MenuItem itemConnectionStatus) {
-    	this.mArrayAdapter = arrayAdapter;
+	public UnpluggedMessageHandler(MessageAdapter messageAdapter, MenuItem itemConnectionStatus) {
+    	this.mMessageAdapter = messageAdapter;
         mItemConnectionStatus = itemConnectionStatus;
     }
     
@@ -30,14 +29,14 @@ public class UnpluggedMessageHandler extends Handler {
 			    byte[] writeBuf = (byte[]) msg.obj;
 			    // construct a string from the buffer
 			    String writeMessage = new String(writeBuf);
-			    mArrayAdapter.add("Me: " + writeMessage);
+			    mMessageAdapter.addMessage("Me: " + writeMessage);
 			    break;
 		    
 		    case MESSAGE_READ:
 			    byte[] readBuf = (byte[]) msg.obj;
 			    // construct a string from the valid bytes in the buffer
 			    String readMessage = new String(readBuf);
-			    mArrayAdapter.add("SOMEONE: " + readMessage);
+			    mMessageAdapter.addMessage("SOMEONE: " + readMessage);
 			    break;
 		    
 		    case STATE_CHANGED:
