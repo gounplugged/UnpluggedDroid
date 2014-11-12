@@ -44,47 +44,67 @@ public class HydraMsg {
     }
     
     public void send(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
-    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
     	Log.d(TAG, "RECEIVED msg " + id);
     	if(id.equals(HELLO)) {
-    		HydraPost newestPost = HydraPost.newestHydraPost(posts);
-    		String newestPostId;
-			if(newestPost == null) {
-				newestPostId = "null";
-			} else {
-				newestPostId = newestPost.getId();
-			}
-    		output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, newestPostId));
-			Log.d(TAG, "END HELLO" + newestPostId );
+    		respondToHello(output, unpluggedMesh);
     	} else if (id.equals(HELLO_OK)) {
-    		this.setPostId(parsePostId());
-    		if(!postId.equals("null")) {
-	    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
-	    		if (postToReq == null) {
-	    			output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
-	    			Log.d(TAG, "REPLIED WITH " + GET_POST + postId);
-	    		}
-    		}
+    		respondToHelloOk(output, unpluggedMesh);
     	} else if (id.equals(GET_POST)) {
-    		this.setPostId(parsePostId());
-    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
-    		if (postToReq != null) {
-    			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
-    		}
+    		respondToGetPost(output, unpluggedMesh);
     	} else if (id.equals(GET_POST_OK)) {
-    		Log.d(TAG, "ENTERED GET_POST_OK");
-    		this.setPostId(parsePostId());
-    		this.setTimestamp(parseTimestamp());
-    		this.setContent(parseContent());
-    		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
-    		Log.d(TAG, "weirdness " + postId);
-    		if (postToReq == null) {
-    			Log.d(TAG, "PLZ ADD");
-    			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
-    			Log.d(TAG, "ADDED NEW POST " + postId);
-    		}
+    		respondToGetPostOk(output, unpluggedMesh);
     	}
     }
+    
+    public void respondToHello(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
+    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
+    	HydraPost newestPost = HydraPost.newestHydraPost(posts);
+		String newestPostId;
+		if(newestPost == null) {
+			newestPostId = "null";
+		} else {
+			newestPostId = newestPost.getId();
+		}
+		output.write(HydraMsg.serializeHydraPostMsg(HELLO_OK, newestPostId));
+		Log.d(TAG, "END HELLO" + newestPostId );
+    }
+    
+    public void respondToHelloOk(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
+    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
+        this.setPostId(parsePostId());
+		if(!postId.equals("null")) {
+			HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
+			if (postToReq == null) {
+				output.write(HydraMsg.serializeHydraPostMsg(GET_POST, postId));
+				Log.d(TAG, "REPLIED WITH " + GET_POST + postId);
+			}
+		}
+    }
+    
+    public void respondToGetPost(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
+    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
+		this.setPostId(parsePostId());
+		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
+		if (postToReq != null) {
+			output.write(HydraMsg.serializeHydraMsgWPost(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
+		}
+    }
+    
+    public void respondToGetPostOk(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
+    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
+		Log.d(TAG, "ENTERED GET_POST_OK");
+		this.setPostId(parsePostId());
+		this.setTimestamp(parseTimestamp());
+		this.setContent(parseContent());
+		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
+		Log.d(TAG, "weirdness " + postId);
+		if (postToReq == null) {
+			Log.d(TAG, "PLZ ADD");
+			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
+			Log.d(TAG, "ADDED NEW POST " + postId);
+		}
+    }
+    
     
     public static byte[] serializeHydraPostMsg(String id, String postId_) {
     	return (id + SEPARATOR + postId_).getBytes();
