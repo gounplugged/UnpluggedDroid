@@ -31,10 +31,8 @@ public class ChatActivity extends ActionBarActivity {
 	
 	// GUI
 	private boolean guiLoaded = false;
-	private Button submitButton;
-	private Button refreshButton;
+	private ImageButton submitButton;
 	private EditText newPostText;
-	private TextView connectionStatus;
 	private ArrayAdapter<String> mChatArrayAdapter;
 	private ListView mChatView;
 	
@@ -52,7 +50,7 @@ public class ChatActivity extends ActionBarActivity {
         syncing = false;
         
         Log.d(TAG, "onCreate");
-        setContentView(R.layout.activity_chat);       
+        setContentView(R.layout.activity_chat);
         unpluggedMesh = new UnpluggedMesh("Unplugged", UUID.nameUUIDFromBytes("Unplugged".getBytes()), this);
         
         if (!unpluggedMesh.isBluetoothSupported()) {
@@ -242,26 +240,15 @@ public class ChatActivity extends ActionBarActivity {
     public void loadGui() {
     	if(!guiLoaded) {
 	    	Log.d(TAG, "loadGui");
-	    	
-	    	// Connection Status
-	    	connectionStatus = (TextView) findViewById(R.id.connection_status);
-	    	
+
 	    	// Submit Button
-	    	submitButton = (Button) findViewById(R.id.submit_button);
+	    	submitButton = (ImageButton) findViewById(R.id.submit_button);
 	        submitButton.setOnClickListener(new View.OnClickListener() {
 	            public void onClick(View v) {
 	            	sendMessage();
 	            }
 	        });
-	        
-	        // Refresh Button
-	        refreshButton = (Button) findViewById(R.id.refresh_button);
-	        refreshButton.setOnClickListener(new View.OnClickListener() {
-	        	public void onClick(View v) {
-	        		unpluggedMesh.restartConnection();
-	        	}
-	        });
-	    	
+
 	        // Enter pressed submission
 	    	newPostText = (EditText) findViewById(R.id.new_post_text);
 	        newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -278,7 +265,7 @@ public class ChatActivity extends ActionBarActivity {
 	        mChatArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
 	        mChatView = (ListView) findViewById(R.id.chats);
 	        mChatView.setAdapter(mChatArrayAdapter);
-	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, connectionStatus, mItemConnectionStatus));
+	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 	        
 	        // Discovered broadcast receiver
 //	        if(!unpluggedMesh.isServer()) {

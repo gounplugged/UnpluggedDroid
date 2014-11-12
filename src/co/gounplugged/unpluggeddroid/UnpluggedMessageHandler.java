@@ -16,13 +16,10 @@ public class UnpluggedMessageHandler extends Handler {
     public static final int STATE_CHANGED = 3;
     
     private ArrayAdapter<String> mArrayAdapter;
-    private TextView connectionStatus;
-
     private MenuItem mItemConnectionStatus;
 
-	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, TextView connectionStatus_, MenuItem itemConnectionStatus) {
+	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, MenuItem itemConnectionStatus) {
     	this.mArrayAdapter = arrayAdapter;
-    	this.connectionStatus = connectionStatus_;
         mItemConnectionStatus = itemConnectionStatus;
     }
     
@@ -46,12 +43,10 @@ public class UnpluggedMessageHandler extends Handler {
 		    case STATE_CHANGED:
 		    	 switch (msg.arg1) {
 			    	 case UnpluggedMesh.STATE_DISCONNECTED:
-			    		 connectionStatus.setText("Disconnected");
                          if (mItemConnectionStatus != null)
                             mItemConnectionStatus.setTitle("Disconnected");
 				    	 break;
 			    	 case UnpluggedMesh.STATE_CONNECTED:
-			    		 connectionStatus.setText("Connected");
                          if (mItemConnectionStatus != null)
                              mItemConnectionStatus.setTitle("Connected");
                          break;
