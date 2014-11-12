@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
+import android.util.Log;
+
 public class HydraPost  {
 	private final static String TAG = "HydraPost";
 	
 	private final String id;
-	private final long timestamp;
+	private final String timestamp;
 	private final String content;
 	
-	public HydraPost(String id_, long timestamp_, String content_) {
+	public HydraPost(String id_, String timestamp_, String content_) {
 		this.id = id_;
 		this.timestamp = timestamp_;
 		this.content = content_;
@@ -19,7 +21,7 @@ public class HydraPost  {
 	
 	public HydraPost(String content_) {
 		this.content = content_;
-		this.timestamp = System.currentTimeMillis();
+		this.timestamp = Long.toString(System.currentTimeMillis());
 		this.id = (UUID.randomUUID()).toString();
 	}
 
@@ -27,7 +29,7 @@ public class HydraPost  {
 		return this.id;
 	}
 
-	public long getTimestamp() {
+	public String getTimestamp() {
 		return this.timestamp;
 	}
 
@@ -59,7 +61,7 @@ public class HydraPost  {
 //    
 //    public static void printPosts(ArrayList<HydraPost> posts) {
 //    	for (HydraPost p : posts) {
-//    		Log.d(TAG, "CREATED AT " + Long.toString(p.getTimestamp()));
+//    		Log.d(TAG, "CREATED AT " + p.getTimestamp());
 //    	}
 //    }
 

@@ -46,12 +46,15 @@ public class HydraPostTest extends AndroidTestCase {
     	}
     	HydraPost first = posts.get(9);
     	HydraPost newest = HydraPost.newestHydraPost(posts);
+//    	HydraPost.printPosts(posts);
+//    	Log.d(TAG, "Actual " + first.getId());
+//    	Log.d(TAG, "Decied " + newest.getId());
     	assertEquals(newest, first);
     }
     
     public void testEquals() {
-    	HydraPost p1 = new HydraPost("cat", 1, "content");
-    	HydraPost p2 = new HydraPost("cat", 2, "dog");
+    	HydraPost p1 = new HydraPost("cat", "1", "content");
+    	HydraPost p2 = new HydraPost("cat", "2", "dog");
     	
     	assertEquals(p1, p1);
     	assertEquals(p1, p2);

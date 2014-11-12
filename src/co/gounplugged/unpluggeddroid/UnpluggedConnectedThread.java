@@ -44,7 +44,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
     @Override
     public void run() {
     	Log.d(TAG, "running chat stream");
-        byte[] buffer = new byte[50];  // buffer store for the stream
+        byte[] buffer = new byte[1024];  // buffer store for the stream
         int bytes; // bytes returned from read()
  
         // Keep listening to the InputStream until an exception occurs
@@ -54,7 +54,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
                 // Read from the InputStream
             	bytes = mInputStream.read(buffer);
             	byte[] trimmedBuffer = trim(buffer);
-            	logBuffer(trimmedBuffer);
+//            	logBuffer(trimmedBuffer);
             	handleRead(bytes, trimmedBuffer);
             } catch (IOException e) {
             	cancel();
@@ -63,13 +63,13 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
         }
     }
     
-    public void logBuffer(byte[] buffer) {
-    	int i = 0;
-    	for(byte b : buffer) {
-    		Log.d(TAG, "Byte " + Integer.toString(i) + ": " + b);
-    		i++;
-    	}
-    }
+//    public void logBuffer(byte[] buffer) {
+//    	int i = 0;
+//    	for(byte b : buffer) {
+//    		Log.d(TAG, "Byte " + Integer.toString(i) + ": " + b);
+//    		i++;
+//    	}
+//    }
     
     public void handleRead(int bytes, byte[] buffer) {
         // Send the obtained bytes to the UI activity 	

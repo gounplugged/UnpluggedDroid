@@ -27,7 +27,7 @@ public class HydraMsg {
     private String id;                     //  HydraMsg message ID
     private String input;
     private String postId;
-    private long timestamp;
+    private String timestamp;
     private String content;
     
     public HydraMsg(byte[] input_) {
@@ -80,6 +80,7 @@ public class HydraMsg {
     		this.setTimestamp(parseTimestamp());
     		this.setContent(parseContent());
     		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
+    		Log.d(TAG, "weirdness " + postId);
     		if (postToReq == null) {
     			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
     			Log.d(TAG, "ADDED NEW POST " + postId);
@@ -95,24 +96,24 @@ public class HydraMsg {
     	return (id).getBytes();
     }
     
-    public static byte[] serializeHydraMsgWPost(String id, String postId_, long timestamp_, String content_) {
-    	return (id + SEPARATOR + postId_ + SEPARATOR + Long.toString(timestamp_) + SEPARATOR + content_).getBytes();
+    public static byte[] serializeHydraMsgWPost(String id, String postId_, String timestamp_, String content_) {
+    	return (id + SEPARATOR + postId_ + SEPARATOR + timestamp_ + SEPARATOR + content_).getBytes();
     }
 
     public String parseId() {
     	return getMessageSegments()[0];
     }
     
-    private String parsePostId() {
+    public String parsePostId() {
     	return getMessageSegments()[1];
     }
     
-    private String parseContent() {
+    public String parseContent() {
     	return getMessageSegments()[3];
     }
     
-    private long parseTimestamp() {
-    	return Long.getLong(getMessageSegments()[2]);
+    public String parseTimestamp() {
+    	return getMessageSegments()[2];
     }
 
 	public String getId() {
@@ -139,11 +140,11 @@ public class HydraMsg {
 		this.postId = postId;
 	}
 
-	public long getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(long timestamp) {
+	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
 
