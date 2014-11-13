@@ -102,7 +102,9 @@ public class HydraMsg {
 		if (postToReq == null) {
 			Log.d(TAG, "PLZ ADD");
 			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
-			Log.d(TAG, "ADDED NEW POST " + content);
+			Log.d(TAG, "ADDED NEW POST id " + postId);
+			Log.d(TAG, "ADDED NEW POST time" + timestamp);
+			Log.d(TAG, "ADDED NEW POST content" + content);
 		}
     }
     
