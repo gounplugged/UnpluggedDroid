@@ -15,7 +15,7 @@ import android.util.Log;
 public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 	
 	// Constants
-	private String TAG = "UnpluggedConnectedThread";
+	private static String TAG = "UnpluggedConnectedThread";
 	
 	// Bluetooth SDK
     protected final InputStream mInputStream;
@@ -63,13 +63,13 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
         }
     }
     
-//    public void logBuffer(byte[] buffer) {
-//    	int i = 0;
-//    	for(byte b : buffer) {
-//    		Log.d(TAG, "Byte " + Integer.toString(i) + ": " + b);
-//    		i++;
-//    	}
-//    }
+    public static void logBuffer(byte[] buffer) {
+    	int i = 0;
+    	for(byte b : buffer) {
+    		Log.d(TAG, "Byte " + Integer.toString(i) + ": " + b);
+    		i++;
+    	}
+    }
     
     public void handleRead(int bytes, byte[] buffer) {
         // Send the obtained bytes to the UI activity 	
