@@ -21,7 +21,6 @@ import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 
@@ -87,9 +86,28 @@ public class ChatActivity extends ActionBarActivity {
     	}
 //    	unpluggedMesh.restart();
 //    	unpluggedMesh.start();
+
+        // Discovered broadcast receiver
+//	        if(!unpluggedMesh.isServer()) {
+        mDiscoveryBroadcastReceiver = newDiscoveryBroadcastReceiver();
+        // Register for broadcasts when a device is discovered
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
+
+        // Register for broadcasts when discovery has finished
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
+//	        }
     }
-    
-   @Override
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(mDiscoveryBroadcastReceiver);
+    }
+
+    @Override
    protected void onStop() {
 	   super.onStop();
    }
@@ -162,7 +180,7 @@ public class ChatActivity extends ActionBarActivity {
     	unpluggedMesh.stopAll();
     	// Unregister broadcast listeners
 //    	if(mDiscoveryBroadcastReceiver != null) 
-    	this.unregisterReceiver(mDiscoveryBroadcastReceiver);
+//    	this.unregisterReceiver(mDiscoveryBroadcastReceiver);
     }
     
     private void sendMessage() {
@@ -273,17 +291,7 @@ public class ChatActivity extends ActionBarActivity {
 	        mChatView.setAdapter(mChatArrayAdapter);
 	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 	        
-	        // Discovered broadcast receiver
-//	        if(!unpluggedMesh.isServer()) {
-	        	mDiscoveryBroadcastReceiver = newDiscoveryBroadcastReceiver();
-	        	// Register for broadcasts when a device is discovered
-	        	IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-	        	this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
-	        	
-	        	// Register for broadcasts when discovery has finished
-	        	filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-	        	this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
-//	        }
+
 	        
 	        guiLoaded = true;
     	}
