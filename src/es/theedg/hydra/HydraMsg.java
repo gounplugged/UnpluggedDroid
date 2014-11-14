@@ -21,7 +21,7 @@ public class HydraMsg {
 //    public static final String GOODBYE_OK            = 10;
     public static final String INVALID               = "INVALID";
     public static final String FAILED                = "FAILED";
-    public static final String SEPARATOR = "araARSrstRast";
+    public static final String SEPARATOR = "^^vvv^^^vvv^^^";
 
     //  Structure of our class
     private String id;                     //  HydraMsg message ID

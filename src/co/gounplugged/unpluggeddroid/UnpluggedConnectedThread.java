@@ -97,6 +97,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 			mOutputStream.close();
 			mInputStream.close();
 			mBluetoothSocket.close();
+			mUnpluggedMesh.setConnectionState(UnpluggedMesh.STATE_DISCONNECTED);
 		} catch (IOException e) {}
     }
     

@@ -182,7 +182,7 @@ public class UnpluggedMesh extends Thread implements HydraPostDb {
 			parentActivity.startBroadcast();
 			isBroadcasting = true;
 		}
-		setConnectionState(STATE_DISCONNECTED);
+//		setConnectionState(STATE_DISCONNECTED);
 	}
 	
 	public synchronized void startAccepting() {
