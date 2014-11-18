@@ -159,7 +159,7 @@ public class UnpluggedMesh extends Thread implements HydraPostDb {
 	}
 	
 	 public synchronized void connectClient(BluetoothDevice bluetoothDevice) {
-		 Log.d(TAG, "connect to: " + bluetoothDevice);
+		 Log.d(TAG, "connect to [" + getConnectionState() + "]: " + bluetoothDevice);
 		 if(getConnectionState() == STATE_DISCONNECTED) {
 			 setConnectionState(STATE_CONNECTING);
 			 resetClient();
