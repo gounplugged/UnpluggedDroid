@@ -5,6 +5,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+import co.gounplugged.unpluggeddroid.bluetooth.UnpluggedBluetoothManager;
 import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
 
 public class UnpluggedMessageHandler extends Handler {
@@ -46,11 +47,11 @@ public class UnpluggedMessageHandler extends Handler {
 		    
 		    case STATE_CHANGED:
 		    	 switch (msg.arg1) {
-			    	 case UnpluggedMesh.STATE_DISCONNECTED:
+			    	 case UnpluggedBluetoothManager.STATE_DISCONNECTED:
                          if (mItemConnectionStatus != null)
                             mItemConnectionStatus.setTitle("Disconnected");
 				    	 break;
-			    	 case UnpluggedMesh.STATE_CONNECTED:
+			    	 case UnpluggedBluetoothManager.STATE_CONNECTED:
                          if (mItemConnectionStatus != null)
                              mItemConnectionStatus.setTitle("Connected");
                          break;

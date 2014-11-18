@@ -12,7 +12,7 @@ public class TestHydraPostDb implements HydraPostDb{
 		return hydraPosts;		
 	}
 	
-	public void newHydraPost(int msgCode, HydraPost p) {
+	public void addHydraPost(int msgCode, HydraPost p) {
 		hydraPosts.add(p);
 	}
 }

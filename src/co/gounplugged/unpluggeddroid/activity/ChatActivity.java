@@ -1,5 +1,7 @@
 package co.gounplugged.unpluggeddroid.activity;
 
+import java.util.UUID;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -15,13 +17,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.*;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
-
-import java.util.UUID;
 
 
 public class ChatActivity extends ActionBarActivity {
@@ -112,8 +116,6 @@ public class ChatActivity extends ActionBarActivity {
 	   super.onStop();
    }
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -125,7 +127,7 @@ public class ChatActivity extends ActionBarActivity {
                 menuItem.setActionView(R.layout.actionbar_progress);
                 menuItem.expandActionView();
 
-                unpluggedMesh.restartConnection();
+                unpluggedMesh.restartConnection(this);
 
                 //AsyncTask used to 'fake' progress by showing spinner for x seconds
                 new AsyncTask<Void, Void, String>() {
@@ -185,25 +187,17 @@ public class ChatActivity extends ActionBarActivity {
     
     private void sendMessage() {
     	String str = newPostText.getText().toString(); 
-    	unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_WRITE, str);
+    	unpluggedMesh.addHydraPost(UnpluggedMessageHandler.MESSAGE_WRITE, str);
     	//    	unpluggedMesh.sendMessage(str);
 		newPostText.setText("");
     } 
     
     public void startBroadcast() {
     	Log.d(TAG, "startBroadcast");
-    	stopDiscovery();
+    	unpluggedMesh.stopDiscovery();
 		Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_PERIOD);
 		startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE);
-    }
-    
-    public void startDiscovery() {
-    	unpluggedMesh.startDiscovery();
-    }
-    
-    private void stopDiscovery() {
-    	unpluggedMesh.stopDiscovery();
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data){

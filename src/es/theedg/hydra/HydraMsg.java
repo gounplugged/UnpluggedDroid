@@ -1,6 +1,7 @@
 package es.theedg.hydra;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import android.util.Log;
@@ -24,19 +25,29 @@ public class HydraMsg {
     public static final String SEPARATOR = "^^vvv^^^vvv^^^";
 
     //  Structure of our class
-    private String id;                     //  HydraMsg message ID
-    private String input;
+    private final String id;                     //  HydraMsg message ID
+    private final String input;
     private String postId;
     private String timestamp;
     private String content;
     
     public HydraMsg(byte[] input_) {
+    	String id_;
+    	String in_;
     	try {
-    		this.input =  new String(input_, "UTF-8");
-			this.setId(parseId());
+    		in_ =  new String(input_, "UTF-8");
+			id_ = parseId();
 		} catch (UnsupportedEncodingException e) {
-			this.setId(INVALID);
+			in_ = HydraMsg.INVALID;
+			id_ = HydraMsg.INVALID;
 		}
+    	this.input = in_;
+    	this.id = id_;
+    }
+    
+    public HydraMsg(String s) {
+		this.input =  s;
+		this.id = parseId();
     }
     
     public static HydraMsg newHelloMsg() {
@@ -64,7 +75,7 @@ public class HydraMsg {
 			newestPostId = "null";
 		} else {
 			newestPostId = newestPost.getId();
-			Log.d(TAG, "HELLO_OK " + newestPost.getContent() );
+//			Log.d(TAG, "HELLO_OK " + newestPost.getContent() );
 		}
 		output.write(HydraMsg.serializeHydraMsg(HELLO_OK, newestPostId));
     }
@@ -76,7 +87,7 @@ public class HydraMsg {
 			HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
 			if (postToReq == null) {
 				output.write(HydraMsg.serializeHydraMsg(GET_POST, postId));
-				Log.d(TAG, "REPLIED TO HELLO_OK: " + GET_POST + postId);
+//				Log.d(TAG, "REPLIED TO HELLO_OK: " + GET_POST + postId);
 			}
 		}
     }
@@ -87,7 +98,7 @@ public class HydraMsg {
 		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
 		if (postToReq != null) {
 			output.write(HydraMsg.serializeHydraMsg(GET_POST_OK, postToReq.getId(), postToReq.getTimestamp(), postToReq.getContent()));
-			Log.d(TAG, "REPLIED TO GET_POST: " + GET_POST_OK + " " + postToReq.getContent());
+//			Log.d(TAG, "REPLIED TO GET_POST: " + GET_POST_OK + " " + postToReq.getContent());
 		}
     }
     
@@ -98,13 +109,13 @@ public class HydraMsg {
 		this.setTimestamp(parseTimestamp());
 		this.setContent(parseContent());
 		HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
-		Log.d(TAG, "weirdness " + content);
+//		Log.d(TAG, "weirdness " + content);
 		if (postToReq == null) {
 			Log.d(TAG, "PLZ ADD");
-			unpluggedMesh.newHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
-			Log.d(TAG, "ADDED NEW POST id " + postId);
-			Log.d(TAG, "ADDED NEW POST time" + timestamp);
-			Log.d(TAG, "ADDED NEW POST content" + content);
+			unpluggedMesh.addHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(postId, timestamp, content));
+//			Log.d(TAG, "ADDED NEW POST id " + postId);
+//			Log.d(TAG, "ADDED NEW POST time" + timestamp);
+//			Log.d(TAG, "ADDED NEW POST content" + content);
 		}
     }
     
@@ -114,8 +125,8 @@ public class HydraMsg {
 	    for (int i = 1; i < sections.length; i++) {   
 	      serialized += SEPARATOR + sections[i];
 	    }
-	    Log.d(TAG, "SERIALIZING" + serialized);
-	    return serialized.getBytes();
+//	    Log.d(TAG, "SERIALIZING" + serialized);
+	    return HydraMsg.getFormattedBytes(serialized);
 	 }
     
 
@@ -138,13 +149,9 @@ public class HydraMsg {
 	public String getId() {
 		return id;
 	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 	
 	public String[] getMessageSegments() {
-		return input.split(SEPARATOR);
+		return input.split(HydraMsg.SEPARATOR);
 	}
 	
 	public String getInput() {
@@ -173,5 +180,9 @@ public class HydraMsg {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public static byte[] getFormattedBytes(String s) {
+		return s.getBytes(Charset.forName("UTF-8"));
 	}
 }

@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid;
+package co.gounplugged.unpluggeddroid.bluetooth;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -6,20 +6,21 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
 import android.util.Log;
 
-public class UnpluggedBluetoothServer extends UnpluggedNode {
+public class UnpluggedBluetoothServer extends Thread {
 	
 	// Constants
 	private String TAG = "UnpluggedBluetoothServer";
 	
 	// Bluetooth SDK
 	private final BluetoothServerSocket mBluetoothServerSocket;
+	private final UnpluggedBluetoothManager mUnpluggedBluetoothManager;
+	private final BluetoothAdapter mBluetoothAdapter;
 		
-	public UnpluggedBluetoothServer(UnpluggedMesh unpluggedMesh, BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid, Handler handler) {
-		super(unpluggedMesh, bluetoothAdapter);
-		
+	public UnpluggedBluetoothServer(UnpluggedBluetoothManager unpluggedBluetoothManager, BluetoothAdapter bluetoothAdapter, String serviceName, UUID uuid) {
+		this.mUnpluggedBluetoothManager = unpluggedBluetoothManager;
+		this.mBluetoothAdapter = bluetoothAdapter;
         // Use a temporary object that is later assigned to mBluetoothServerSocket,
         // because mBluetoothServerSocket is final
         BluetoothServerSocket tBluetoothServerSocket = null;
@@ -44,8 +45,8 @@ public class UnpluggedBluetoothServer extends UnpluggedNode {
 	        }
 	        // If a connection was accepted
 	        if (bluetoothSocket != null) {
-	        	if (mUnpluggedMesh.getConnectionState() != UnpluggedMesh.STATE_CONNECTED) {
-	        		mUnpluggedMesh.connectionEstablished(bluetoothSocket);
+	        	if (mUnpluggedBluetoothManager.getConnectionState() != UnpluggedBluetoothManager.STATE_CONNECTED) {
+	        		mUnpluggedBluetoothManager.connectionEstablished(bluetoothSocket);
 	        	} else {
 	        		try {
 		        		 bluetoothSocket.close();

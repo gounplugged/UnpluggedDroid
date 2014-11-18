@@ -13,8 +13,7 @@ public class TestUnpluggedConnectedThread implements HydraMsgOutput {
 		this.mOutputStream = outputStream;
 	}
 
-	 
-    /* Call this from the main activity to send data to the remote device */
+	/* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
     	Log.d("TestUnpluggedConnectedThread", "write");
         try {

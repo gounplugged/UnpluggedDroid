@@ -9,6 +9,7 @@ import java.io.PipedOutputStream;
 import java.util.Arrays;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 import co.gounplugged.unpluggeddroid.test.TestUnpluggedConnectedThread;
 
 public class HydraMsgTest extends AndroidTestCase {
@@ -36,7 +37,7 @@ public class HydraMsgTest extends AndroidTestCase {
     public void testSimpleHello() {
     	TestHydraPostDb db = new TestHydraPostDb();
     	HydraPost p = new HydraPost("cat");
-    	db.newHydraPost(0, p);
+    	db.addHydraPost(0, p);
       	HydraMsg m = HydraMsg.newHelloMsg();
     	
     	String l = testHydraMsg(m, db);
@@ -45,14 +46,14 @@ public class HydraMsgTest extends AndroidTestCase {
     
     public void testComplexHello() {
     	TestHydraPostDb db = new TestHydraPostDb();
-    	db.newHydraPost(0, new HydraPost("cat"));
-    	db.newHydraPost(0, new HydraPost("cat"));
+    	db.addHydraPost(0, new HydraPost("cat"));
+    	db.addHydraPost(0, new HydraPost("cat"));
     	sleep();
     	HydraPost old = new HydraPost("cat");
     	sleep();
     	HydraPost p = new HydraPost("cat");
-    	db.newHydraPost(0, p);
-    	db.newHydraPost(0, old);
+    	db.addHydraPost(0, p);
+    	db.addHydraPost(0, old);
     	
     	HydraMsg m = HydraMsg.newHelloMsg();
     	
@@ -79,7 +80,7 @@ public class HydraMsgTest extends AndroidTestCase {
     public void testGetPost() {
     	TestHydraPostDb db = new TestHydraPostDb();
     	HydraPost p = new HydraPost("cat");
-    	db.newHydraPost(0, p);
+    	db.addHydraPost(0, p);
     	HydraMsg m = new HydraMsg(HydraMsg.serializeHydraMsg(HydraMsg.GET_POST, p.getId()));
     	
     	String l = testHydraMsg(m, db);
@@ -138,5 +139,39 @@ public class HydraMsgTest extends AndroidTestCase {
     	try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {}
+    }
+    
+    public void testInstantiateWithID() {
+    	String a = "1";
+    	HydraMsg hydraMsg = new HydraMsg(a);
+	    assertEquals(hydraMsg.getId(), a);
+	    
+	    String b = HydraMsg.SEPARATOR;
+
+	    hydraMsg = new HydraMsg(a+b);
+	    assertEquals(hydraMsg.getId(), "1");
+	}
+    
+    public void testGetMessageSegments() {
+    	String a = "1";
+    	HydraMsg hydraMsg = new HydraMsg(a);
+    	String[] segments = hydraMsg.getMessageSegments();
+    	Log.d(TAG, "GOT SEGMENT: " + segments[0]);
+	    assertEquals(segments[0] , a);
+	    assertEquals(segments.length , 1);
+	    
+	    String b = HydraMsg.SEPARATOR;
+	    hydraMsg = new HydraMsg(a+b);
+	    segments = hydraMsg.getMessageSegments();
+	    Log.d(TAG, "GOT SEGMENT: " + segments[0]);
+	    assertEquals(segments[0] , a);
+	    assertEquals(segments.length , 1);
+	    
+	    String c = "bba";
+	    hydraMsg = new HydraMsg(a+b+c);
+	    segments = hydraMsg.getMessageSegments();
+	    assertEquals(segments[0] , a);
+	    assertEquals(segments[1] , c);
+	    assertEquals(segments.length , 2);
     }
 }

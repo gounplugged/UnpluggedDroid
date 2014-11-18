@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid;
+package co.gounplugged.unpluggeddroid.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,11 +6,11 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-import es.theedg.hydra.HydraMsg;
-import es.theedg.hydra.HydraMsgOutput;
-
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
+import co.gounplugged.unpluggeddroid.UnpluggedMesh;
+import es.theedg.hydra.HydraMsg;
+import es.theedg.hydra.HydraMsgOutput;
 
 public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 	
@@ -20,10 +20,10 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 	// Bluetooth SDK
     protected final InputStream mInputStream;
     protected final OutputStream mOutputStream;
-    private final UnpluggedMesh mUnpluggedMesh;
+    private final UnpluggedBluetoothManager mUnpluggedBluetoothManager;
     private final BluetoothSocket mBluetoothSocket;
  
-    public UnpluggedConnectedThread(BluetoothSocket bluetoothSocket, UnpluggedMesh unpluggedMesh) {
+    public UnpluggedConnectedThread(BluetoothSocket bluetoothSocket, UnpluggedBluetoothManager unpluggedBluetoothManager) {
         InputStream tInputStream = null;
         OutputStream tOutputStream = null;
  
@@ -37,8 +37,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
         this.mInputStream = tInputStream;
         this.mOutputStream = tOutputStream;
         this.mBluetoothSocket = bluetoothSocket;
-        this.mUnpluggedMesh = unpluggedMesh;
-        Log.d(TAG, "created a new");
+        this.mUnpluggedBluetoothManager = unpluggedBluetoothManager;
     }
  
     @Override
@@ -77,7 +76,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 			String str = new String(buffer, "UTF-8");
 			Log.d(TAG, "reveived chat: " + str);
 			HydraMsg hydraMsg = new HydraMsg(buffer);
-			hydraMsg.send(this, mUnpluggedMesh);
+			hydraMsg.send(this, mUnpluggedBluetoothManager.getHydraPostDb());
 		} catch (UnsupportedEncodingException e) {	}
     	
     }
@@ -97,7 +96,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
 			mOutputStream.close();
 			mInputStream.close();
 			mBluetoothSocket.close();
-			mUnpluggedMesh.setConnectionState(UnpluggedMesh.STATE_DISCONNECTED);
+			mUnpluggedBluetoothManager.setConnectionState(UnpluggedBluetoothManager.STATE_DISCONNECTED);
 		} catch (IOException e) {}
     }
     
