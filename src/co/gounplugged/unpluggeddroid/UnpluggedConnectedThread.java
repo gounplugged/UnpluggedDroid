@@ -49,7 +49,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
  
         // Keep listening to the InputStream until an exception occurs
         while (true) {
-        	Log.d(TAG, "new message received");
+        	Log.d(TAG, "new list_item_message_outgoing received");
             try {
                 // Read from the InputStream
             	bytes = mInputStream.read(buffer);

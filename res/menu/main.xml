@@ -1,7 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="co.gounplugged.unpluggeddroid.MainActivity" >
+    tools:context="co.gounplugged.unpluggeddroid.activity.ChatActivity" >
+
+    <item
+        android:id="@+id/action_connection_status"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:title="@string/connection_status"/>
+
+    <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_refresh"
+        android:title="Refresh"/>
 
     <item
         android:id="@+id/action_settings"

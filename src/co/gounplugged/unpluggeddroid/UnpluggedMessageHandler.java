@@ -3,8 +3,9 @@ package co.gounplugged.unpluggeddroid;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.view.MenuItem;
+import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
 
 public class UnpluggedMessageHandler extends Handler {
 	private static final String TAG = "UnpluggedMessageHandler";
@@ -14,12 +15,12 @@ public class UnpluggedMessageHandler extends Handler {
     public static final int MESSAGE_WRITE = 2;
     public static final int STATE_CHANGED = 3;
     
-    private ArrayAdapter<String> mArrayAdapter;
-    private TextView connectionStatus;
+    private MessageAdapter mMessageAdapter;
+    private MenuItem mItemConnectionStatus;
 
-	public UnpluggedMessageHandler(ArrayAdapter<String> arrayAdapter, TextView connectionStatus_) {
-    	this.mArrayAdapter = arrayAdapter;
-    	this.connectionStatus = connectionStatus_;
+	public UnpluggedMessageHandler(MessageAdapter messageAdapter, MenuItem itemConnectionStatus) {
+    	this.mMessageAdapter = messageAdapter;
+        mItemConnectionStatus = itemConnectionStatus;
     }
     
 	@Override
@@ -29,24 +30,30 @@ public class UnpluggedMessageHandler extends Handler {
 			    byte[] writeBuf = (byte[]) msg.obj;
 			    // construct a string from the buffer
 			    String writeMessage = new String(writeBuf);
-			    mArrayAdapter.add("Me: " + writeMessage);
+                UnpluggedMessage unpluggedMessage = new UnpluggedMessage(writeMessage,
+                        UnpluggedMessage.TYPE_OUTGOING, System.currentTimeMillis());
+			    mMessageAdapter.addMessage(unpluggedMessage);
 			    break;
 		    
 		    case MESSAGE_READ:
 			    byte[] readBuf = (byte[]) msg.obj;
 			    // construct a string from the valid bytes in the buffer
 			    String readMessage = new String(readBuf);
-			    mArrayAdapter.add("SOMEONE: " + readMessage);
+                UnpluggedMessage message = new UnpluggedMessage(readMessage,
+                        UnpluggedMessage.TYPE_INCOMING, System.currentTimeMillis());
+                mMessageAdapter.addMessage(message);
 			    break;
 		    
 		    case STATE_CHANGED:
 		    	 switch (msg.arg1) {
 			    	 case UnpluggedMesh.STATE_DISCONNECTED:
-			    		 connectionStatus.setText("Disconnected");
+                         if (mItemConnectionStatus != null)
+                            mItemConnectionStatus.setTitle("Disconnected");
 				    	 break;
 			    	 case UnpluggedMesh.STATE_CONNECTED:
-			    		 connectionStatus.setText("Connected");
-				    	 break;
+                         if (mItemConnectionStatus != null)
+                             mItemConnectionStatus.setTitle("Connected");
+                         break;
 		    	 }
 		    	 Log.d(TAG, msg.what + " " + msg.arg1);
 		    	 break;

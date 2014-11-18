@@ -26,3 +26,8 @@ proguard/
 *.log
 
 *~
+
+# IDEA IDE config folder / .iml files
+.idea/
+*.iml
+out/
