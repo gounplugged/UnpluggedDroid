@@ -3,6 +3,7 @@ package es.theedg.hydra;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import android.util.Log;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
@@ -25,8 +26,8 @@ public class HydraMsg {
     public static final String SEPARATOR = "^^vvv^^^vvv^^^";
 
     //  Structure of our class
-    private final String id;                     //  HydraMsg message ID
-    private final String input;
+    private String id;                     //  HydraMsg message ID
+    private String input;
     private String postId;
     private String timestamp;
     private String content;
@@ -35,19 +36,19 @@ public class HydraMsg {
     	String id_;
     	String in_;
     	try {
-    		in_ =  new String(input_, "UTF-8");
-			id_ = parseId();
+    		this.input =  new String(input_, "UTF-8");
+			this.id = parseId();
 		} catch (UnsupportedEncodingException e) {
-			in_ = HydraMsg.INVALID;
-			id_ = HydraMsg.INVALID;
+			this.input = HydraMsg.INVALID;
+			this.id = HydraMsg.INVALID;
 		}
-    	this.input = in_;
-    	this.id = id_;
     }
     
     public HydraMsg(String s) {
 		this.input =  s;
 		this.id = parseId();
+		Log.d(TAG, "ID: " + id);
+		Log.d(TAG, "INPUT: " + input);
     }
     
     public static HydraMsg newHelloMsg() {
@@ -151,7 +152,7 @@ public class HydraMsg {
 	}
 	
 	public String[] getMessageSegments() {
-		return input.split(HydraMsg.SEPARATOR);
+		return input.split(Pattern.quote(HydraMsg.SEPARATOR));
 	}
 	
 	public String getInput() {
