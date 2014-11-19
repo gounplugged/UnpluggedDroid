@@ -14,8 +14,8 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.ParcelUuid;
-import android.util.Log;
 import co.gounplugged.unpluggeddroid.UnpluggedConnectionManager;
+import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.activity.ChatActivity;
 import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraMsgOutput;
@@ -24,13 +24,15 @@ import es.theedg.hydra.HydraPostDb;
 public class UnpluggedBleManager implements UnpluggedConnectionManager {
 	// Initializes Bluetooth adapter.
 	private final BluetoothAdapter mBluetoothAdapter;
-	private UnpluggedBleHydraMsgOutput mUnpluggedBleHydraMsgOutput;
+	private final UnpluggedBleHydraMsgOutput mUnpluggedBleHydraMsgOutput;
+	private final UnpluggedMesh mUnpluggedMesh;
 
     private boolean isScanning;
 	
-	public UnpluggedBleManager(BluetoothAdapter bluetoothAdapter) {
+	public UnpluggedBleManager(BluetoothAdapter bluetoothAdapter, UnpluggedMesh unpluggedMesh) {
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.mUnpluggedBleHydraMsgOutput = new UnpluggedBleHydraMsgOutput(bluetoothAdapter);
+		this.mUnpluggedMesh = unpluggedMesh;
 		 this.isScanning = false;
 	}
 	
@@ -42,20 +44,17 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 
 	@Override
 	public String getServiceName() {
-		// TODO Auto-generated method stub
-		return null;
+		return mUnpluggedMesh.getServiceName();
 	}
 
 	@Override
 	public UUID getUuid() {
-		// TODO Auto-generated method stub
-		return null;
+		return mUnpluggedMesh.getUuid();
 	}
 
 	@Override
 	public HydraPostDb getHydraPostDb() {
-		// TODO Auto-generated method stub
-		return null;
+		return mUnpluggedMesh;
 	}
 
 	public boolean isEnabled() {
@@ -96,7 +95,6 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 		 }
 	}
 	
-
 	class UnpluggedBleHydraMsgOutput implements HydraMsgOutput {
 		
 		private final BluetoothAdapter mBluetoothAdapter;
@@ -114,7 +112,7 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 			AdvertiseSettings as = asb.build();
 			
 			AdvertiseData.Builder adb = new AdvertiseData.Builder();
-			adb.addServiceData(ChatActivity.getParcelUuid(), bytes);
+			adb.addServiceData(mUnpluggedMesh.getParcelUuid(), bytes);
 			AdvertiseData ad = adb.build();
 			
 			bluetoothAdvertiser.startAdvertising(as, ad, new AdvertiseCallback() {
@@ -131,5 +129,10 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 			
 		}
 	
+	}
+
+	@Override
+	public void stop() {
+		
 	}
 }

@@ -83,7 +83,7 @@ public class ChatActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
     	super.onStart();
-    	if (!unpluggedMesh.isBluetoothEnabled()) {
+    	if (!unpluggedMesh.areConnectionsEnabled()) {
   
     	} else {
     		loadGui();
@@ -138,8 +138,6 @@ public class ChatActivity extends ActionBarActivity {
                 final MenuItem menuItem = item;
                 menuItem.setActionView(R.layout.actionbar_progress);
                 menuItem.expandActionView();
-
-                unpluggedMesh.restartConnection(this);
 
                 //AsyncTask used to 'fake' progress by showing spinner for x seconds
                 new AsyncTask<Void, Void, String>() {
@@ -230,6 +228,7 @@ public class ChatActivity extends ActionBarActivity {
     	if (requestCode == REQUEST_ENABLE_BT)  { // Response to Enable Bluetooth
     		if (resultCode == RESULT_OK){
         		loadGui();
+        		unpluggedMesh.resumeConnections();
     		} else {
     			 Log.d(TAG, "BT not enabled");
     			 finish();
@@ -259,13 +258,10 @@ public class ChatActivity extends ActionBarActivity {
 		    		 // If it's already paired, skip it, because it's been listed already
 		    		 if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
 				    	if(bluetoothDevice.getName() != null && bluetoothDevice.getName().equals("motop")){
-				    		unpluggedMesh.connectClient(bluetoothDevice);
+				    		// Connect client
 	    			    }
 		    		 } else {
-		    			 Log.d(TAG, "bluetooth device already bonded");
-		    			 BluetoothDevice bondedBluetoothDevice = unpluggedMesh.isBonded(bluetoothDevice);
-				    	if( bondedBluetoothDevice != null) bluetoothDevice = unpluggedMesh.actualFromBonded(bondedBluetoothDevice);
-				    	unpluggedMesh.connectClient(bluetoothDevice);
+		    			 // Connect already bonded
 		    		 }
 		    		 // When discovery is finished, change the Activity title
 	    		 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -274,9 +270,6 @@ public class ChatActivity extends ActionBarActivity {
     		}
 	    };
     }
-    
-    
-
     
 	/////////////////////////////////////////   Connectivity ////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +299,6 @@ public class ChatActivity extends ActionBarActivity {
     
     public void startBroadcast() {
     	Log.d(TAG, "startBroadcast");
-    	unpluggedMesh.stopDiscovery();
 		Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_PERIOD);
 		startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE);
