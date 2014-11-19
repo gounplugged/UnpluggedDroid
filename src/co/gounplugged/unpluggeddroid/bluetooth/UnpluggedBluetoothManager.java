@@ -28,7 +28,7 @@ public class UnpluggedBluetoothManager implements UnpluggedConnectionManager {
 	private UnpluggedMesh mUnpluggedMesh;
 	private UnpluggedBluetoothClient unpluggedBluetoothClient;
 	private UnpluggedBluetoothServer unpluggedBluetoothServer;
-	private UnpluggedConnectedThread unpluggedConnectedThread;
+	private UnpluggedBluetoothHydraMsgOutput unpluggedConnectedThread;
 	
 	public UnpluggedBluetoothManager(UnpluggedMesh unpluggedMesh) {
 		 this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -99,7 +99,7 @@ public class UnpluggedBluetoothManager implements UnpluggedConnectionManager {
 		resetServer();
 		
 		// Start the thread to manage the connection and perform transmissions
-		unpluggedConnectedThread = new UnpluggedConnectedThread(socket, this);
+		unpluggedConnectedThread = new UnpluggedBluetoothHydraMsgOutput(socket, this);
 		unpluggedConnectedThread.start();
 		
 		// Send the name of the connected device back to the UI Activity
@@ -185,6 +185,18 @@ public class UnpluggedBluetoothManager implements UnpluggedConnectionManager {
 	@Override
 	public HydraPostDb getHydraPostDb() {
 		return mUnpluggedMesh;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void resumeConnection() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

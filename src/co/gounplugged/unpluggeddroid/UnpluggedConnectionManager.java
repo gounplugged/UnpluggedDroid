@@ -9,4 +9,6 @@ public interface UnpluggedConnectionManager {
 	public String getServiceName();
 	public UUID getUuid();
 	public HydraPostDb getHydraPostDb();
+	public boolean isEnabled();
+	public void resumeConnection();
 }

@@ -1,15 +1,19 @@
 package co.gounplugged.unpluggeddroid.activity;
 
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -37,11 +41,13 @@ public class ChatActivity extends ActionBarActivity {
 	private static int REQUEST_ENABLE_DISCOVERABLE = 2;
 	private static int DISCOVERABLE_PERIOD = 0; // 0 = always on
 	
+	public static final String SERVICE_NAME = "Unplugged";
+	public static final UUID Uuid = UUID.nameUUIDFromBytes(SERVICE_NAME.getBytes(Charset.forName("UTF-8")));
+	
 	// GUI
 	private boolean guiLoaded = false;
 	private ImageButton submitButton;
 	private EditText newPostText;
-//	private ArrayAdapter<String> mChatArrayAdapter;
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
 	
@@ -52,32 +58,42 @@ public class ChatActivity extends ActionBarActivity {
 	
 	// Unplugged
 	private UnpluggedMesh unpluggedMesh;
+	
+	public static ParcelUuid getParcelUuid() {
+		return new ParcelUuid(ChatActivity.Uuid);
+	}
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         syncing = false;
         
-        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_chat);
-        unpluggedMesh = new UnpluggedMesh("Unplugged", UUID.nameUUIDFromBytes("Unplugged".getBytes()), this);
+        BluetoothAdapter bluetoothAdapter;
         
-        if (!unpluggedMesh.isBluetoothSupported()) {
-			 Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+        if (!isBleSupported()) {
+			 Toast.makeText(this, "BLE is not available", Toast.LENGTH_LONG).show();
 			 finish();
 			 return;
+        } else {
+        	final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        	bluetoothAdapter = bluetoothManager.getAdapter();
         }
+        
+        unpluggedMesh = new UnpluggedMesh(SERVICE_NAME, Uuid, this, bluetoothAdapter);
+    }
+    
+    private boolean isBleSupported() {
+      return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
     
     @Override
     protected void onStart() {
     	super.onStart();
     	if (!unpluggedMesh.isBluetoothEnabled()) {
-    	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-    	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+  
     	} else {
     		loadGui();
-//    		unpluggedMesh.start();
     	}
     }
     
@@ -85,14 +101,11 @@ public class ChatActivity extends ActionBarActivity {
     protected synchronized void onResume() {
     	super.onResume();
     	if(!syncing) {
-    		unpluggedMesh.start();
+    		unpluggedMesh.resumeConnections();
+    		unpluggedMesh.ping();
     		syncing = true;
     	}
-//    	unpluggedMesh.restart();
-//    	unpluggedMesh.start();
 
-        // Discovered broadcast receiver
-//	        if(!unpluggedMesh.isServer()) {
         mDiscoveryBroadcastReceiver = newDiscoveryBroadcastReceiver();
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -101,7 +114,6 @@ public class ChatActivity extends ActionBarActivity {
         // Register for broadcasts when discovery has finished
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         this.registerReceiver(mDiscoveryBroadcastReceiver, filter);
-//	        }
     }
 
     @Override
@@ -188,7 +200,6 @@ public class ChatActivity extends ActionBarActivity {
     private void sendMessage() {
     	String str = newPostText.getText().toString(); 
     	unpluggedMesh.addHydraPost(UnpluggedMessageHandler.MESSAGE_WRITE, str);
-    	//    	unpluggedMesh.sendMessage(str);
 		newPostText.setText("");
     } 
     
@@ -285,12 +296,16 @@ public class ChatActivity extends ActionBarActivity {
 	        mChatView.setAdapter(mChatArrayAdapter);
 	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 	        
-
-	        
 	        guiLoaded = true;
     	}
     }
 
-
-
+	public void enableBle() {
+		enableBluetooth();
+	}
+	
+	public void enableBluetooth() {
+  	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+	}
 }

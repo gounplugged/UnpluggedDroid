@@ -12,7 +12,7 @@ import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraMsgOutput;
 
-public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
+public class UnpluggedBluetoothHydraMsgOutput extends Thread implements HydraMsgOutput {
 	
 	// Constants
 	private static String TAG = "UnpluggedConnectedThread";
@@ -23,7 +23,7 @@ public class UnpluggedConnectedThread extends Thread implements HydraMsgOutput {
     private final UnpluggedBluetoothManager mUnpluggedBluetoothManager;
     private final BluetoothSocket mBluetoothSocket;
  
-    public UnpluggedConnectedThread(BluetoothSocket bluetoothSocket, UnpluggedBluetoothManager unpluggedBluetoothManager) {
+    public UnpluggedBluetoothHydraMsgOutput(BluetoothSocket bluetoothSocket, UnpluggedBluetoothManager unpluggedBluetoothManager) {
         InputStream tInputStream = null;
         OutputStream tOutputStream = null;
  
