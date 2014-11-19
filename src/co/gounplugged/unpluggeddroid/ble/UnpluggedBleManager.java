@@ -65,7 +65,7 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 	public void resumeConnection() {
 		if(!isScanning) {
 			ScanFilter.Builder sfb = new ScanFilter.Builder();
-			sfb.setServiceUuid(new ParcelUuid(ChatActivity.Uuid));
+			sfb.setServiceUuid(mUnpluggedMesh.getParcelUuid());
 			ArrayList<ScanFilter> sfl = new ArrayList<ScanFilter>();
 			sfl.add(sfb.build());
 			
@@ -77,7 +77,7 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 			mBluetoothAdapter.getBluetoothLeScanner().startScan(sfl, ss, new ScanCallback() {
 				 public void onScanResult(int callbackType, ScanResult result) {
 					 ScanRecord sr = result.getScanRecord();
-					 byte[] buffer = sr.getServiceData(new ParcelUuid(ChatActivity.Uuid));
+					 byte[] buffer = sr.getServiceData(mUnpluggedMesh.getParcelUuid());
 					 HydraMsg hydraMsg = new HydraMsg(buffer);
 					 hydraMsg.send(mUnpluggedBleHydraMsgOutput, getHydraPostDb());
 				 }
@@ -89,7 +89,7 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 	class UnpluggedScanCallback extends ScanCallback {
 		public void onScanResult(int callbackType, ScanResult result) {
 			 ScanRecord sr = result.getScanRecord();
-			 byte[] buffer = sr.getServiceData(new ParcelUuid(ChatActivity.Uuid));
+			 byte[] buffer = sr.getServiceData(mUnpluggedMesh.getParcelUuid());
 			 HydraMsg hydraMsg = new HydraMsg(buffer);
 			 hydraMsg.send(mUnpluggedBleHydraMsgOutput, getHydraPostDb());
 		 }
