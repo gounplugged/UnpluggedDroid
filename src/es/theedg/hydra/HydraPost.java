@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
-import android.util.Log;
-
 public class HydraPost  {
 	private final static String TAG = "HydraPost";
 	

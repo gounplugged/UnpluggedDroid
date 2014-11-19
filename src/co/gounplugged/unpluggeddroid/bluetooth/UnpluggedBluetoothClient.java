@@ -2,7 +2,6 @@ package co.gounplugged.unpluggeddroid.bluetooth;
 
 import java.io.IOException;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;

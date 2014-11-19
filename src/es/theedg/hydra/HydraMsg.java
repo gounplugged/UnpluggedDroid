@@ -33,8 +33,6 @@ public class HydraMsg {
     private String content;
     
     public HydraMsg(byte[] input_) {
-    	String id_;
-    	String in_;
     	try {
     		this.input =  new String(input_, "UTF-8");
 			this.id = parseId();

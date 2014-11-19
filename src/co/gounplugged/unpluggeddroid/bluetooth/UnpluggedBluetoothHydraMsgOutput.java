@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
-import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraMsgOutput;
 
