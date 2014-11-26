@@ -1,8 +1,5 @@
 package co.gounplugged.unpluggeddroid.activity;
 
-import java.nio.charset.Charset;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -21,15 +18,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+
+import java.nio.charset.Charset;
+import java.util.UUID;
 
 
 public class ChatActivity extends ActionBarActivity {
@@ -124,7 +120,8 @@ public class ChatActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
     	super.onDestroy();
-    	unpluggedMesh.stopAll();
+        if (unpluggedMesh != null)
+    	    unpluggedMesh.stopAll();
     	guiLoaded = false;
     }
 
@@ -214,7 +211,9 @@ public class ChatActivity extends ActionBarActivity {
 	        mChatArrayAdapter = new MessageAdapter(this);
 	        mChatView = (ListView) findViewById(R.id.chats);
 	        mChatView.setAdapter(mChatArrayAdapter);
-	        unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
+
+            if (unpluggedMesh != null)
+	            unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 	        
 	        guiLoaded = true;
     	}
