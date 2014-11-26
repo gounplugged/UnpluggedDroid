@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.activity;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -11,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelUuid;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 import java.util.UUID;
 
 
-public class ChatActivity extends ActionBarActivity {
+public class ChatActivity extends Activity {
 	// Debug
 	private final String TAG = "ChatActivity";
 	

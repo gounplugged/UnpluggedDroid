@@ -6,13 +6,11 @@
     <item
         android:id="@+id/action_connection_status"
         android:orderInCategory="100"
-        app:showAsAction="ifRoom"
         android:title="@string/connection_status"/>
 
     <item
         android:id="@+id/action_refresh"
         android:orderInCategory="100"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_refresh"
         android:title="Refresh"/>
 
@@ -20,6 +18,6 @@
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        />
 
 </menu>
