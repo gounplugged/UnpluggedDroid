@@ -40,6 +40,24 @@ public class MessageAdapter extends BaseAdapter {
     }
 
     @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        UnpluggedMessage message = mMessages.get(position);
+        switch (message.getType()) {
+            case UnpluggedMessage.TYPE_INCOMING:
+                return 0;
+            case UnpluggedMessage.TYPE_OUTGOING:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         UnpluggedMessage message = mMessages.get(position);
 
