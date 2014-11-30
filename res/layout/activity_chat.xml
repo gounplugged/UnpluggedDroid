@@ -18,6 +18,12 @@
             android:transcriptMode="alwaysScroll"
             />
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_above="@+id/layout_below"/>
+
 
     <RelativeLayout
             android:id="@+id/layout_below"

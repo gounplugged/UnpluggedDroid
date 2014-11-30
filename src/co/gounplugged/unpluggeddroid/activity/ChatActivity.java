@@ -291,6 +291,7 @@ public class ChatActivity extends Activity {
 		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
+    //TODO remove
     int i = 0;
     private void sendMessage() {
         int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
