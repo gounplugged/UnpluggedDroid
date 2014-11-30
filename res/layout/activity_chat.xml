@@ -15,6 +15,7 @@
             android:dividerHeight="1dp"
             android:divider="@drawable/transparent_divider"
             android:stackFromBottom="true"
+            android:transcriptMode="alwaysScroll"
             />
 
 
