@@ -67,8 +67,8 @@ public class ChatActivity extends Activity {
         
         if (!isBleSupported()) {
 			 Toast.makeText(this, "BLE is not available", Toast.LENGTH_LONG).show();
-			 finish();
-			 return;
+//			 finish();
+//			 return;
         } 
         
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);

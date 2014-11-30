@@ -114,18 +114,20 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 			AdvertiseData.Builder adb = new AdvertiseData.Builder();
 			adb.addServiceData(mUnpluggedMesh.getParcelUuid(), bytes);
 			AdvertiseData ad = adb.build();
-			
-			bluetoothAdvertiser.startAdvertising(as, ad, new AdvertiseCallback() {
-				@Override
-				public void onStartFailure(int errorCode) {
-					
-				}
-				
-				@Override
-				public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-					
-				}
-			});
+
+            if (bluetoothAdvertiser != null) {
+                bluetoothAdvertiser.startAdvertising(as, ad, new AdvertiseCallback() {
+                    @Override
+                    public void onStartFailure(int errorCode) {
+
+                    }
+
+                    @Override
+                    public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+
+                    }
+                });
+            }
 			
 		}
 	
