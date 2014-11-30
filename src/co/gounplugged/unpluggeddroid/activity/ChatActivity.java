@@ -290,9 +290,15 @@ public class ChatActivity extends Activity {
 	private boolean isBleSupported() {
 		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
+
+    int i = 0;
     private void sendMessage() {
+        int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
+        if (i++%2 == 1)
+            messageType = UnpluggedMessageHandler.MESSAGE_READ;
+
     	String str = newPostText.getText().toString(); 
-    	unpluggedMesh.addHydraPost(UnpluggedMessageHandler.MESSAGE_WRITE, str);
+    	unpluggedMesh.addHydraPost(messageType, str);
 		newPostText.setText("");
     } 
     
