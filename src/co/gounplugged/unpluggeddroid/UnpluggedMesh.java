@@ -31,6 +31,8 @@ public class UnpluggedMesh extends Thread implements HydraPostDb {
 	
 	private boolean pinging;
 	
+	private static final int PING_RATE = 2000;
+	
 	public UnpluggedMesh(String serviceName_, UUID uuid_, ChatActivity activity, BluetoothAdapter bluetoothAdapter) {
 		 this.serviceName = serviceName_;
 		 this.uuid = uuid_;
@@ -59,7 +61,7 @@ public class UnpluggedMesh extends Thread implements HydraPostDb {
 //			mUnpluggedBluetoothManager.ping();
 			if(mUnpluggedBleManager != null) mUnpluggedBleManager.ping();
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(PING_RATE);
 			} catch (InterruptedException e) {
 				pinging = false;
 			}

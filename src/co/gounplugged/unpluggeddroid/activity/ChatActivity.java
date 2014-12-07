@@ -13,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.ParcelUuid;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -274,10 +273,6 @@ public class ChatActivity extends ActionBarActivity {
 	/////////////////////////////////////////   Connectivity ////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    public static ParcelUuid getParcelUuid() {
-		return new ParcelUuid(ChatActivity.Uuid);
-	}
     
 	public void enableBle() {
 		enableBluetooth();

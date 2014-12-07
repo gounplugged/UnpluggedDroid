@@ -13,6 +13,8 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.os.Handler;
+import android.util.Log;
 import co.gounplugged.unpluggeddroid.UnpluggedConnectionManager;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import es.theedg.hydra.HydraMsg;
@@ -20,10 +22,15 @@ import es.theedg.hydra.HydraMsgOutput;
 import es.theedg.hydra.HydraPostDb;
 
 public class UnpluggedBleManager implements UnpluggedConnectionManager {
+	private static final String TAG = "UnpluggedBleManager";
+	
 	// Initializes Bluetooth adapter.
 	private final BluetoothAdapter mBluetoothAdapter;
 	private final UnpluggedBleHydraMsgOutput mUnpluggedBleHydraMsgOutput;
 	private final UnpluggedMesh mUnpluggedMesh;
+	private final UnpluggedBleAdvertiseCallback mUnpluggedBleAdvertiseCallback;
+	
+	private static final int ADVERTISE_PERIOD = 1000; // ms
 
     private boolean isScanning;
 	
@@ -31,7 +38,9 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 		this.mBluetoothAdapter = bluetoothAdapter;
 		this.mUnpluggedBleHydraMsgOutput = new UnpluggedBleHydraMsgOutput(bluetoothAdapter);
 		this.mUnpluggedMesh = unpluggedMesh;
-		 this.isScanning = false;
+		this.isScanning = false;
+		this.mUnpluggedBleAdvertiseCallback = new UnpluggedBleAdvertiseCallback();
+		
 	}
 	
 	@Override
@@ -103,27 +112,37 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 	
 		@Override
 		public void write(byte[] bytes) {
-			BluetoothLeAdvertiser bluetoothAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-			AdvertiseSettings.Builder asb = new AdvertiseSettings.Builder();
-			asb.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
-			asb.setConnectable(false);
-			AdvertiseSettings as = asb.build();
-			
-			AdvertiseData.Builder adb = new AdvertiseData.Builder();
-			adb.addServiceData(mUnpluggedMesh.getParcelUuid(), bytes);
-			AdvertiseData ad = adb.build();
-			
-			bluetoothAdvertiser.startAdvertising(as, ad, new AdvertiseCallback() {
-				@Override
-				public void onStartFailure(int errorCode) {
-					
-				}
+			Log.d(TAG, "Starting write attempt");
+			if(mBluetoothAdapter.isMultipleAdvertisementSupported()){
+				BluetoothLeAdvertiser bluetoothAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+				bluetoothAdvertiser.stopAdvertising(mUnpluggedBleAdvertiseCallback);
+				Log.d(TAG, "bluetoothAdvertiser not null on write attempt");
+				AdvertiseSettings.Builder asb = new AdvertiseSettings.Builder();
+				asb.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
+				asb.setConnectable(false);
+				AdvertiseSettings as = asb.build();
 				
-				@Override
-				public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-					
-				}
-			});
+				AdvertiseData.Builder adb = new AdvertiseData.Builder();
+				adb.addServiceData(mUnpluggedMesh.getParcelUuid(), bytes);
+				AdvertiseData ad = adb.build();
+				
+				bluetoothAdvertiser.startAdvertising(as, ad, mUnpluggedBleAdvertiseCallback);
+//				new Thread(new Runnable() {
+//	                @Override
+//	                public void run() {
+//	                	try {
+//							Thread.sleep(ADVERTISE_PERIOD);
+//						} catch (InterruptedException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//	                	mBluetoothAdapter.getBluetoothLeAdvertiser().stopAdvertising(mUnpluggedBleAdvertiseCallback);
+//	                }
+//	            }).run();
+
+			} else {
+				Log.d(TAG, "bluetoothAdvertiser NULL on write attempt");
+			}
 			
 		}
 	
@@ -132,5 +151,17 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 	@Override
 	public void stop() {
 		
+	}
+	
+	class UnpluggedBleAdvertiseCallback extends AdvertiseCallback {
+		@Override
+		public void onStartFailure(int errorCode) {
+			Log.d(TAG, "Advertising failure");
+		}
+		
+		@Override
+		public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+			Log.d(TAG, "Advertising success");
+		}
 	}
 }

@@ -1,5 +1,7 @@
 package co.gounplugged.unpluggeddroid.adapter;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
-
-import java.util.ArrayList;
 
 
 public class MessageAdapter extends BaseAdapter {
