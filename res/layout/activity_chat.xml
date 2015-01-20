@@ -3,20 +3,37 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/chat_background"
-        >
+                android:background="@color/chat_background">
 
-    <ListView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="100" >
+
+        <ListView
             android:id="@+id/chats"
-            android:layout_height="match_parent"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_above="@+id/layout_below"
             android:background="#DDE0EB"
             android:dividerHeight="1dp"
             android:divider="@drawable/transparent_divider"
             android:stackFromBottom="true"
             android:transcriptMode="alwaysScroll"
+            android:layout_weight="20"
             />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#eee"
+            android:layout_weight="80" >
+
+            </RelativeLayout>
+
+    </LinearLayout>
+
 
     <View
         android:layout_width="fill_parent"
