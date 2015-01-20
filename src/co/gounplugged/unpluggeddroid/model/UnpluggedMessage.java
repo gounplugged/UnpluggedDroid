@@ -1,12 +1,24 @@
 package co.gounplugged.unpluggeddroid.model;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName = "messages")
 public class UnpluggedMessage {
 
     public static final int TYPE_INCOMING = 1;
     public static final int TYPE_OUTGOING = 2;
 
+    @DatabaseField(generatedId = true)
+    public long id;
+
+    @DatabaseField
     private String mMessage;
+
+    @DatabaseField
     private int mType;
+
+    @DatabaseField
     private long mTimeStamp;
 
     public UnpluggedMessage() {
