@@ -125,61 +125,61 @@ public class ChatActivity extends Activity {
     	guiLoaded = false;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                final MenuItem menuItem = item;
-                menuItem.setActionView(R.layout.actionbar_progress);
-                menuItem.expandActionView();
-
-                //AsyncTask used to 'fake' progress by showing spinner for x seconds
-                new AsyncTask<Void, Void, String>() {
-
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(String result) {
-                        menuItem.collapseActionView();
-                        menuItem.setActionView(null);
-                    }
-                }.execute();
-                break;
-            case R.id.action_settings:
-                Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT)
-                        .show();
-                break;
-            default:
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        mItemConnectionStatus = menu.findItem(R.id.action_connection_status);
-        // Hack: load gui again to make sure mItemConnectionStatus is passed on to UnpluggedMessageHandler
-        // so it can receive connection-updates
-        guiLoaded = false;
-        loadGui();
-
-        return true;
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        switch (item.getItemId()) {
+//            case R.id.action_refresh:
+//                final MenuItem menuItem = item;
+//                menuItem.setActionView(R.layout.actionbar_progress);
+//                menuItem.expandActionView();
+//
+//                //AsyncTask used to 'fake' progress by showing spinner for x seconds
+//                new AsyncTask<Void, Void, String>() {
+//
+//                    @Override
+//                    protected String doInBackground(Void... params) {
+//                        try {
+//                            Thread.sleep(2000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    protected void onPostExecute(String result) {
+//                        menuItem.collapseActionView();
+//                        menuItem.setActionView(null);
+//                    }
+//                }.execute();
+//                break;
+//            case R.id.action_settings:
+//                Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT)
+//                        .show();
+//                break;
+//            default:
+//                break;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//
+//        mItemConnectionStatus = menu.findItem(R.id.action_connection_status);
+//        // Hack: load gui again to make sure mItemConnectionStatus is passed on to UnpluggedMessageHandler
+//        // so it can receive connection-updates
+//        guiLoaded = false;
+//        loadGui();
+//
+//        return true;
+//    }
                   
 	/////////////////////////////////////////         GUI    ////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
