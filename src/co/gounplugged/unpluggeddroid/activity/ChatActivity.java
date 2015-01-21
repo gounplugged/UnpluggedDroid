@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelUuid;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,8 +24,14 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.model.Conversation;
+import co.gounplugged.unpluggeddroid.model.Message;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -84,6 +91,12 @@ public class ChatActivity extends Activity {
     	} else {
     		loadGui();
     	}
+
+        DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
+        List<Message> messages = messageDatabaseAccess.getAll();
+        mChatArrayAdapter.setMessages(messages);
+
+
     }
     
     @Override
@@ -294,13 +307,52 @@ public class ChatActivity extends Activity {
     //TODO remove
     int i = 0;
     private void sendMessage() {
-        int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
-        if (i++%2 == 1)
-            messageType = UnpluggedMessageHandler.MESSAGE_READ;
+//        int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
+//        if (i++%2 == 1)
+//            messageType = UnpluggedMessageHandler.MESSAGE_READ;
+//
+//    	String str = newPostText.getText().toString();
+//    	unpluggedMesh.addHydraPost(messageType, str);
+//		newPostText.setText("");
 
-    	String str = newPostText.getText().toString(); 
-    	unpluggedMesh.addHydraPost(messageType, str);
-		newPostText.setText("");
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                Conversation conversation = new Conversation();
+
+                //save conversation
+                DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+                conversationAccess.create(conversation);
+
+                //Collection<Message> messages = new ArrayList<Message>();
+                for (int i=0; i<15; i++) {
+
+                    int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
+                    if (i%2 == 1)
+                        messageType = UnpluggedMessageHandler.MESSAGE_READ;
+
+                    Message message = new Message("randoooom", messageType, System.currentTimeMillis());
+                    message.setConversation(conversation);
+
+                    //save message
+                    DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<Message>(getApplicationContext(), Message.class);
+                    messageDatabaseAccess.create(message);
+                }
+                return null;
+            }
+
+        }.execute();
+
+
+
+
+
+
+
+
+
+
     } 
     
     public void startBroadcast() {

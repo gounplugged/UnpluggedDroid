@@ -16,7 +16,8 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.List;
 
-import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
+import co.gounplugged.unpluggeddroid.model.Conversation;
+import co.gounplugged.unpluggeddroid.model.Message;
 
 public class DatabaseAccess<T> {
 
@@ -116,7 +117,7 @@ public class DatabaseAccess<T> {
         }
 
         private void createDatabases(SQLiteDatabase db, ConnectionSource connectionSource, Context context) {
-            Class<?>[] columns = {UnpluggedMessage.class};
+            Class<?>[] columns = {Conversation.class, Message.class};
             try {
                 for (Class<?> c : columns) {
                     TableUtils.createTable(connectionSource, c);

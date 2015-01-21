@@ -1,12 +1,11 @@
 package co.gounplugged.unpluggeddroid;
 
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 import co.gounplugged.unpluggeddroid.bluetooth.UnpluggedBluetoothManager;
-import co.gounplugged.unpluggeddroid.model.UnpluggedMessage;
+import co.gounplugged.unpluggeddroid.model.Message;
 
 public class UnpluggedMessageHandler extends Handler {
 	private static final String TAG = "UnpluggedMessageHandler";
@@ -25,14 +24,14 @@ public class UnpluggedMessageHandler extends Handler {
     }
     
 	@Override
-    public void handleMessage(Message msg) {
+    public void handleMessage(android.os.Message msg) {
 	    switch (msg.what) {
 		    case MESSAGE_WRITE:
 			    byte[] writeBuf = (byte[]) msg.obj;
 			    // construct a string from the buffer
 			    String writeMessage = new String(writeBuf);
-                UnpluggedMessage unpluggedMessage = new UnpluggedMessage(writeMessage,
-                        UnpluggedMessage.TYPE_OUTGOING, System.currentTimeMillis());
+                Message unpluggedMessage = new Message(writeMessage,
+                        Message.TYPE_OUTGOING, System.currentTimeMillis());
 			    mMessageAdapter.addMessage(unpluggedMessage);
 			    break;
 		    
@@ -40,8 +39,8 @@ public class UnpluggedMessageHandler extends Handler {
 			    byte[] readBuf = (byte[]) msg.obj;
 			    // construct a string from the valid bytes in the buffer
 			    String readMessage = new String(readBuf);
-                UnpluggedMessage message = new UnpluggedMessage(readMessage,
-                        UnpluggedMessage.TYPE_INCOMING, System.currentTimeMillis());
+                Message message = new Message(readMessage,
+                        Message.TYPE_INCOMING, System.currentTimeMillis());
                 mMessageAdapter.addMessage(message);
 			    break;
 		    
