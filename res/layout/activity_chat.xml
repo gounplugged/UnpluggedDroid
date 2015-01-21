@@ -9,13 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
+        android:layout_above="@+id/seperator"
         android:weightSum="100" >
 
         <ListView
             android:id="@+id/chats"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/layout_below"
             android:background="#DDE0EB"
             android:dividerHeight="1dp"
             android:divider="@drawable/transparent_divider"
@@ -36,14 +36,15 @@
 
 
     <View
+        android:id="@+id/seperator"
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
-        android:layout_above="@+id/layout_below"/>
+        android:layout_above="@+id/input_container"/>
 
 
     <RelativeLayout
-            android:id="@+id/layout_below"
+            android:id="@+id/input_container"
             android:layout_height="48dp"
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"

@@ -332,7 +332,7 @@ public class ChatActivity extends Activity {
                     if (i%2 == 1)
                         messageType = UnpluggedMessageHandler.MESSAGE_READ;
 
-                    Message message = new Message("randoooom", messageType, System.currentTimeMillis());
+                    Message message = new Message("randoooom gelinkt aan conversation 2", messageType, System.currentTimeMillis());
                     message.setConversation(conversation);
 
                     //save message
