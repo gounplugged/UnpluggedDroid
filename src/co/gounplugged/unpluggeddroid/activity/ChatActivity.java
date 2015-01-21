@@ -91,12 +91,6 @@ public class ChatActivity extends Activity {
     	} else {
     		loadGui();
     	}
-
-        DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
-        List<Message> messages = messageDatabaseAccess.getAll();
-        mChatArrayAdapter.setMessages(messages);
-
-
     }
     
     @Override
@@ -229,6 +223,12 @@ public class ChatActivity extends Activity {
 	            unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 	        
 	        guiLoaded = true;
+
+
+
+            DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
+            List<Message> messages = messageDatabaseAccess.getAll();
+            mChatArrayAdapter.setMessages(messages);
     	}
     }
 	/////////////////////////////////////////   Callbacks    ////////////////////////////////////////////////
