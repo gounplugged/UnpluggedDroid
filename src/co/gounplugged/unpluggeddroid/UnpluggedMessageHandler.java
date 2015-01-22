@@ -5,7 +5,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 import co.gounplugged.unpluggeddroid.bluetooth.UnpluggedBluetoothManager;
-import co.gounplugged.unpluggeddroid.model.Message;
+import co.gounplugged.unpluggeddroid.models.Message;
 
 public class UnpluggedMessageHandler extends Handler {
 	private static final String TAG = "UnpluggedMessageHandler";

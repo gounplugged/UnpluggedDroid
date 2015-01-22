@@ -8,7 +8,7 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 import co.gounplugged.unpluggeddroid.UnpluggedConnectionManager;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
-import co.gounplugged.unpluggeddroid.activity.ChatActivity;
+import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraPostDb;
 

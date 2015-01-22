@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid.activity;
+package co.gounplugged.unpluggeddroid.activities;
 
 import android.app.Activity;
 import android.content.Intent;

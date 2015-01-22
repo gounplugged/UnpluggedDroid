@@ -13,10 +13,9 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.os.ParcelUuid;
+
 import co.gounplugged.unpluggeddroid.UnpluggedConnectionManager;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
-import co.gounplugged.unpluggeddroid.activity.ChatActivity;
 import es.theedg.hydra.HydraMsg;
 import es.theedg.hydra.HydraMsgOutput;
 import es.theedg.hydra.HydraPostDb;

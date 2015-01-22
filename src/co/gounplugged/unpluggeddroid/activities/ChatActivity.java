@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid.activity;
+package co.gounplugged.unpluggeddroid.activities;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -12,25 +12,24 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelUuid;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+
+import com.pkmmte.view.CircularImageView;
+
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.model.Conversation;
-import co.gounplugged.unpluggeddroid.model.Message;
+import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.models.Message;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -225,10 +224,17 @@ public class ChatActivity extends Activity {
 	        guiLoaded = true;
 
 
-
+            //playground
             DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
             List<Message> messages = messageDatabaseAccess.getAll();
             mChatArrayAdapter.setMessages(messages);
+
+            //add conversation
+            CircularImageView imageView = new CircularImageView(getApplicationContext());
+
+
+
+
     	}
     }
 	/////////////////////////////////////////   Callbacks    ////////////////////////////////////////////////
@@ -304,8 +310,7 @@ public class ChatActivity extends Activity {
 		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
-    //TODO remove
-    int i = 0;
+    //playground
     private void sendMessage() {
 //        int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
 //        if (i++%2 == 1)

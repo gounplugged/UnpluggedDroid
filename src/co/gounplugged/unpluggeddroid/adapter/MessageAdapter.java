@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.model.Message;
+import co.gounplugged.unpluggeddroid.models.Message;
 
 import java.util.ArrayList;
 import java.util.List;
