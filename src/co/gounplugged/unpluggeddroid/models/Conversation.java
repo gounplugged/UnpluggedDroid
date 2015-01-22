@@ -19,7 +19,6 @@ public class Conversation {
         // all persisted classes must define a no-arg constructor with at least package visibility
     }
 
-
     public Collection<Message> getMessages() {
         return messages;
     }

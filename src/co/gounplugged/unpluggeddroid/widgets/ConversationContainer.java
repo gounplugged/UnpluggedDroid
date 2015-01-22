@@ -44,7 +44,6 @@ public class ConversationContainer extends LinearLayout {
     }
 
     private void init(Context context) {
-
         //get conversations from cache
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         mConversations = conversationAccess.getAll();
@@ -97,7 +96,6 @@ public class ConversationContainer extends LinearLayout {
                 switch(event.getAction())
                 {
                     case DragEvent.ACTION_DRAG_STARTED:
-//                        layoutParams = (LinearLayout.LayoutParams) v.getLayoutParams();
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
                         int x_cord = (int) event.getX();
@@ -106,9 +104,6 @@ public class ConversationContainer extends LinearLayout {
                     case DragEvent.ACTION_DRAG_EXITED:
                         x_cord = (int) event.getX();
                         y_cord = (int) event.getY();
-//                        layoutParams.leftMargin = x_cord;
-//                        layoutParams.topMargin = y_cord;
-//                        v.setLayoutParams(layoutParams);
                         if (mListener != null)
                             mListener.onConversationSwitch(conversation);
                         break;
