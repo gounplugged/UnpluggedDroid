@@ -197,6 +197,8 @@ public class ChatActivity extends Activity {
 	/////////////////////////////////////////         GUI    ////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private Conversation selectedConversation = null;
     
     public void loadGui() {
     	if(!guiLoaded) {
@@ -234,10 +236,10 @@ public class ChatActivity extends Activity {
                 @Override
                 public void onConversationSwitch(Conversation conversation) {
 
-                    mChatView.setBackgroundColor(Color.GRAY);
-
-                    Collection<Message> messages = conversation.getMessages();
-                    mChatArrayAdapter.setMessages( new ArrayList<>(messages));
+//                    mChatView.setBackgroundColor(Color.GRAY);
+//
+//                    Collection<Message> messages = conversation.getMessages();
+//                    mChatArrayAdapter.setMessages( new ArrayList<>(messages));
                 }
 
                 @Override
@@ -245,6 +247,8 @@ public class ChatActivity extends Activity {
 
                     //Blur listview
                     mChatView.setBackgroundColor(Color.GREEN);
+
+                    selectedConversation = conversation;
                 }
             });
 
@@ -272,6 +276,12 @@ public class ChatActivity extends Activity {
                             y_cord = (int) event.getY();
                             break;
                         case DragEvent.ACTION_DRAG_ENDED:
+                            //Drag ended in listview: change conversation  //TODO check if it really ended in the listview!
+                            mChatView.setBackgroundColor(Color.GRAY);
+
+                            Collection<Message> messages = selectedConversation.getMessages();
+                            mChatArrayAdapter.setMessages( new ArrayList<>(messages));
+
                             break;
                         case DragEvent.ACTION_DROP:
                             break;
