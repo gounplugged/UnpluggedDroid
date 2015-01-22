@@ -28,8 +28,11 @@ import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,6 +56,8 @@ public class ChatActivity extends Activity {
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
 	private MenuItem mItemConnectionStatus;
+    private ConversationContainer mConversationContainer;
+
 	
 	// Connectivity
 	private UnpluggedMesh unpluggedMesh;
@@ -220,6 +225,17 @@ public class ChatActivity extends Activity {
 
             if (unpluggedMesh != null)
 	            unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
+
+            // Conversation container
+            mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
+            mConversationContainer.setConversationListener(new ConversationContainer.ConversationContainerListener() {
+                @Override
+                public void onConversationSwitch(Conversation conversation) {
+
+                    Collection<Message> messages = conversation.getMessages();
+                    mChatArrayAdapter.setMessages( new ArrayList<>(messages));
+                }
+            });
 	        
 	        guiLoaded = true;
 
@@ -337,7 +353,7 @@ public class ChatActivity extends Activity {
                     if (i%2 == 1)
                         messageType = UnpluggedMessageHandler.MESSAGE_READ;
 
-                    Message message = new Message("randoooom gelinkt aan conversation 42", messageType, System.currentTimeMillis());
+                    Message message = new Message("Lorem ipsum ..", messageType, System.currentTimeMillis());
                     message.setConversation(conversation);
 
                     //save message

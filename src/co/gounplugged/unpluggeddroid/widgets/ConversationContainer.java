@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.View;
@@ -20,8 +19,8 @@ import co.gounplugged.unpluggeddroid.models.Conversation;
 
 public class ConversationContainer extends LinearLayout {
 
-    CircularImageView imageView;
-    List<Conversation> mConversations;
+    private List<Conversation> mConversations;
+    private ConversationContainerListener mListener;
 
     public ConversationContainer(Context context) {
         super(context);
@@ -40,6 +39,10 @@ public class ConversationContainer extends LinearLayout {
 
     }
 
+    public void setConversationListener(ConversationContainerListener listener) {
+        mListener = listener;
+    }
+
     private void init(Context context) {
 
         //get conversations from cache
@@ -47,21 +50,19 @@ public class ConversationContainer extends LinearLayout {
         mConversations = conversationAccess.getAll();
 
         for (Conversation conversation : mConversations) {
-            //add image to container
-            addImageToContainer(context, ""+conversation.id);
+            //add conversation to container
+            addConversationToContainer(context, conversation);
         }
-
-
-
-
     }
 
     public interface ConversationContainerListener {
-        public void onConversationSwitch();
+        public void onConversationSwitch(Conversation conversation);
     }
 
 
-    private void addImageToContainer(Context context, String tag) {
+    private void addConversationToContainer(final Context context, final Conversation conversation) {
+        final CircularImageView imageView;
+
         imageView = new CircularImageView(context);
         imageView.setImageDrawable(context.getDrawable(R.drawable.avatar));
 
@@ -72,26 +73,18 @@ public class ConversationContainer extends LinearLayout {
         int verticalDp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics());
         lp.setMargins(horizontalDp, verticalDp, horizontalDp, verticalDp);
 
-        addView(imageView, lp);
-
-        imageView.setTag(tag);
+        imageView.setTag("" + conversation.id);
 
         //set listeners
         imageView.setOnLongClickListener(new View.OnLongClickListener() {
 
             @Override
             public boolean onLongClick(View v) {
-                // Create a new ClipData.Item from the ImageView object's tag
                 ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
                 ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
 
-                // Instantiates the drag shadow builder.
                 View.DragShadowBuilder myShadow = new DragShadowBuilder(imageView);
-
-                // Starts the drag
-
                 v.startDrag(dragData, myShadow, null, 0);
 
                 return true;
@@ -116,15 +109,14 @@ public class ConversationContainer extends LinearLayout {
 //                        layoutParams.leftMargin = x_cord;
 //                        layoutParams.topMargin = y_cord;
 //                        v.setLayoutParams(layoutParams);
+                        if (mListener != null)
+                            mListener.onConversationSwitch(conversation);
                         break;
                     case DragEvent.ACTION_DRAG_LOCATION:
                         x_cord = (int) event.getX();
                         y_cord = (int) event.getY();
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
-                        //Switch conversation
-
-
                         break;
                     case DragEvent.ACTION_DROP:
                         break;
@@ -133,6 +125,9 @@ public class ConversationContainer extends LinearLayout {
                 return true;
             }
         });
+
+        addView(imageView, lp);
+
     }
 
 
