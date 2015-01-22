@@ -9,10 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -232,11 +234,53 @@ public class ChatActivity extends Activity {
                 @Override
                 public void onConversationSwitch(Conversation conversation) {
 
+                    mChatView.setBackgroundColor(Color.GRAY);
+
                     Collection<Message> messages = conversation.getMessages();
                     mChatArrayAdapter.setMessages( new ArrayList<>(messages));
                 }
+
+                @Override
+                public void onConversationSelected(Conversation conversation) {
+
+                    //Blur listview
+                    mChatView.setBackgroundColor(Color.GREEN);
+                }
             });
-	        
+
+            mChatView.setBackgroundColor(Color.GRAY);
+
+
+
+            mChatView.setOnDragListener(new View.OnDragListener() {
+                @Override
+                public boolean onDrag(View v,  DragEvent event){
+                    switch(event.getAction())
+                    {
+                        case DragEvent.ACTION_DRAG_STARTED:
+                            break;
+                        case DragEvent.ACTION_DRAG_ENTERED:
+                            int x_cord = (int) event.getX();
+                            int y_cord = (int) event.getY();
+                            break;
+                        case DragEvent.ACTION_DRAG_EXITED:
+                            x_cord = (int) event.getX();
+                            y_cord = (int) event.getY();
+                            break;
+                        case DragEvent.ACTION_DRAG_LOCATION:
+                            x_cord = (int) event.getX();
+                            y_cord = (int) event.getY();
+                            break;
+                        case DragEvent.ACTION_DRAG_ENDED:
+                            break;
+                        case DragEvent.ACTION_DROP:
+                            break;
+                        default: break;
+                    }
+                    return true;
+                }
+            });
+
 	        guiLoaded = true;
 
 
@@ -353,7 +397,7 @@ public class ChatActivity extends Activity {
                     if (i%2 == 1)
                         messageType = UnpluggedMessageHandler.MESSAGE_READ;
 
-                    Message message = new Message("Lorem ipsum ..", messageType, System.currentTimeMillis());
+                    Message message = new Message("Lorem ipsum ..   2", messageType, System.currentTimeMillis());
                     message.setConversation(conversation);
 
                     //save message

@@ -56,6 +56,7 @@ public class ConversationContainer extends LinearLayout {
 
     public interface ConversationContainerListener {
         public void onConversationSwitch(Conversation conversation);
+        public void onConversationSelected(Conversation conversation);
     }
 
 
@@ -79,6 +80,9 @@ public class ConversationContainer extends LinearLayout {
 
             @Override
             public boolean onLongClick(View v) {
+                if (mListener != null)
+                    mListener.onConversationSelected(conversation);
+
                 ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
                 ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
