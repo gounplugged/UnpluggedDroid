@@ -8,18 +8,20 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.pkmmte.view.CircularImageView;
 
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 
 public class ConversationContainer extends LinearLayout {
 
     CircularImageView imageView;
-    LayoutParams layoutParams;
+    List<Conversation> mConversations;
 
     public ConversationContainer(Context context) {
         super(context);
@@ -40,27 +42,41 @@ public class ConversationContainer extends LinearLayout {
 
     private void init(Context context) {
 
-        //add image to container
+        //get conversations from cache
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
+        mConversations = conversationAccess.getAll();
+
+        for (Conversation conversation : mConversations) {
+            //add image to container
+            addImageToContainer(context, ""+conversation.id);
+        }
+
+
+
+
+    }
+
+    public interface ConversationContainerListener {
+        public void onConversationSwitch();
+    }
+
+
+    private void addImageToContainer(Context context, String tag) {
         imageView = new CircularImageView(context);
         imageView.setImageDrawable(context.getDrawable(R.drawable.avatar));
 
-        int widthHeightDp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
-        LinearLayout.LayoutParams lp = new LayoutParams(widthHeightDp, widthHeightDp);
+        int widthHeightDp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
+        LayoutParams lp = new LayoutParams(widthHeightDp, widthHeightDp);
 
         int horizontalDp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
         int verticalDp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics());
         lp.setMargins(horizontalDp, verticalDp, horizontalDp, verticalDp);
 
-
-
         addView(imageView, lp);
 
+        imageView.setTag(tag);
 
-        
-        final String IV_TAG = "icon bitmap";
-        imageView.setTag(IV_TAG);
-
-
+        //set listeners
         imageView.setOnLongClickListener(new View.OnLongClickListener() {
 
             @Override
@@ -82,55 +98,42 @@ public class ConversationContainer extends LinearLayout {
             }
         });
 
-        final String msg="DRAGBABY";
-        // Create and set the drag event listener for the View
         imageView.setOnDragListener( new OnDragListener(){
             @Override
             public boolean onDrag(View v,  DragEvent event){
                 switch(event.getAction())
                 {
                     case DragEvent.ACTION_DRAG_STARTED:
-                        layoutParams = (LinearLayout.LayoutParams)
-                                v.getLayoutParams();
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_STARTED");
-                        // Do nothing
+//                        layoutParams = (LinearLayout.LayoutParams) v.getLayoutParams();
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENTERED");
                         int x_cord = (int) event.getX();
                         int y_cord = (int) event.getY();
                         break;
-                    case DragEvent.ACTION_DRAG_EXITED :
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_EXITED");
+                    case DragEvent.ACTION_DRAG_EXITED:
                         x_cord = (int) event.getX();
                         y_cord = (int) event.getY();
-                        layoutParams.leftMargin = x_cord;
-                        layoutParams.topMargin = y_cord;
-                        v.setLayoutParams(layoutParams);
+//                        layoutParams.leftMargin = x_cord;
+//                        layoutParams.topMargin = y_cord;
+//                        v.setLayoutParams(layoutParams);
                         break;
-                    case DragEvent.ACTION_DRAG_LOCATION  :
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_LOCATION");
+                    case DragEvent.ACTION_DRAG_LOCATION:
                         x_cord = (int) event.getX();
                         y_cord = (int) event.getY();
                         break;
-                    case DragEvent.ACTION_DRAG_ENDED   :
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENDED");
-                        // Do nothing
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        //Switch conversation
+
+
                         break;
                     case DragEvent.ACTION_DROP:
-                        Log.d(msg, "ACTION_DROP event");
-                        // Do nothing
                         break;
                     default: break;
                 }
                 return true;
             }
         });
-
-
     }
-
-
 
 
 }

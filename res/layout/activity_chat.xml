@@ -62,7 +62,8 @@
             android:id="@+id/conversation_container"
             android:layout_width="80dp"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:orientation="vertical"/>
 
 
         <!--<LinearLayout-->
