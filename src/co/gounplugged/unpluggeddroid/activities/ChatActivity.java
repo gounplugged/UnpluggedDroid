@@ -249,14 +249,17 @@ public class ChatActivity extends Activity {
                         case DragEvent.ACTION_DRAG_ENTERED:
                             int x_cord = (int) event.getX();
                             int y_cord = (int) event.getY();
+                            Log.i(TAG, "ACTION_DRAG_ENTERED x:" + x_cord + " y:" + y_cord);
                             break;
                         case DragEvent.ACTION_DRAG_EXITED:
                             x_cord = (int) event.getX();
                             y_cord = (int) event.getY();
+                            Log.i(TAG, "ACTION_DRAG_EXITED x:" + x_cord + " y:" + y_cord);
                             break;
                         case DragEvent.ACTION_DRAG_LOCATION:
                             x_cord = (int) event.getX();
                             y_cord = (int) event.getY();
+                            Log.i(TAG, "ACTION_DRAG_LOCATION x:" + x_cord + " y:" + y_cord);
                             break;
                         case DragEvent.ACTION_DRAG_ENDED:
                             //Drag ended in listview: change conversation  //TODO check if it really ended in the listview!
@@ -266,8 +269,15 @@ public class ChatActivity extends Activity {
                             Collection<Message> messages = selectedConversation.getMessages();
                             mChatArrayAdapter.setMessages( new ArrayList<>(messages));
 
+
+                            int[] dropZoneLocation = new int[2];
+                            ((View)mDropZoneImage).getLocationOnScreen(dropZoneLocation);
+
+
+                            Log.i(TAG, "ACTION_DRAG_ENDED");
                             break;
                         case DragEvent.ACTION_DROP:
+                            Log.i(TAG, "ACTION_DROP");
                             break;
                         default: break;
                     }
@@ -384,6 +394,7 @@ public class ChatActivity extends Activity {
 		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
+    private int sendCount = 0;
     //playground
     private void sendMessage() {
 //        int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
@@ -404,6 +415,8 @@ public class ChatActivity extends Activity {
                 DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
                 conversationAccess.create(conversation);
 
+                String text = "Lorem ipsum ... " + sendCount++;
+
                 //Collection<Message> messages = new ArrayList<Message>();
                 for (int i=0; i<15; i++) {
 
@@ -411,7 +424,7 @@ public class ChatActivity extends Activity {
                     if (i%2 == 1)
                         messageType = UnpluggedMessageHandler.MESSAGE_READ;
 
-                    Message message = new Message("Lorem ipsum ..   2", messageType, System.currentTimeMillis());
+                    Message message = new Message(text, messageType, System.currentTimeMillis());
                     message.setConversation(conversation);
 
                     //save message
