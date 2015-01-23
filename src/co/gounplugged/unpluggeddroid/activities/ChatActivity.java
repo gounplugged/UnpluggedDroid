@@ -60,7 +60,7 @@ public class ChatActivity extends Activity {
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
 	private MenuItem mItemConnectionStatus;
-    private ConversationContainer mConversationContainer;
+    private ImageView mDropZoneImage;
 
 	
 	// Connectivity
@@ -237,32 +237,8 @@ public class ChatActivity extends Activity {
             if (unpluggedMesh != null)
 	            unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 
-            // Conversation container
-//            mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
-//            mConversationContainer.setConversationListener(new ConversationContainer.ConversationContainerListener() {
-//                @Override
-//                public void onConversationSwitch(Conversation conversation) {
-//
-////                    mChatView.setBackgroundColor(Color.GRAY);
-////
-////                    Collection<Message> messages = conversation.getMessages();
-////                    mChatArrayAdapter.setMessages( new ArrayList<>(messages));
-//                }
-//
-//                @Override
-//                public void onConversationSelected(Conversation conversation) {
-//
-//                    //Blur listview
-//                    mChatView.setBackgroundColor(Color.GREEN);
-//
-//                    selectedConversation = conversation;
-//                }
-//            });
-
+            //Chat-container //todo extract
             mChatView.setBackgroundColor(Color.GRAY);
-
-
-
             mChatView.setOnDragListener(new View.OnDragListener() {
                 @Override
                 public boolean onDrag(View v,  DragEvent event){
@@ -284,7 +260,8 @@ public class ChatActivity extends Activity {
                             break;
                         case DragEvent.ACTION_DRAG_ENDED:
                             //Drag ended in listview: change conversation  //TODO check if it really ended in the listview!
-                            mChatView.setBackgroundColor(Color.GRAY);
+//                            mChatView.setBackgroundColor(Color.GRAY);
+                            mDropZoneImage.setVisibility(View.GONE);
 
                             Collection<Message> messages = selectedConversation.getMessages();
                             mChatArrayAdapter.setMessages( new ArrayList<>(messages));
@@ -297,6 +274,9 @@ public class ChatActivity extends Activity {
                     return true;
                 }
             });
+
+            mDropZoneImage = (ImageView) findViewById(R.id.iv_drop_zone);
+
 
 	        guiLoaded = true;
 
@@ -373,10 +353,12 @@ public class ChatActivity extends Activity {
             case SELECTED:
                 Log.d(TAG, "Eventbus selected ");
                 //Blur listview
-                mChatView.setBackgroundColor(Color.GREEN);
+//                mChatView.setBackgroundColor(Color.GREEN);
                 selectedConversation = event.getConversation();
+                mDropZoneImage.setVisibility(View.VISIBLE);
                 break;
             case SWITCHED:
+                mDropZoneImage.setVisibility(View.GONE);
                 break;
         }
     }

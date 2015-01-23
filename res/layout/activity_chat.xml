@@ -85,6 +85,15 @@
             android:layout_toLeftOf="@+id/conversation_root"
             />
 
+        <ImageView
+            android:id="@+id/iv_drop_zone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/drop_zone"
+            android:layout_toLeftOf="@+id/conversation_root"
+            android:visibility="gone"
+            />
+
     </RelativeLayout>
 
 
