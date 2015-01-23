@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid.adapter;
+package co.gounplugged.unpluggeddroid.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;

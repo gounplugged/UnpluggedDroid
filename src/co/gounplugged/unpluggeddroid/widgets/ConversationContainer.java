@@ -6,19 +6,23 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.DragEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import com.pkmmte.view.CircularImageView;
 
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.adapters.ConversationAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 
 public class ConversationContainer extends LinearLayout {
 
+    private ListView mConversationsListView;
     private List<Conversation> mConversations;
     private ConversationContainerListener mListener;
 
@@ -44,14 +48,20 @@ public class ConversationContainer extends LinearLayout {
     }
 
     private void init(Context context) {
+        LayoutInflater.from(context).inflate(R.layout.conversation_container, this);
+
+        mConversationsListView = (ListView) findViewById(R.id.lv_conversations);
+
         //get conversations from cache
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         mConversations = conversationAccess.getAll();
 
-        for (Conversation conversation : mConversations) {
-            //add conversation to container
-            addConversationToContainer(context, conversation);
-        }
+        mConversationsListView.setAdapter(new ConversationAdapter(context, mConversations));
+
+//        for (Conversation conversation : mConversations) {
+//            //add conversation to container
+//            addConversationToContainer(context, conversation);
+//        }
     }
 
     public interface ConversationContainerListener {

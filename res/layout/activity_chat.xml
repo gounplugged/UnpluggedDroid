@@ -7,7 +7,7 @@
 
 
     <View
-        android:id="@+id/seperator"
+        android:id="@+id/separator"
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
@@ -56,22 +56,22 @@
         android:id="@+id/top_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/seperator">
+        android:layout_above="@+id/separator">
 
-        <!--TODO refactor into listview?-->
-        <ScrollView
-            android:id="@+id/conversation_container_scroll"
+        <LinearLayout
             android:layout_width="80dp"
             android:layout_height="match_parent"
+            android:id="@+id/conversation_root"
             android:layout_alignParentRight="true"
             >
 
             <co.gounplugged.unpluggeddroid.widgets.ConversationContainer
                 android:id="@+id/conversation_container"
                 android:layout_width="80dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical"/>
-        </ScrollView>
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
 
         <ListView
             android:id="@+id/chats"
@@ -82,7 +82,7 @@
             android:divider="@drawable/transparent_divider"
             android:stackFromBottom="true"
             android:transcriptMode="alwaysScroll"
-            android:layout_toLeftOf="@id/conversation_container_scroll"
+            android:layout_toLeftOf="@+id/conversation_root"
             />
 
     </RelativeLayout>

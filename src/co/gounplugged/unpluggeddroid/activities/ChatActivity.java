@@ -26,7 +26,7 @@ import com.pkmmte.view.CircularImageView;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
-import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;

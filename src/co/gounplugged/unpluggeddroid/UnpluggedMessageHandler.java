@@ -3,7 +3,7 @@ package co.gounplugged.unpluggeddroid;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
-import co.gounplugged.unpluggeddroid.adapter.MessageAdapter;
+import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.bluetooth.UnpluggedBluetoothManager;
 import co.gounplugged.unpluggeddroid.models.Message;
 
