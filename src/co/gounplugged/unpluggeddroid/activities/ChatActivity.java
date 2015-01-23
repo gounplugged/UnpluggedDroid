@@ -28,9 +28,11 @@ import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
+import de.greenrobot.event.EventBus;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -92,11 +94,20 @@ public class ChatActivity extends Activity {
     @Override
     protected void onStart() {
     	super.onStart();
-    	if (!unpluggedMesh.areConnectionsEnabled()) {
+        EventBus.getDefault().register(this);
+
+        if (!unpluggedMesh.areConnectionsEnabled()) {
   
     	} else {
     		loadGui();
     	}
+    }
+
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
     
     @Override
@@ -125,10 +136,6 @@ public class ChatActivity extends Activity {
         unregisterReceiver(mDiscoveryBroadcastReceiver);
     }
 
-    @Override
-   protected void onStop() {
-	   super.onStop();
-   }
     
     @Override
     protected void onDestroy() {
@@ -231,26 +238,26 @@ public class ChatActivity extends Activity {
 	            unpluggedMesh.setHandler(new UnpluggedMessageHandler(mChatArrayAdapter, mItemConnectionStatus));
 
             // Conversation container
-            mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
-            mConversationContainer.setConversationListener(new ConversationContainer.ConversationContainerListener() {
-                @Override
-                public void onConversationSwitch(Conversation conversation) {
-
-//                    mChatView.setBackgroundColor(Color.GRAY);
+//            mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
+//            mConversationContainer.setConversationListener(new ConversationContainer.ConversationContainerListener() {
+//                @Override
+//                public void onConversationSwitch(Conversation conversation) {
 //
-//                    Collection<Message> messages = conversation.getMessages();
-//                    mChatArrayAdapter.setMessages( new ArrayList<>(messages));
-                }
-
-                @Override
-                public void onConversationSelected(Conversation conversation) {
-
-                    //Blur listview
-                    mChatView.setBackgroundColor(Color.GREEN);
-
-                    selectedConversation = conversation;
-                }
-            });
+////                    mChatView.setBackgroundColor(Color.GRAY);
+////
+////                    Collection<Message> messages = conversation.getMessages();
+////                    mChatArrayAdapter.setMessages( new ArrayList<>(messages));
+//                }
+//
+//                @Override
+//                public void onConversationSelected(Conversation conversation) {
+//
+//                    //Blur listview
+//                    mChatView.setBackgroundColor(Color.GREEN);
+//
+//                    selectedConversation = conversation;
+//                }
+//            });
 
             mChatView.setBackgroundColor(Color.GRAY);
 
@@ -357,6 +364,21 @@ public class ChatActivity extends Activity {
 	    		 }
     		}
 	    };
+    }
+
+
+    public void onEvent(ConversationEvent event){
+        switch(event.getType()) {
+
+            case SELECTED:
+                Log.d(TAG, "Eventbus selected ");
+                //Blur listview
+                mChatView.setBackgroundColor(Color.GREEN);
+                selectedConversation = event.getConversation();
+                break;
+            case SWITCHED:
+                break;
+        }
     }
     
 	/////////////////////////////////////////   Connectivity ////////////////////////////////////////////////

@@ -57,12 +57,8 @@ public class ConversationContainer extends LinearLayout {
         mConversations = conversationAccess.getAll();
 
         mConversationsListView.setAdapter(new ConversationAdapter(context, mConversations));
-
-//        for (Conversation conversation : mConversations) {
-//            //add conversation to container
-//            addConversationToContainer(context, conversation);
-//        }
     }
+
 
     public interface ConversationContainerListener {
         public void onConversationSwitch(Conversation conversation);
@@ -70,74 +66,6 @@ public class ConversationContainer extends LinearLayout {
     }
 
 
-    private void addConversationToContainer(final Context context, final Conversation conversation) {
-        final CircularImageView imageView;
-
-        imageView = new CircularImageView(context);
-        imageView.setImageDrawable(context.getDrawable(R.drawable.avatar));
-
-        int widthHeightDp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
-        LayoutParams lp = new LayoutParams(widthHeightDp, widthHeightDp);
-
-        int horizontalDp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-        int verticalDp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics());
-        lp.setMargins(horizontalDp, verticalDp, horizontalDp, verticalDp);
-
-        imageView.setTag("" + conversation.id);
-
-        //set listeners
-        imageView.setOnLongClickListener(new View.OnLongClickListener() {
-
-            @Override
-            public boolean onLongClick(View v) {
-                if (mListener != null)
-                    mListener.onConversationSelected(conversation);
-
-                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
-
-                View.DragShadowBuilder myShadow = new DragShadowBuilder(imageView);
-                v.startDrag(dragData, myShadow, null, 0);
-
-                return true;
-            }
-        });
-
-        imageView.setOnDragListener( new OnDragListener(){
-            @Override
-            public boolean onDrag(View v,  DragEvent event){
-                switch(event.getAction())
-                {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        break;
-                    case DragEvent.ACTION_DRAG_ENTERED:
-                        int x_cord = (int) event.getX();
-                        int y_cord = (int) event.getY();
-                        break;
-                    case DragEvent.ACTION_DRAG_EXITED:
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        if (mListener != null)
-                            mListener.onConversationSwitch(conversation);
-                        break;
-                    case DragEvent.ACTION_DRAG_LOCATION:
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        break;
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        break;
-                    case DragEvent.ACTION_DROP:
-                        break;
-                    default: break;
-                }
-                return true;
-            }
-        });
-
-        addView(imageView, lp);
-
-    }
 
 
 }

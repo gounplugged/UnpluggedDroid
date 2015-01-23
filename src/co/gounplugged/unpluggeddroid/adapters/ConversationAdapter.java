@@ -1,6 +1,9 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import de.greenrobot.event.EventBus;
 
 public class ConversationAdapter extends BaseAdapter {
 
@@ -40,6 +45,10 @@ public class ConversationAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setConversationListener() {
+
+    }
+
     @Override
     public int getCount() {
         return mConversations.size();
@@ -57,14 +66,35 @@ public class ConversationAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Conversation conversation = mConversations.get(position);
+        final Conversation conversation = mConversations.get(position);
 
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.list_item_conversation, parent, false);
         }
 
-        CircularImageView imageView = (CircularImageView) convertView.findViewById(R.id.conversation_icon);
-        imageView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_launcher));
+        final CircularImageView imageView =
+                (CircularImageView) convertView.findViewById(R.id.conversation_icon);
+
+        imageView.setTag(String.valueOf(conversation.id));
+
+        //set listeners
+        imageView.setOnLongClickListener(new View.OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                EventBus.getDefault().post(new ConversationEvent(
+                        ConversationEvent.ConversationEventType.SELECTED, conversation));
+
+                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
+                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
+
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
+                v.startDrag(dragData, myShadow, null, 0);
+
+                return true;
+            }
+        });
 
         return convertView;
     }
