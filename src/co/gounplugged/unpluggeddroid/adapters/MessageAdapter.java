@@ -6,11 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.models.Message;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.models.Message;
 
 
 public class MessageAdapter extends BaseAdapter {

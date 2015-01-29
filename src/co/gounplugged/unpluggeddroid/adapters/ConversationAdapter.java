@@ -3,14 +3,11 @@ package co.gounplugged.unpluggeddroid.adapters;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.pkmmte.view.CircularImageView;
 
@@ -48,10 +45,6 @@ public class ConversationAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setConversationListener() {
-
-    }
-
     @Override
     public int getCount() {
         return mConversations.size();
@@ -78,49 +71,6 @@ public class ConversationAdapter extends BaseAdapter {
         if (convertView.getTag() == null)
             convertView.setTag(new ViewHolder(convertView, conversation));
 
-//        final CircularImageView imageView =
-//                (CircularImageView) convertView.findViewById(R.id.conversation_icon);
-//
-//        imageView.setTag(String.valueOf(conversation.id));
-//
-//        //set listeners
-//        imageView.setOnLongClickListener(new View.OnLongClickListener() {
-//
-//            @Override
-//            public boolean onLongClick(View v) {
-//                EventBus.getDefault().post(new ConversationEvent(
-//                        ConversationEvent.ConversationEventType.SELECTED, conversation));
-//
-//                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-//                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-//                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
-//
-//                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
-//                v.startDrag(dragData, myShadow, null, 0);
-//
-//                return true;
-//            }
-//        });
-
-
-
-//        imageView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                EventBus.getDefault().post(new ConversationEvent(
-//                        ConversationEvent.ConversationEventType.SELECTED, conversation));
-//
-//                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-//                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-//                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
-//
-//                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
-//                v.startDrag(dragData, myShadow, null, 0);
-//
-//                return true;
-//            }
-//        });
-
         return convertView;
     }
 
@@ -130,7 +80,7 @@ public class ConversationAdapter extends BaseAdapter {
     }
 
 
-    class ViewHolder implements View.OnTouchListener {
+    class ViewHolder implements View.OnTouchListener, View.OnLongClickListener {
 
         private final Conversation mConversation;
         private final CircularImageView mImageView;
@@ -140,45 +90,44 @@ public class ConversationAdapter extends BaseAdapter {
             mConversation = conversation;
 
             mImageView = (CircularImageView) v.findViewById(R.id.conversation_icon);
-
             mImageView.setTag(String.valueOf(conversation.id));
 
-            //set listeners
-//            imageView.setOnLongClickListener(new View.OnLongClickListener() {
-//
-//                @Override
-//                public boolean onLongClick(View v) {
-//                    EventBus.getDefault().post(new ConversationEvent(
-//                            ConversationEvent.ConversationEventType.SELECTED, conversation));
-//
-//                    ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-//                    String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-//                    ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
-//
-//                    View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
-//                    v.startDrag(dragData, myShadow, null, 0);
-//
-//                    return true;
-//                }
-//            });
-            v.setOnTouchListener(this);
+//            v.setOnTouchListener(this);
+            v.setOnLongClickListener(this);
         }
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                    EventBus.getDefault().post(new ConversationEvent(
-                    ConversationEvent.ConversationEventType.SELECTED, mConversation));
+                EventBus.getDefault().post(new ConversationEvent(
+                ConversationEvent.ConversationEventType.SELECTED, mConversation));
 
-                    ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
-                    String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-                    ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
+                ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
+                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+                ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
 
-                    View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mImageView);
-                    v.startDrag(dragData, myShadow, null, 0);
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mImageView);
+                v.startDrag(dragData, myShadow, null, 0);
             }
             return true;
         }
+
+
+        @Override
+        public boolean onLongClick(View v) {
+            EventBus.getDefault().post(new ConversationEvent(
+                    ConversationEvent.ConversationEventType.SELECTED, mConversation));
+
+            ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
+            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+            ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
+
+            View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mImageView);
+            v.startDrag(dragData, myShadow, null, 0);
+
+            return true;
+        }
+
     }
 
 

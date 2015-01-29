@@ -16,7 +16,7 @@
 
     <RelativeLayout
         android:id="@+id/bottom_container"
-        android:layout_height="64dp"
+        android:layout_height="80dp"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         >
@@ -41,14 +41,24 @@
 
         <ImageButton
             android:id="@+id/submit_button"
-            android:layout_height="64dp"
-            android:layout_width="64dp"
+            android:layout_height="80dp"
+            android:layout_width="80dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:src="@drawable/avatar"
             android:background="#fff"
             android:scaleType="centerCrop"
             />
+
+        <ImageView
+            android:id="@+id/iv_drop_zone"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/drop_zone"
+            android:visibility="gone"
+            android:layout_alignParentRight="true"
+            />
+
     </RelativeLayout>
 
 
@@ -77,21 +87,11 @@
             android:id="@+id/chats"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#DDE0EB"
-            android:dividerHeight="1dp"
+            android:dividerHeight="0dp"
             android:divider="@drawable/transparent_divider"
             android:stackFromBottom="true"
             android:transcriptMode="alwaysScroll"
             android:layout_toLeftOf="@+id/conversation_root"
-            />
-
-        <ImageView
-            android:id="@+id/iv_drop_zone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/drop_zone"
-            android:layout_toLeftOf="@+id/conversation_root"
-            android:visibility="gone"
             />
 
     </RelativeLayout>
