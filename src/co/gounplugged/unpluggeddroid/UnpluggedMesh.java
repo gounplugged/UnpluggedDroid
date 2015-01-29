@@ -6,6 +6,7 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.util.Log;
 import co.gounplugged.unpluggeddroid.activity.ChatActivity;
 import co.gounplugged.unpluggeddroid.ble.UnpluggedBleManager;
 import es.theedg.hydra.HydraPost;
@@ -73,8 +74,11 @@ public class UnpluggedMesh extends Thread implements HydraPostDb {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	public void resumeConnections() {
+		Log.d(TAG, "Enter resume connection");
 		if(mUnpluggedBleManager != null) {
+			Log.d(TAG, "BleManager not null");
 			if(mUnpluggedBleManager.isEnabled() ) {
+				Log.d(TAG, "BleManager enabled");
 				mUnpluggedBleManager.resumeConnection();
 			} else {
 				parentActivity.enableBle();

@@ -81,24 +81,18 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 			ssb.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
 			ScanSettings ss = ssb.build();
 			
-			mBluetoothAdapter.getBluetoothLeScanner().startScan(sfl, ss, new ScanCallback() {
-				 public void onScanResult(int callbackType, ScanResult result) {
-					 ScanRecord sr = result.getScanRecord();
-					 byte[] buffer = sr.getServiceData(mUnpluggedMesh.getParcelUuid());
-					 HydraMsg hydraMsg = new HydraMsg(buffer);
-					 hydraMsg.send(mUnpluggedBleHydraMsgOutput, getHydraPostDb());
-				 }
-			});
+			mBluetoothAdapter.getBluetoothLeScanner().startScan(sfl, ss, new UnpluggedScanCallback());
 			isScanning = true;
 		}
 	}
 	
 	class UnpluggedScanCallback extends ScanCallback {
 		public void onScanResult(int callbackType, ScanResult result) {
-			 ScanRecord sr = result.getScanRecord();
-			 byte[] buffer = sr.getServiceData(mUnpluggedMesh.getParcelUuid());
-			 HydraMsg hydraMsg = new HydraMsg(buffer);
-			 hydraMsg.send(mUnpluggedBleHydraMsgOutput, getHydraPostDb());
+			Log.d(TAG, "Received scan callback");
+			ScanRecord sr = result.getScanRecord();
+			byte[] buffer = sr.getServiceData(mUnpluggedMesh.getParcelUuid());
+			HydraMsg hydraMsg = new HydraMsg(buffer);
+			hydraMsg.send(mUnpluggedBleHydraMsgOutput, getHydraPostDb());
 		 }
 	}
 	
@@ -113,9 +107,9 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 		@Override
 		public void write(byte[] bytes) {
 			Log.d(TAG, "Starting write attempt");
-			if(mBluetoothAdapter.isMultipleAdvertisementSupported()){
+			if(mBluetoothAdapter.isMultipleAdvertisementSupported()) {
 				BluetoothLeAdvertiser bluetoothAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-				bluetoothAdvertiser.stopAdvertising(mUnpluggedBleAdvertiseCallback);
+//				bluetoothAdvertiser.stopAdvertising(mUnpluggedBleAdvertiseCallback);
 				Log.d(TAG, "bluetoothAdvertiser not null on write attempt");
 				AdvertiseSettings.Builder asb = new AdvertiseSettings.Builder();
 				asb.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
@@ -127,18 +121,18 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 				AdvertiseData ad = adb.build();
 				
 				bluetoothAdvertiser.startAdvertising(as, ad, mUnpluggedBleAdvertiseCallback);
-//				new Thread(new Runnable() {
-//	                @Override
-//	                public void run() {
-//	                	try {
-//							Thread.sleep(ADVERTISE_PERIOD);
-//						} catch (InterruptedException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//	                	mBluetoothAdapter.getBluetoothLeAdvertiser().stopAdvertising(mUnpluggedBleAdvertiseCallback);
-//	                }
-//	            }).run();
+				new Thread(new Runnable() {
+	                @Override
+	                public void run() {
+	                	try {
+							Thread.sleep(ADVERTISE_PERIOD);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+	                	mBluetoothAdapter.getBluetoothLeAdvertiser().stopAdvertising(mUnpluggedBleAdvertiseCallback);
+	                }
+	            }).run();
 
 			} else {
 				Log.d(TAG, "bluetoothAdvertiser NULL on write attempt");

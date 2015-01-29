@@ -19,8 +19,16 @@ public class HydraPost  {
 	
 	public HydraPost(String content_) {
 		this.content = content_;
-		this.timestamp = Long.toString(System.currentTimeMillis());
-		this.id = (UUID.randomUUID()).toString();
+		this.timestamp = HydraPost.currentTime();
+		this.id = HydraPost.randomUUID();
+	}
+	
+	public static String randomUUID() {
+		return (UUID.randomUUID()).toString();
+	}
+	
+	public static String currentTime() {
+		return Long.toString(System.currentTimeMillis());
 	}
 
 	public String getId() {

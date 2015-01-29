@@ -23,7 +23,7 @@ public class HydraMsg {
 //    public static final String GOODBYE_OK            = 10;
     public static final String INVALID               = "INVALID";
     public static final String FAILED                = "FAILED";
-    public static final String SEPARATOR = "*";
+    public static final String SEPARATOR = "vv";
 
     //  Structure of our class
     private String id;                     //  HydraMsg message ID
@@ -58,7 +58,7 @@ public class HydraMsg {
     	if(id.equals(HELLO)) {
     		sendHello(output, unpluggedMesh);
     	} else if (id.equals(HELLO_OK)) {
-//    		sendHelloOk(output, unpluggedMesh);
+    		sendHelloOk(output, unpluggedMesh);
     	} else if (id.equals(GET_POST)) {
 //    		sendGetPost(output, unpluggedMesh);
     	} else if (id.equals(GET_POST_OK)) {
@@ -71,24 +71,26 @@ public class HydraMsg {
     	HydraPost newestPost = HydraPost.newestHydraPost(posts);
 		String newestPostId;
 		if(newestPost == null) {
-			newestPostId = "null";
+			newestPostId = "";
 		} else {
-			newestPostId = newestPost.getId();
-//			Log.d(TAG, "HELLO_OK " + newestPost.getContent() );
+			newestPostId = newestPost.getContent();
+			Log.d(TAG, "HELLO " + newestPost.getContent() );
 		}
 		output.write(HydraMsg.serializeHydraMsg(HELLO_OK, newestPostId));
     }
     
     public void sendHelloOk(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
-    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
-        this.setPostId(parsePostId());
-		if(!postId.equals("null")) {
-			HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
-			if (postToReq == null) {
-				output.write(HydraMsg.serializeHydraMsg(GET_POST, postId));
-//				Log.d(TAG, "REPLIED TO HELLO_OK: " + GET_POST + postId);
-			}
-		}
+//    	ArrayList<HydraPost> posts = unpluggedMesh.getHydraPosts();
+//    	this.setPostId(parsePostId());
+    	unpluggedMesh.addHydraPost(UnpluggedMessageHandler.MESSAGE_READ, new HydraPost(HydraPost.randomUUID(), HydraPost.currentTime(), parsePostId()));
+//        this.setPostId(parsePostId());
+//		if(!postId.equals("null")) {
+//			HydraPost postToReq = HydraPost.findHydraPost(postId, posts);
+//			if (postToReq == null) {
+//				output.write(HydraMsg.serializeHydraMsg(GET_POST, postId));
+				Log.d(TAG, "HELLO_OK: " + parsePostId());
+//			}
+//		}
     }
     
     public void sendGetPost(HydraMsgOutput output, HydraPostDb unpluggedMesh) {
