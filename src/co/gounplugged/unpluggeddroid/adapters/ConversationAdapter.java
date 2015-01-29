@@ -5,9 +5,12 @@ import android.content.ClipDescription;
 import android.content.Context;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.pkmmte.view.CircularImageView;
 
@@ -72,29 +75,51 @@ public class ConversationAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.list_item_conversation, parent, false);
         }
 
-        final CircularImageView imageView =
-                (CircularImageView) convertView.findViewById(R.id.conversation_icon);
+        if (convertView.getTag() == null)
+            convertView.setTag(new ViewHolder(convertView, conversation));
 
-        imageView.setTag(String.valueOf(conversation.id));
+//        final CircularImageView imageView =
+//                (CircularImageView) convertView.findViewById(R.id.conversation_icon);
+//
+//        imageView.setTag(String.valueOf(conversation.id));
+//
+//        //set listeners
+//        imageView.setOnLongClickListener(new View.OnLongClickListener() {
+//
+//            @Override
+//            public boolean onLongClick(View v) {
+//                EventBus.getDefault().post(new ConversationEvent(
+//                        ConversationEvent.ConversationEventType.SELECTED, conversation));
+//
+//                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
+//                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+//                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
+//
+//                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
+//                v.startDrag(dragData, myShadow, null, 0);
+//
+//                return true;
+//            }
+//        });
 
-        //set listeners
-        imageView.setOnLongClickListener(new View.OnLongClickListener() {
 
-            @Override
-            public boolean onLongClick(View v) {
-                EventBus.getDefault().post(new ConversationEvent(
-                        ConversationEvent.ConversationEventType.SELECTED, conversation));
 
-                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
-
-                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
-                v.startDrag(dragData, myShadow, null, 0);
-
-                return true;
-            }
-        });
+//        imageView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                EventBus.getDefault().post(new ConversationEvent(
+//                        ConversationEvent.ConversationEventType.SELECTED, conversation));
+//
+//                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
+//                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+//                ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
+//
+//                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
+//                v.startDrag(dragData, myShadow, null, 0);
+//
+//                return true;
+//            }
+//        });
 
         return convertView;
     }
@@ -103,5 +128,59 @@ public class ConversationAdapter extends BaseAdapter {
         mConversations.add(conversation);
         notifyDataSetChanged();
     }
+
+
+    class ViewHolder implements View.OnTouchListener {
+
+        private final Conversation mConversation;
+        private final CircularImageView mImageView;
+
+        public ViewHolder(View v, Conversation conversation) {
+
+            mConversation = conversation;
+
+            mImageView = (CircularImageView) v.findViewById(R.id.conversation_icon);
+
+            mImageView.setTag(String.valueOf(conversation.id));
+
+            //set listeners
+//            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+//
+//                @Override
+//                public boolean onLongClick(View v) {
+//                    EventBus.getDefault().post(new ConversationEvent(
+//                            ConversationEvent.ConversationEventType.SELECTED, conversation));
+//
+//                    ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
+//                    String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+//                    ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
+//
+//                    View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
+//                    v.startDrag(dragData, myShadow, null, 0);
+//
+//                    return true;
+//                }
+//            });
+            v.setOnTouchListener(this);
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    EventBus.getDefault().post(new ConversationEvent(
+                    ConversationEvent.ConversationEventType.SELECTED, mConversation));
+
+                    ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
+                    String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+                    ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
+
+                    View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mImageView);
+                    v.startDrag(dragData, myShadow, null, 0);
+            }
+            return true;
+        }
+    }
+
+
 }
 

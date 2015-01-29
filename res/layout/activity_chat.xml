@@ -16,7 +16,7 @@
 
     <RelativeLayout
         android:id="@+id/bottom_container"
-        android:layout_height="48dp"
+        android:layout_height="64dp"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         >
@@ -41,12 +41,13 @@
 
         <ImageButton
             android:id="@+id/submit_button"
-            android:layout_height="48dp"
-            android:layout_width="48dp"
+            android:layout_height="64dp"
+            android:layout_width="64dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:src="@drawable/ic_action_send_now"
+            android:src="@drawable/avatar"
             android:background="#fff"
+            android:scaleType="centerCrop"
             />
     </RelativeLayout>
 
@@ -62,13 +63,12 @@
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:id="@+id/conversation_root"
-            android:layout_alignParentRight="true"
-            >
+            android:layout_alignParentRight="true" >
 
             <co.gounplugged.unpluggeddroid.widgets.ConversationContainer
                 android:id="@+id/conversation_container"
                 android:layout_width="80dp"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
         </LinearLayout>
 
