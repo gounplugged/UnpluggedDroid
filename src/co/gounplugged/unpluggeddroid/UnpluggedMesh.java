@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
-import co.gounplugged.unpluggeddroid.activity.ChatActivity;
+import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.ble.UnpluggedBleManager;
 import es.theedg.hydra.HydraPost;
 import es.theedg.hydra.HydraPostDb;

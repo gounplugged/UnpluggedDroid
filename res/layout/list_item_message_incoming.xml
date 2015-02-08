@@ -8,22 +8,12 @@
                 android:id="@+id/root"
         >
 
-    <ImageView
-            android:id="@+id/iv_avatar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/avatar"
-            android:layout_alignParentLeft="true" />
-
-
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/tv_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="This is an example text."
-        android:layout_toRightOf="@+id/iv_avatar"
         android:layout_centerVertical="true"
         android:layout_marginLeft="12dp"/>
 

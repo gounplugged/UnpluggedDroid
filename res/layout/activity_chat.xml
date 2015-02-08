@@ -1,57 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/chat_background"
-        >
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/chat_background">
 
-    <ListView
-            android:id="@+id/chats"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:layout_above="@+id/layout_below"
-            android:background="#DDE0EB"
-            android:dividerHeight="1dp"
-            android:divider="@drawable/transparent_divider"
-            android:stackFromBottom="true"
-            />
+
+    <View
+        android:id="@+id/separator"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_above="@+id/bottom_container"/>
 
 
     <RelativeLayout
-            android:id="@+id/layout_below"
-            android:layout_height="48dp"
-            android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"
-            >
+        android:id="@+id/bottom_container"
+        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        >
 
         <EditText
-                android:id="@+id/new_post_text"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:layout_alignParentBottom="true"
-                android:hint="Send a message ..."
-                android:textSize="15sp"
-                android:textColor="@color/chat_outgoing_text"
-                android:inputType="textShortMessage"
-                android:imeOptions="actionSend"
-                android:imeActionId="1"
-                android:imeActionLabel="Send"
-                android:layout_toLeftOf="@+id/submit_button"
-                android:background="#fff"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                />
+            android:id="@+id/new_post_text"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:hint="Send a message ..."
+            android:textSize="15sp"
+            android:textColor="@color/chat_outgoing_text"
+            android:inputType="textShortMessage"
+            android:imeOptions="actionSend"
+            android:imeActionId="1"
+            android:imeActionLabel="Send"
+            android:layout_toLeftOf="@+id/submit_button"
+            android:background="#fff"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            />
 
         <ImageButton
-                android:id="@+id/submit_button"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:src="@drawable/ic_action_send_now"
-                android:background="#fff"
-                />
+            android:id="@+id/submit_button"
+            android:layout_height="80dp"
+            android:layout_width="80dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/avatar"
+            android:background="#fff"
+            android:scaleType="centerCrop"
+            />
+
+        <ImageView
+            android:id="@+id/iv_drop_zone"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/drop_zone"
+            android:visibility="gone"
+            android:layout_alignParentRight="true"
+            />
+
     </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:id="@+id/top_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/separator">
+
+        <LinearLayout
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:id="@+id/conversation_root"
+            android:layout_alignParentRight="true" >
+
+            <co.gounplugged.unpluggeddroid.widgets.ConversationContainer
+                android:id="@+id/conversation_container"
+                android:layout_width="80dp"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+
+        <ListView
+            android:id="@+id/chats"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:dividerHeight="0dp"
+            android:divider="@drawable/transparent_divider"
+            android:stackFromBottom="true"
+            android:transcriptMode="alwaysScroll"
+            android:layout_toLeftOf="@+id/conversation_root"
+            />
+
+    </RelativeLayout>
+
+
+
 
 </RelativeLayout>

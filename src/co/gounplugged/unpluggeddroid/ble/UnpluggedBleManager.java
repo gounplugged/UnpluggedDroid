@@ -15,6 +15,7 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.Handler;
 import android.util.Log;
+
 import co.gounplugged.unpluggeddroid.UnpluggedConnectionManager;
 import co.gounplugged.unpluggeddroid.UnpluggedMesh;
 import es.theedg.hydra.HydraMsg;
@@ -106,38 +107,29 @@ public class UnpluggedBleManager implements UnpluggedConnectionManager {
 	
 		@Override
 		public void write(byte[] bytes) {
-			Log.d(TAG, "Starting write attempt");
-			if(mBluetoothAdapter.isMultipleAdvertisementSupported()) {
-				BluetoothLeAdvertiser bluetoothAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-//				bluetoothAdvertiser.stopAdvertising(mUnpluggedBleAdvertiseCallback);
-				Log.d(TAG, "bluetoothAdvertiser not null on write attempt");
-				AdvertiseSettings.Builder asb = new AdvertiseSettings.Builder();
-				asb.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
-				asb.setConnectable(false);
-				AdvertiseSettings as = asb.build();
-				
-				AdvertiseData.Builder adb = new AdvertiseData.Builder();
-				adb.addServiceData(mUnpluggedMesh.getParcelUuid(), bytes);
-				AdvertiseData ad = adb.build();
-				
-				bluetoothAdvertiser.startAdvertising(as, ad, mUnpluggedBleAdvertiseCallback);
-				new Thread(new Runnable() {
-	                @Override
-	                public void run() {
-	                	try {
-							Thread.sleep(ADVERTISE_PERIOD);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-	                	mBluetoothAdapter.getBluetoothLeAdvertiser().stopAdvertising(mUnpluggedBleAdvertiseCallback);
-	                }
-	            }).run();
-
-			} else {
-				Log.d(TAG, "bluetoothAdvertiser NULL on write attempt");
-			}
+			BluetoothLeAdvertiser bluetoothAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+			AdvertiseSettings.Builder asb = new AdvertiseSettings.Builder();
+			asb.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
+			asb.setConnectable(false);
+			AdvertiseSettings as = asb.build();
 			
+			AdvertiseData.Builder adb = new AdvertiseData.Builder();
+			adb.addServiceData(mUnpluggedMesh.getParcelUuid(), bytes);
+			AdvertiseData ad = adb.build();
+
+            if (bluetoothAdvertiser != null) {
+                bluetoothAdvertiser.startAdvertising(as, ad, new AdvertiseCallback() {
+                    @Override
+                    public void onStartFailure(int errorCode) {
+
+                    }
+
+                    @Override
+                    public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+
+                    }
+                });
+            }
 		}
 	
 	}
