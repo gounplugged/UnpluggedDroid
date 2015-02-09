@@ -68,7 +68,7 @@ public class UnpluggedBluetoothManager implements UnpluggedConnectionManager {
 		startAccepting();
 		startDiscovery();
 		if (!isBroadcasting) {
-			parentActivity.startBroadcast();
+//			parentActivity.startBroadcast();
 			isBroadcasting = true;
 		}
 //		setConnectionState(STATE_DISCONNECTED);

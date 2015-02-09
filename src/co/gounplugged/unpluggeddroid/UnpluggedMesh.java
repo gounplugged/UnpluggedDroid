@@ -81,7 +81,7 @@ public class UnpluggedMesh extends Thread implements HydraPostDb {
 				Log.d(TAG, "BleManager enabled");
 				mUnpluggedBleManager.resumeConnection();
 			} else {
-				parentActivity.enableBle();
+//				parentActivity.enableBle();
 			}
 		}
 	}
