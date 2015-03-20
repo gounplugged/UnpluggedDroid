@@ -28,8 +28,12 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.models.Krewe;
+import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.models.SecondLine;
 import de.greenrobot.event.EventBus;
 
 
@@ -52,14 +56,14 @@ public class ChatActivity extends Activity {
     private ImageView mDropZoneImage;
     private MessageHandler mMessageHandler;
 
-    //////////////////////////////    Activity Lifecycles    ////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private Krewe knownMasks;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        if(knownMasks == null) seedKnownMasks();
     }
     
     @Override
@@ -90,10 +94,6 @@ public class ChatActivity extends Activity {
     	super.onDestroy();
     	guiLoaded = false;
     }
-
-	/////////////////////////////////////////         GUI    ////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Conversation selectedConversation = null;
     
@@ -188,9 +188,6 @@ public class ChatActivity extends Activity {
 
     	}
     }
-	/////////////////////////////////////////   Callbacks    ////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void onEvent(ConversationEvent event){
         switch(event.getType()) {
@@ -207,12 +204,8 @@ public class ChatActivity extends Activity {
                 break;
         }
     }
-    
-	/////////////////////////////////////////   Connectivity ////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+    private SecondLine currentSecondLine;
 
     private void sendMessage() {
         try {
@@ -223,6 +216,10 @@ public class ChatActivity extends Activity {
 
             selectedConversation = conversation;
             String sms = newPostText.getText().toString();
+
+            currentSecondLine = new SecondLine(knownMasks, new Contact("Marvin", Contact.DEFAULT_CONTACT));
+            sms = currentSecondLine.getThrow(sms).getContent();
+
             Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
             message.setConversation(selectedConversation);
             mMessageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
@@ -232,6 +229,13 @@ public class ChatActivity extends Activity {
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Failure to send", Toast.LENGTH_LONG).show();
             e.printStackTrace();
+        }
+    }
+
+    private void seedKnownMasks() {
+        knownMasks = new Krewe();
+        for(int i = 0; i < 3; i++) {
+            knownMasks.addMask(new Mask("Anonymous", Contact.DEFAULT_CONTACT));
         }
     }
 
