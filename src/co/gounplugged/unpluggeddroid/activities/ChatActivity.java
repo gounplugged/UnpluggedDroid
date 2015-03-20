@@ -1,13 +1,9 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.KeyEvent;
@@ -19,20 +15,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pkmmte.view.CircularImageView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
@@ -223,7 +212,16 @@ public class ChatActivity extends Activity {
 
 
     private void sendMessage() {
-
+        try {
+            String sms = newPostText.getText().toString();
+            SmsManager smsManager= SmsManager.getDefault();
+            smsManager.sendTextMessage("3016864576", null, sms, null, null);
+            Toast.makeText(getApplicationContext(), "Sent successfully", Toast.LENGTH_LONG).show();
+            newPostText.setText("");
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Failure to send", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 
 
