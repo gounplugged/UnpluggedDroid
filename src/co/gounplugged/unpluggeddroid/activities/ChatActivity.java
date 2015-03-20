@@ -27,6 +27,7 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
+import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import de.greenrobot.event.EventBus;
@@ -49,6 +50,7 @@ public class ChatActivity extends Activity {
 	private ListView mChatView;
 	private MenuItem mItemConnectionStatus;
     private ImageView mDropZoneImage;
+    private MessageHandler mMessageHandler;
 
     //////////////////////////////    Activity Lifecycles    ////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +59,6 @@ public class ChatActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         setContentView(R.layout.activity_chat);
     }
     
@@ -122,6 +123,8 @@ public class ChatActivity extends Activity {
 	        mChatArrayAdapter = new MessageAdapter(this);
 	        mChatView = (ListView) findViewById(R.id.chats);
 	        mChatView.setAdapter(mChatArrayAdapter);
+
+            mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
 
             //Chat-container //todo extract
             mChatView.setBackgroundColor(Color.GRAY);
@@ -213,17 +216,23 @@ public class ChatActivity extends Activity {
 
     private void sendMessage() {
         try {
+            Conversation conversation = new Conversation();
+
+            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+            conversationAccess.create(conversation);
+
+            selectedConversation = conversation;
             String sms = newPostText.getText().toString();
-            SmsManager smsManager= SmsManager.getDefault();
-            smsManager.sendTextMessage("3016864576", null, sms, null, null);
-            Toast.makeText(getApplicationContext(), "Sent successfully", Toast.LENGTH_LONG).show();
+            Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
+            message.setConversation(selectedConversation);
+            mMessageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
+
             newPostText.setText("");
+
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Failure to send", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
-
-
 
 }
