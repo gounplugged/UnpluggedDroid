@@ -35,7 +35,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.UnpluggedMessageHandler;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
@@ -50,16 +49,9 @@ public class ChatActivity extends Activity {
 	
 	// Constants
     public static final String EXTRA_MESSAGE = "message";
-    public static final String PROPERTY_REG_ID = "registration_id";
-    private static final String PROPERTY_APP_VERSION = "appVersion";
-
-    String SENDER_ID = "unpluggeddroid1";
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-    public static final String SERVICE_NAME = "Unplugged";
-	public static final UUID Uuid = UUID.nameUUIDFromBytes(SERVICE_NAME.getBytes(Charset.forName("UTF-8")));
-	
 	// GUI
 	private boolean guiLoaded = false;
 	private ImageButton submitButton;
@@ -68,14 +60,6 @@ public class ChatActivity extends Activity {
 	private ListView mChatView;
 	private MenuItem mItemConnectionStatus;
     private ImageView mDropZoneImage;
-
-    GoogleCloudMessaging gcm;
-    AtomicInteger msgId = new AtomicInteger();
-    SharedPreferences prefs;
-    Context context;
-
-    String regId;
-
 
     //////////////////////////////    Activity Lifecycles    ////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,19 +70,6 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_chat);
-        context = getApplicationContext();
-
-        if (checkPlayServices()) {
-            gcm = GoogleCloudMessaging.getInstance(this);
-            regId = getRegistrationId(context);
-
-            if (regId.isEmpty()) {
-                registerInBackground();
-            }
-        } else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
-        }
-
     }
     
     @Override
@@ -117,7 +88,6 @@ public class ChatActivity extends Activity {
     @Override
     protected synchronized void onResume() {
     	super.onResume();
-        checkPlayServices();
     }
 
     @Override
@@ -250,209 +220,12 @@ public class ChatActivity extends Activity {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private int sendCount = 0;
-    //playground
-//    private void sendMessage() {
-//
-//        new AsyncTask<Void, Void, Void>() {
-//
-//            @Override
-//            protected Void doInBackground(Void... params) {
-//                Conversation conversation = new Conversation();
-//
-//                //save conversation
-//                DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-//                conversationAccess.create(conversation);
-//
-//                String text = "Lorem ipsum ... " + sendCount++;
-//
-//                //Collection<Message> messages = new ArrayList<Message>();
-//                for (int i=0; i<15; i++) {
-//
-//                    int messageType = UnpluggedMessageHandler.MESSAGE_WRITE;
-//                    if (i%2 == 1)
-//                        messageType = UnpluggedMessageHandler.MESSAGE_READ;
-//
-//                    Message message = new Message(text, messageType, System.currentTimeMillis());
-//                    message.setConversation(conversation);
-//
-//                    //save message
-//                    DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<Message>(getApplicationContext(), Message.class);
-//                    messageDatabaseAccess.create(message);
-//                }
-//                return null;
-//            }
-//
-//        }.execute();
-//    }
+
 
     private void sendMessage() {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    Bundle data = new Bundle();
-                    data.putString("my_message", "Hello World");
-                    data.putString("my_action", "com.google.android.gcm.demo.app.ECHO_NOW");
-                    String id = Integer.toString(msgId.incrementAndGet());
-                    gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
-                    msg = "Sent message";
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-                }
-                return msg;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-//                    mDisplay.append(msg + "\n");
-            }
-        }.execute(null, null, null);
 
     }
 
 
-    /**
-     * Check the device to make sure it has the Google Play Services APK. If
-     * it doesn't, display a dialog that allows users to download the APK from
-     * the Google Play Store or enable it in the device's system settings.
-     */
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                Log.i(TAG, "This device is not supported.");
-                finish();
-            }
-            return false;
-        }
-        return true;
-    }
 
-    /**
-     * Gets the current registration ID for application on GCM service, if there is one.
-     * <p>
-     * If result is empty, the app needs to register.
-     *
-     * @return registration ID, or empty string if there is no existing
-     *         registration ID.
-     */
-    private String getRegistrationId(Context context) {
-        final SharedPreferences prefs = getGcmPreferences(context);
-        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
-        if (registrationId.isEmpty()) {
-            Log.i(TAG, "Registration not found.");
-            return "";
-        }
-        // Check if app was updated; if so, it must clear the registration ID
-        // since the existing regID is not guaranteed to work with the new
-        // app version.
-        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-        int currentVersion = getAppVersion(context);
-        if (registeredVersion != currentVersion) {
-            Log.i(TAG, "App version changed.");
-            return "";
-        }
-        return registrationId;
-    }
-
-    /**
-     * @return Application's {@code SharedPreferences}.
-     */
-    private SharedPreferences getGcmPreferences(Context context) {
-        // This sample app persists the registration ID in shared preferences, but
-        // how you store the regID in your app is up to you.
-        return getSharedPreferences(ChatActivity.class.getSimpleName(),
-                Context.MODE_PRIVATE);
-    }
-
-    /**
-     * @return Application's version code from the {@code PackageManager}.
-     */
-    private static int getAppVersion(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            // should never happen
-            throw new RuntimeException("Could not get package name: " + e);
-        }
-    }
-
-    /**
-     * Registers the application with GCM servers asynchronously.
-     * <p>
-     * Stores the registration ID and the app versionCode in the application's
-     * shared preferences.
-     */
-    private void registerInBackground() {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(context);
-                    }
-                    regId = gcm.register(SENDER_ID);
-                    msg = "Device registered, registration ID=" + regId;
-
-                    // You should send the registration ID to your server over HTTP, so it
-                    // can use GCM/HTTP or CCS to send messages to your app.
-                    sendRegistrationIdToBackend();
-
-                    // For this demo: we don't need to send it because the device will send
-                    // upstream messages to a server that echo back the message using the
-                    // 'from' address in the message.
-
-                    // Persist the regID - no need to register again.
-                    storeRegistrationId(context, regId);
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-                    // If there is an error, don't just keep trying to register.
-                    // Require the user to click a button again, or perform
-                    // exponential back-off.
-                }
-                return msg;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-//                mDisplay.append(msg + "\n");
-            }
-        }.execute(null, null, null);
-    }
-
-
-    /**
-     * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP
-     * or CCS to send messages to your app. Not needed for this demo since the
-     * device sends upstream messages to a server that echoes back the message
-     * using the 'from' address in the message.
-     */
-    private void sendRegistrationIdToBackend() {
-        // Your implementation here.
-    }
-
-    /**
-     * Stores the registration ID and app versionCode in the application's
-     * {@code SharedPreferences}.
-     *
-     * @param context application's context.
-     * @param regId registration ID
-     */
-    private void storeRegistrationId(Context context, String regId) {
-        final SharedPreferences prefs = getGcmPreferences(context);
-        int appVersion = getAppVersion(context);
-        Log.i(TAG, "Saving regId on app version " + appVersion);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PROPERTY_REG_ID, regId);
-        editor.putInt(PROPERTY_APP_VERSION, appVersion);
-        editor.commit();
-    }
 }
