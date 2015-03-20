@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.app.Activity;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
@@ -57,11 +59,17 @@ public class ChatActivity extends Activity {
     private MessageHandler mMessageHandler;
 
     private Krewe knownMasks;
-	
+    SmsBroadcastReceiver smsBroadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        smsBroadcastReceiver = new SmsBroadcastReceiver();
+        smsBroadcastReceiver.setActivity(this);
+        IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        registerReceiver(smsBroadcastReceiver,fltr_smsreceived);
 
         if(knownMasks == null) seedKnownMasks();
     }
@@ -71,7 +79,6 @@ public class ChatActivity extends Activity {
     	super.onStart();
     	loadGui();
     }
-
 
     @Override
     protected void onStop() {
@@ -237,6 +244,20 @@ public class ChatActivity extends Activity {
         for(int i = 0; i < 3; i++) {
             knownMasks.addMask(new Mask("Anonymous", Contact.DEFAULT_CONTACT));
         }
+    }
+
+    public void processThrow(String s) {
+        Conversation conversation = new Conversation();
+
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+        conversationAccess.create(conversation);
+
+        selectedConversation = conversation;
+
+        Message message = new Message(s, Message.TYPE_INCOMING, System.currentTimeMillis());
+        message.setConversation(selectedConversation);
+
+        mMessageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
     }
 
 }

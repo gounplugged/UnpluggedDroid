@@ -14,6 +14,14 @@ public class Throw {
         this.content = contentFor(message,krewe, recipient);
     }
 
+    public Throw(String content) {
+        this.content = content;
+    }
+
+//    public Contact nextMask() {
+//        return new Contact()
+//    }
+
     private String contentFor(String message, Krewe krewe, Contact recipient) {
         StringBuilder stringBuilder = new StringBuilder();
 

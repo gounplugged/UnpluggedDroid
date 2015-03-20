@@ -6,6 +6,7 @@ import android.telephony.SmsManager;
 
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Message;
 
 public class MessageHandler extends Handler {
@@ -31,12 +32,16 @@ public class MessageHandler extends Handler {
                 String sms = (String) message.getMessage();
                 // construct a string from the buffer
                 SmsManager smsManager= SmsManager.getDefault();
-                smsManager.sendTextMessage("3016864576", null, sms, null, null);
+                smsManager.sendTextMessage(Contact.DEFAULT_CONTACT, null, sms, null, null);
 //                Message unpluggedMessage = new Message(writeMessage,
 //                        Message.TYPE_OUTGOING, System.currentTimeMillis());
                 messageAdapter.addMessage(message);
                 messageDatabaseAccess.create(message);
 
+                break;
+            case MESSAGE_READ:
+                messageAdapter.addMessage(message);
+                messageDatabaseAccess.create(message);
                 break;
 
         }
