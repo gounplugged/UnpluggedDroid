@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
 import co.gounplugged.unpluggeddroid.R;
 
 public class SplashActivity extends Activity {

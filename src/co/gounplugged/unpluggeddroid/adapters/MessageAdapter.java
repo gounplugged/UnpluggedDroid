@@ -33,7 +33,6 @@ public class MessageAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-
     @Override
     public int getCount() {
         return mMessages.size();
