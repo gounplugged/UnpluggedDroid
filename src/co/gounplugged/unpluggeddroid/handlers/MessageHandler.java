@@ -32,7 +32,7 @@ public class MessageHandler extends Handler {
                 String sms = (String) message.getMessage();
                 // construct a string from the buffer
                 SmsManager smsManager= SmsManager.getDefault();
-                smsManager.sendTextMessage(Contact.DEFAULT_CONTACT, null, sms, null, null);
+                smsManager.sendTextMessage(Contact.DEFAULT_CONTACT_NUMBER, null, sms, null, null);
 //                Message unpluggedMessage = new Message(writeMessage,
 //                        Message.TYPE_OUTGOING, System.currentTimeMillis());
                 messageAdapter.addMessage(message);

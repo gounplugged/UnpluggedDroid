@@ -224,8 +224,8 @@ public class ChatActivity extends Activity {
             selectedConversation = conversation;
             String sms = newPostText.getText().toString();
 
-            currentSecondLine = new SecondLine(knownMasks, new Contact("Marvin", Contact.DEFAULT_CONTACT));
-            sms = currentSecondLine.getThrow(sms).getContent();
+            currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER), knownMasks);
+            sms = currentSecondLine.getThrow(sms).getEncryptedContent();
 
             Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
             message.setConversation(selectedConversation);
@@ -242,7 +242,7 @@ public class ChatActivity extends Activity {
     private void seedKnownMasks() {
         knownMasks = new Krewe();
         for(int i = 0; i < 3; i++) {
-            knownMasks.addMask(new Mask("Anonymous", Contact.DEFAULT_CONTACT));
+            knownMasks.addMask(new Mask(Contact.DEFAULT_CONTACT_NUMBER));
         }
     }
 
@@ -258,6 +258,8 @@ public class ChatActivity extends Activity {
         message.setConversation(selectedConversation);
 
         mMessageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+
+
     }
 
 }

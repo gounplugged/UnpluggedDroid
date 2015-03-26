@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.models.Throw;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
 
@@ -27,11 +28,13 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
 
                 String smsBody = smsMessage.getMessageBody().toString();
+                Throw receivedThrow = new Throw(smsBody);
+
 //                String address = smsMessage.getOriginatingAddress();
 
 //                smsMessageStr += "SMS From: " + address + "\n";
 //                smsMessageStr += smsBody + "\n";
-                smsMessageStr = smsBody;
+                smsMessageStr = receivedThrow.getEncryptedContent();
             }
 
             //this will update the UI with message

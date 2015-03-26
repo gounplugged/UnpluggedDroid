@@ -28,4 +28,8 @@ public class Krewe {
     public boolean isEmpty() {
         return masks == null || masks.size() == 0;
     }
+
+    public Mask getLast() { return masks.get(masks.size() - 1); }
+
+    public Mask nextMask() { return masks.get(0); }
 }
