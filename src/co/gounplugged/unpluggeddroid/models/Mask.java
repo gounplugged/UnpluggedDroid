@@ -13,4 +13,6 @@ public class Mask {
     public Mask(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public boolean hasArrived() { return phoneNumber == null; }
 }

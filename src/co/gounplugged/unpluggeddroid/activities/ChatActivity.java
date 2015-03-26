@@ -258,7 +258,9 @@ public class ChatActivity extends Activity {
         Throw receivedThrow = new Throw(s);
         String nextMessage = receivedThrow.getEncryptedContent();
         Log.d(TAG, "Next message: " + nextMessage);
-        MessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+        if(!receivedThrow.hasArrived()) {
+            MessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+        }
 
         Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
         message.setConversation(selectedConversation);

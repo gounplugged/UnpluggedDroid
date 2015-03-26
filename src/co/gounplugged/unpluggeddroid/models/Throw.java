@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class Throw {
     private final static String TAG = "Throw";
     private final static String MASK_SEPERATOR = "zQpQQ";
-    private final static String MESSAGE_SEPERATOR = "*+#";
+    private final static String MESSAGE_SEPERATOR = "WIxff";
 
     public String getEncryptedContent() {
         return encryptedContent;
@@ -42,10 +42,14 @@ public class Throw {
 
     private String encryptedContentFor(String message, Krewe krewe) {
         StringBuilder stringBuilder = new StringBuilder();
-
+        boolean skippedFirst = false;
         for(Mask m : krewe.getMasks()) {
-            stringBuilder.append(m.getPhoneNumber());
-            stringBuilder.append(MASK_SEPERATOR);
+            if(skippedFirst) {
+                stringBuilder.append(m.getPhoneNumber());
+                stringBuilder.append(MASK_SEPERATOR);
+            } else {
+                skippedFirst = true;
+            }
         }
 
         stringBuilder.append(message);
@@ -55,15 +59,31 @@ public class Throw {
     }
 
     private Mask getNextMask(String decryptedContent) {
-        String nextPhoneNumber = decryptedContent.split(MASK_SEPERATOR)[0];
+        String nextPhoneNumber;
+        Log.d(TAG, "Has throw arrived: " + String.valueOf(Throw.isValidWThrowTo(decryptedContent)));
+        if(Throw.isValidWThrowTo(decryptedContent)) {
+            nextPhoneNumber = decryptedContent.split(MASK_SEPERATOR)[0];
+        } else {
+            nextPhoneNumber = null;
+        }
         return new Mask(nextPhoneNumber);
     }
 
+    private static boolean isValidWThrowTo(String decryptedContent){
+        return decryptedContent.matches("(\\d+" + MASK_SEPERATOR + ")+\\w+" + MESSAGE_SEPERATOR);
+    }
+
     private String peelOffLayer(String receivedThrowContent) {
-        Log.d(TAG, "Testing " + receivedThrowContent);
         String r = "\\d+" + MASK_SEPERATOR;
-        Log.d(TAG, "With " + r);
         Log.d(TAG, String.valueOf(receivedThrowContent.matches(r)));
-        return receivedThrowContent.replaceFirst(r, "");
+        if(throwTo.hasArrived()) {
+            return receivedThrowContent.split(MESSAGE_SEPERATOR)[0];
+        } else {
+            return receivedThrowContent.replaceFirst(r, "");
+        }
+    }
+
+    public boolean hasArrived() {
+        return throwTo.hasArrived();
     }
 }
