@@ -18,6 +18,11 @@ public class Throw {
     }
 
     private final String encryptedContent;
+
+    public Mask getThrowTo() {
+        return throwTo;
+    }
+
     private final Mask throwTo;
 
     public Throw(String message, Krewe maskRoute) {
@@ -55,7 +60,10 @@ public class Throw {
     }
 
     private String peelOffLayer(String receivedThrowContent) {
-        Log.d(TAG, String.valueOf(receivedThrowContent.matches("\\d" + MASK_SEPERATOR)));
-        return receivedThrowContent.replaceFirst("\\d" + MASK_SEPERATOR, "");
+        Log.d(TAG, "Testing " + receivedThrowContent);
+        String r = "\\d+" + MASK_SEPERATOR;
+        Log.d(TAG, "With " + r);
+        Log.d(TAG, String.valueOf(receivedThrowContent.matches(r)));
+        return receivedThrowContent.replaceFirst(r, "");
     }
 }

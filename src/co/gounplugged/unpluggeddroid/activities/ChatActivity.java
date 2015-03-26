@@ -36,6 +36,7 @@ import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.SecondLine;
+import co.gounplugged.unpluggeddroid.models.Throw;
 import de.greenrobot.event.EventBus;
 
 
@@ -254,7 +255,12 @@ public class ChatActivity extends Activity {
 
         selectedConversation = conversation;
 
-        Message message = new Message(s, Message.TYPE_INCOMING, System.currentTimeMillis());
+        Throw receivedThrow = new Throw(s);
+        String nextMessage = receivedThrow.getEncryptedContent();
+        Log.d(TAG, "Next message: " + nextMessage);
+        MessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+
+        Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
         message.setConversation(selectedConversation);
 
         mMessageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
