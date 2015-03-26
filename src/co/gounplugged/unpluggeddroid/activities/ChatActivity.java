@@ -36,6 +36,7 @@ import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.SecondLine;
+import co.gounplugged.unpluggeddroid.models.Throw;
 import de.greenrobot.event.EventBus;
 
 
@@ -224,8 +225,8 @@ public class ChatActivity extends Activity {
             selectedConversation = conversation;
             String sms = newPostText.getText().toString();
 
-            currentSecondLine = new SecondLine(knownMasks, new Contact("Marvin", Contact.DEFAULT_CONTACT));
-            sms = currentSecondLine.getThrow(sms).getContent();
+            currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER), knownMasks);
+            sms = currentSecondLine.getThrow(sms).getEncryptedContent();
 
             Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
             message.setConversation(selectedConversation);
@@ -242,7 +243,7 @@ public class ChatActivity extends Activity {
     private void seedKnownMasks() {
         knownMasks = new Krewe();
         for(int i = 0; i < 3; i++) {
-            knownMasks.addMask(new Mask("Anonymous", Contact.DEFAULT_CONTACT));
+            knownMasks.addMask(new Mask(Contact.DEFAULT_CONTACT_NUMBER));
         }
     }
 
@@ -254,10 +255,19 @@ public class ChatActivity extends Activity {
 
         selectedConversation = conversation;
 
-        Message message = new Message(s, Message.TYPE_INCOMING, System.currentTimeMillis());
+        Throw receivedThrow = new Throw(s);
+        String nextMessage = receivedThrow.getEncryptedContent();
+        Log.d(TAG, "Next message: " + nextMessage);
+        if(!receivedThrow.hasArrived()) {
+            MessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+        }
+
+        Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
         message.setConversation(selectedConversation);
 
         mMessageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+
+
     }
 
 }

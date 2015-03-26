@@ -7,18 +7,19 @@ import java.util.List;
  */
 public class SecondLine {
     private Contact recipient;
-    private Krewe krewe;
+    private Krewe selectedKrewe;
 
-    public SecondLine(Krewe seedKrewe, Contact recipient) {
+    public SecondLine(Contact ultimateRecipient, Krewe seedKrewe) {
         this.recipient = recipient;
-        this.krewe = formLine(seedKrewe);
+        this.selectedKrewe = formSecondLine(ultimateRecipient, seedKrewe);
     }
 
     public Throw getThrow(String message) {
-        return new Throw(message, krewe, recipient);
+        return new Throw(message, selectedKrewe);
     }
 
-    private Krewe formLine(Krewe seedKrewe) {
+    private Krewe formSecondLine(Contact ultimateRecipient, Krewe seedKrewe) {
+        seedKrewe.addMask((Mask) ultimateRecipient);
         return seedKrewe;
     }
 

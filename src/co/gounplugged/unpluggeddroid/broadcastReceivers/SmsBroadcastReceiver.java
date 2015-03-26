@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.models.Throw;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
-
+    private static final String TAG = "SmsBroadcastReceiver";
     public static final String SMS_BUNDLE = "pdus";
 
     private ChatActivity chatActivity;
@@ -25,15 +27,10 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             String smsMessageStr = "";
             for (int i = 0; i < sms.length; ++i) {
                 SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
-
                 String smsBody = smsMessage.getMessageBody().toString();
-//                String address = smsMessage.getOriginatingAddress();
-
-//                smsMessageStr += "SMS From: " + address + "\n";
-//                smsMessageStr += smsBody + "\n";
-                smsMessageStr = smsBody;
+                smsMessageStr += smsBody;
             }
-
+            Log.d(TAG, "Received message: " + smsMessageStr);
             //this will update the UI with message
             chatActivity.processThrow(smsMessageStr);
         }
