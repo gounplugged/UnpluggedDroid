@@ -18,6 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.pkmmte.view.CircularImageView;
 
 import java.util.ArrayList;
@@ -72,7 +78,7 @@ public class ChatActivity extends Activity {
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(smsBroadcastReceiver,fltr_smsreceived);
 
-        if(knownMasks == null) seedKnownMasks();
+        seedKnownMasks();
     }
     
     @Override
@@ -217,6 +223,7 @@ public class ChatActivity extends Activity {
 
     private void sendMessage() {
         try {
+            makeMaskCall();
             Conversation conversation = new Conversation();
 
             DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
@@ -240,11 +247,41 @@ public class ChatActivity extends Activity {
         }
     }
 
+    RequestQueue queue;
+    String url ="https://stormy-hamlet-7282.herokuapp.com/masks";
+
     private void seedKnownMasks() {
-        knownMasks = new Krewe();
-        for(int i = 0; i < 3; i++) {
-            knownMasks.addMask(new Mask(Contact.DEFAULT_CONTACT_NUMBER));
+        if(knownMasks == null){
+            knownMasks = new Krewe();
         }
+        DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(getApplicationContext(), Mask.class);
+//        knownMasks = new Krewe();
+
+        if(knownMasks.isEmpty()) {
+            makeMaskCall();
+        }
+    }
+
+    public void makeMaskCall() {
+        queue = Volley.newRequestQueue(getApplicationContext());
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        //mTextView.setText("Response is: "+ response.substring(0,500));
+                        Log.d(TAG, response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "Call didn't work");
+            //mTextView.setText("That didn't work!");
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     public void processThrow(String s) {
