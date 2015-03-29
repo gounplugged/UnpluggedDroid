@@ -32,6 +32,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.api.JSONParser;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
@@ -223,7 +224,6 @@ public class ChatActivity extends Activity {
 
     private void sendMessage() {
         try {
-            makeMaskCall();
             Conversation conversation = new Conversation();
 
             DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
@@ -269,15 +269,14 @@ public class ChatActivity extends Activity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        //mTextView.setText("Response is: "+ response.substring(0,500));
                         Log.d(TAG, response);
+
+                        knownMasks = JSONParser.getKrewe(response);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "Call didn't work");
-            //mTextView.setText("That didn't work!");
             }
         });
         // Add the request to the RequestQueue.
