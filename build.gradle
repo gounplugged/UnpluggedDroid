@@ -17,7 +17,7 @@ dependencies {
     compile 'com.pkmmte.view:circularimageview:1.1'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.google.android.gms:play-services:6.5.87'
+    compile 'com.mcxiaoke.volley:library:1.0.15'
 }
 
 android {

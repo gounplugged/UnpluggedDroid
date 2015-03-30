@@ -18,6 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.pkmmte.view.CircularImageView;
 
 import java.util.ArrayList;
@@ -26,6 +32,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.api.JSONParser;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
@@ -72,7 +79,7 @@ public class ChatActivity extends Activity {
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(smsBroadcastReceiver,fltr_smsreceived);
 
-        if(knownMasks == null) seedKnownMasks();
+        seedKnownMasks();
     }
     
     @Override
@@ -240,11 +247,40 @@ public class ChatActivity extends Activity {
         }
     }
 
+    RequestQueue queue;
+    String url ="https://stormy-hamlet-7282.herokuapp.com/masks";
+
     private void seedKnownMasks() {
-        knownMasks = new Krewe();
-        for(int i = 0; i < 3; i++) {
-            knownMasks.addMask(new Mask(Contact.DEFAULT_CONTACT_NUMBER));
+        if(knownMasks == null){
+            knownMasks = new Krewe();
         }
+        DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(getApplicationContext(), Mask.class);
+//        knownMasks = new Krewe();
+
+        if(knownMasks.isEmpty()) {
+            makeMaskCall();
+        }
+    }
+
+    public void makeMaskCall() {
+        queue = Volley.newRequestQueue(getApplicationContext());
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, response);
+
+                        knownMasks = JSONParser.getKrewe(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "Call didn't work");
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     public void processThrow(String s) {
