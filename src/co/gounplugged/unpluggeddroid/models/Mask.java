@@ -8,12 +8,17 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 @DatabaseTable(tableName = "masks")
 public class Mask {
+    public static final String COUNTRY_ID_FIELD_NAME = "country_id";
 
     @DatabaseField(generatedId = true)
     public long id;
 
     @DatabaseField
     private String phoneNumber;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = COUNTRY_ID_FIELD_NAME)
+    private Country country;
+    
 
     public Mask() {
         // all persisted classes must define a no-arg constructor with at least package visibility

@@ -30,7 +30,7 @@ public class MessageHandler extends Handler {
         switch (msg.what) {
             case MESSAGE_WRITE:
                 String sms = (String) message.getMessage();
-                MessageHandler.sendSms(Contact.DEFAULT_CONTACT_NUMBER, sms);
+                sendSms(Contact.DEFAULT_CONTACT_NUMBER, sms);
                 messageAdapter.addMessage(message);
                 messageDatabaseAccess.create(message);
 
@@ -43,8 +43,8 @@ public class MessageHandler extends Handler {
         }
     }
 
-    public static void sendSms(String phoneNumber, String s) {
-        SmsManager smsManager= SmsManager.getDefault();
+    public void sendSms(String phoneNumber, String s) {
+        SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNumber, null, s, null, null);
     }
 }
