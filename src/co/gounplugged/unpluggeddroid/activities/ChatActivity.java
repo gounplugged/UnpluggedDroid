@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.KeyEvent;
@@ -18,12 +17,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.pkmmte.view.CircularImageView;
 
 import java.util.ArrayList;
@@ -32,7 +25,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
-import co.gounplugged.unpluggeddroid.api.JSONParser;
+import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
@@ -42,7 +35,7 @@ import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
-import co.gounplugged.unpluggeddroid.models.SecondLine;
+import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 import de.greenrobot.event.EventBus;
 
@@ -62,22 +55,24 @@ public class ChatActivity extends Activity {
 	private EditText newPostText;
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
-	private MenuItem mItemConnectionStatus;
     private ImageView mDropZoneImage;
     private MessageHandler mMessageHandler;
 
+    private Profile profile;
     private Krewe knownMasks;
+    private APICaller apiCaller;
     SmsBroadcastReceiver smsBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        profile = new Profile(getApplicationContext());
+        apiCaller = new APICaller(getApplicationContext(), this);
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        registerReceiver(smsBroadcastReceiver,fltr_smsreceived);
+        registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
 
         seedKnownMasks();
     }
@@ -220,25 +215,15 @@ public class ChatActivity extends Activity {
         }
     }
 
-    private SecondLine currentSecondLine;
-
     private void sendMessage() {
         try {
             Conversation conversation = new Conversation();
 
             DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
             conversationAccess.create(conversation);
-
+            conversation.setMessageHandler(mMessageHandler);
             selectedConversation = conversation;
-            String sms = newPostText.getText().toString();
-
-            currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER), knownMasks);
-            sms = currentSecondLine.getThrow(sms).getEncryptedContent();
-
-            Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
-            message.setConversation(selectedConversation);
-            mMessageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
-
+            conversation.sendMessage(newPostText.getText().toString(), knownMasks);
             newPostText.setText("");
 
         } catch (Exception e) {
@@ -247,63 +232,42 @@ public class ChatActivity extends Activity {
         }
     }
 
-    RequestQueue queue;
-    String url ="https://stormy-hamlet-7282.herokuapp.com/masks";
-
     private void seedKnownMasks() {
         if(knownMasks == null){
             knownMasks = new Krewe();
         }
         DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(getApplicationContext(), Mask.class);
-//        knownMasks = new Krewe();
+        // TODO: Prefill from db
 
         if(knownMasks.isEmpty()) {
-            makeMaskCall();
+            apiCaller.getMasks(Contact.DEFAULT_COUNTRY_CODE);
         }
     }
 
-    public void makeMaskCall() {
-        queue = Volley.newRequestQueue(getApplicationContext());
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(TAG, response);
-
-                        knownMasks = JSONParser.getKrewe(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "Call didn't work");
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
-
     public void processThrow(String s) {
-        Conversation conversation = new Conversation();
-
-        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-        conversationAccess.create(conversation);
-
-        selectedConversation = conversation;
 
         Throw receivedThrow = new Throw(s);
         String nextMessage = receivedThrow.getEncryptedContent();
         Log.d(TAG, "Next message: " + nextMessage);
+
         if(!receivedThrow.hasArrived()) {
-            MessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+            mMessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+        } else {
+            Conversation conversation = new Conversation();
+            conversation.setMessageHandler(mMessageHandler);
+
+            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+            conversationAccess.create(conversation);
+
+            selectedConversation = conversation;
+            conversation.receiveThrow(receivedThrow);
         }
 
-        Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
-        message.setConversation(selectedConversation);
 
-        mMessageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+    }
 
-
+    public void setKnownMasks(Krewe masks) {
+        this.knownMasks = masks;
     }
 
 }

@@ -10,8 +10,9 @@ import java.util.regex.Pattern;
  */
 public class Throw {
     private final static String TAG = "Throw";
-    private final static String MASK_SEPERATOR = "zQpQQ";
-    private final static String MESSAGE_SEPERATOR = "WIxff";
+    public final static String MASK_SEPERATOR = "zQpQQ";
+    public final static String COUNTRY_CODE_SEPERATOR = "VwvaQ";
+    public final static String MESSAGE_SEPERATOR = "WIxff";
 
     public String getEncryptedContent() {
         return encryptedContent;
@@ -45,6 +46,8 @@ public class Throw {
         boolean skippedFirst = false;
         for(Mask m : krewe.getMasks()) {
             if(skippedFirst) {
+                stringBuilder.append(m.getCountryCode());
+                stringBuilder.append(COUNTRY_CODE_SEPERATOR);
                 stringBuilder.append(m.getPhoneNumber());
                 stringBuilder.append(MASK_SEPERATOR);
             } else {
@@ -60,21 +63,25 @@ public class Throw {
 
     private Mask getNextMask(String decryptedContent) {
         String nextPhoneNumber;
+        String nextCountryCode;
         Log.d(TAG, "Has throw arrived: " + String.valueOf(Throw.isValidWThrowTo(decryptedContent)));
         if(Throw.isValidWThrowTo(decryptedContent)) {
-            nextPhoneNumber = decryptedContent.split(MASK_SEPERATOR)[0];
+            String fullNumber = decryptedContent.split(MASK_SEPERATOR)[0];
+            nextCountryCode = fullNumber.split(COUNTRY_CODE_SEPERATOR)[0];
+            nextPhoneNumber = fullNumber.split(COUNTRY_CODE_SEPERATOR)[1];
         } else {
             nextPhoneNumber = null;
+            nextCountryCode = null;
         }
-        return new Mask(nextPhoneNumber);
+        return new Mask(nextPhoneNumber, Contact.DEFAULT_COUNTRY_CODE);
     }
 
     private static boolean isValidWThrowTo(String decryptedContent){
-        return decryptedContent.matches("(\\d+" + MASK_SEPERATOR + ")+\\w+" + MESSAGE_SEPERATOR);
+        return decryptedContent.matches("(\\+\\d{1,3}" + COUNTRY_CODE_SEPERATOR + "\\d+" + MASK_SEPERATOR + ")+\\w+" + MESSAGE_SEPERATOR);
     }
 
     private String peelOffLayer(String receivedThrowContent) {
-        String r = "\\d+" + MASK_SEPERATOR;
+        String r = "\\+\\d{1,3}" + COUNTRY_CODE_SEPERATOR + "\\d+" + MASK_SEPERATOR;
         Log.d(TAG, String.valueOf(receivedThrowContent.matches(r)));
         if(throwTo.hasArrived()) {
             return receivedThrowContent.split(MESSAGE_SEPERATOR)[0];
@@ -85,5 +92,17 @@ public class Throw {
 
     public boolean hasArrived() {
         return throwTo.hasArrived();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Throw))
+            return false;
+        if (obj == this)
+            return true;
+
+        Throw rhs = (Throw) obj;
+        return encryptedContent.equals(rhs.getEncryptedContent());
+
     }
 }

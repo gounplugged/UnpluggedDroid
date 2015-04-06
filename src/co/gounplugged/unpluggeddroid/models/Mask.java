@@ -15,6 +15,14 @@ public class Mask {
     @DatabaseField
     private String phoneNumber;
 
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    @DatabaseField
+    private String countryCode;
+    
+
     public Mask() {
         // all persisted classes must define a no-arg constructor with at least package visibility
     }
@@ -23,8 +31,9 @@ public class Mask {
         return phoneNumber;
     }
 
-    public Mask(String phoneNumber) {
+    public Mask(String phoneNumber, String countryCode) {
         this.phoneNumber = phoneNumber;
+        this.countryCode = countryCode;
     }
 
     public boolean hasArrived() { return phoneNumber == null; }
