@@ -57,4 +57,23 @@ public class Conversation {
 
         messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder()
+                .append("conversation : { ")
+                .append("\n")
+                .append("id: " + id)
+                .append("\n");
+
+        for (Message message : messages) {
+            builder.append(message.toString())
+                    .append("\n");
+        }
+
+        builder.append("}");
+        builder.append("\n");
+
+        return builder.toString();
+    }
 }

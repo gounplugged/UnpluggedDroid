@@ -25,4 +25,17 @@ public class ConversationEvent {
     public Conversation getConversation() {
         return mConversation;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("conversation-event : { ")
+                .append("\n")
+                .append("type: " + mType.toString())
+                .append("\n")
+                .append(mConversation.toString())
+                .append("\n")
+                .append("}")
+                .toString();
+    }
 }

@@ -201,10 +201,9 @@ public class ChatActivity extends Activity {
     }
 
     public void onEvent(ConversationEvent event){
+        Log.d(TAG, "Eventbus onEvent event: " + event.toString());
         switch(event.getType()) {
-
             case SELECTED:
-                Log.d(TAG, "Eventbus selected ");
                 //Blur listview
 //                mChatView.setBackgroundColor(Color.GREEN);
                 selectedConversation = event.getConversation();
