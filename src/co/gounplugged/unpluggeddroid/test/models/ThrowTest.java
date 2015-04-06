@@ -17,6 +17,7 @@ public class ThrowTest extends AndroidTestCase {
     int maskRouteLength;
 
     String phone = "123";
+    String code = "+00";
 
     @Override
     protected void setUp() throws Exception {
@@ -24,7 +25,7 @@ public class ThrowTest extends AndroidTestCase {
         super.setUp();
 
         maskRouteLength = 3;
-        m = new Mask(phone, "+00");
+        m = new Mask(phone, code);
         maskRoute = new Krewe();
 
         for(int i = 0; i<= maskRouteLength; i++) {
@@ -42,7 +43,21 @@ public class ThrowTest extends AndroidTestCase {
         String message = "test";
         Throw t = new Throw(message, maskRoute);
         assertEquals(m, t.getThrowTo());
-        String encrypted = phone + Throw.MASK_SEPERATOR + phone + Throw.MASK_SEPERATOR + phone + Throw.MASK_SEPERATOR + message + Throw.MESSAGE_SEPERATOR;
+        String encrypted =  code + Throw.COUNTRY_CODE_SEPERATOR + phone + Throw.MASK_SEPERATOR +
+                            code + Throw.COUNTRY_CODE_SEPERATOR + phone + Throw.MASK_SEPERATOR +
+                            code + Throw.COUNTRY_CODE_SEPERATOR + phone + Throw.MASK_SEPERATOR +
+                            message + Throw.MESSAGE_SEPERATOR;
+        assertEquals(encrypted, t.getEncryptedContent());
+    }
+
+    public void testDecrypt() {
+        String message = "test";
+        Throw t = new Throw(message, maskRoute);
+        t = new Throw(t.getEncryptedContent());
+
+        String encrypted =  code + Throw.COUNTRY_CODE_SEPERATOR + phone + Throw.MASK_SEPERATOR +
+                code + Throw.COUNTRY_CODE_SEPERATOR + phone + Throw.MASK_SEPERATOR +
+                message + Throw.MESSAGE_SEPERATOR;
         assertEquals(encrypted, t.getEncryptedContent());
     }
 }
