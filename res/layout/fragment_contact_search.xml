@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottom_container"
+    android:layout_height="80dp"
+    android:layout_width="match_parent"
+    android:layout_alignParentBottom="true"
+    >
+
+    <EditText
+        android:id="@+id/new_post_text"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:hint="Search contact"
+        android:textSize="15sp"
+        android:textColor="@color/chat_outgoing_text"
+        android:inputType="textShortMessage"
+        android:imeOptions="actionSend"
+        android:imeActionId="1"
+        android:imeActionLabel="Send"
+        android:layout_toLeftOf="@+id/submit_button"
+        android:background="#fff"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        />
+
+    <!--<ImageButton-->
+        <!--android:id="@+id/submit_button"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:src="@drawable/avatar"-->
+        <!--android:background="#fff"-->
+        <!--android:scaleType="centerCrop"-->
+        <!--/>-->
+
+    <!--<ImageView-->
+        <!--android:id="@+id/iv_drop_zone"-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:src="@drawable/drop_zone"-->
+        <!--android:visibility="gone"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--/>-->
+
+</RelativeLayout>

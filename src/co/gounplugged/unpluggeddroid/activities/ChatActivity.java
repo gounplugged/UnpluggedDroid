@@ -1,20 +1,21 @@
 package co.gounplugged.unpluggeddroid.activities;
 
-import android.app.Activity;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.DragEvent;
-import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pkmmte.view.CircularImageView;
@@ -29,6 +30,8 @@ import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
+import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
+import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -37,10 +40,13 @@ import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
+import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
+import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
+import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.MinFragmentPagerAdapter;
 import de.greenrobot.event.EventBus;
 
 
-public class ChatActivity extends Activity {
+public class ChatActivity extends FragmentActivity {
 	// Debug
 	private final String TAG = "ChatActivity";
 	
@@ -50,12 +56,13 @@ public class ChatActivity extends Activity {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	// GUI
-	private boolean guiLoaded = false;
 	private ImageButton submitButton;
 	private EditText newPostText;
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
     private ImageView mDropZoneImage;
+    private InfiniteViewPager mViewPager;
+
     private MessageHandler mMessageHandler;
 
     private Profile profile;
@@ -67,145 +74,170 @@ public class ChatActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+    	loadGui();
+
         profile = new Profile(getApplicationContext());
         apiCaller = new APICaller(getApplicationContext(), this);
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
+        mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
 
         seedKnownMasks();
     }
-    
+
     @Override
     protected void onStart() {
     	super.onStart();
-        EventBus.getDefault().register(this);
-    	loadGui();
     }
 
     @Override
     protected void onStop() {
-        EventBus.getDefault().unregister(this);
         super.onStop();
     }
-    
+
     @Override
     protected synchronized void onResume() {
     	super.onResume();
+        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onDestroy() {
     	super.onDestroy();
-    	guiLoaded = false;
     }
 
     private Conversation selectedConversation = null;
-    
+
     public void loadGui() {
-    	if(!guiLoaded) {
-	    	// Submit Button
-	    	submitButton = (ImageButton) findViewById(R.id.submit_button);
-	        submitButton.setOnClickListener(new View.OnClickListener() {
-	            public void onClick(View v) {
-	            	sendMessage();
-	            }
-	        });
+        // Submit Button
+//        submitButton = (ImageButton) findViewById(R.id.submit_button);
+//        submitButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                sendMessage();
+//            }
+//        });
+//
+//        // Enter pressed submission
+//        newPostText = (EditText) findViewById(R.id.new_post_text);
+//        newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+//                // If the action is a key-up event on the return key, send the list_item_message_outgoing
+//                if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
+//                    sendMessage();
+//                }
+//                return true;
+//            }
+//        });
 
-	        // Enter pressed submission
-	    	newPostText = (EditText) findViewById(R.id.new_post_text);
-	        newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-			    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-				    // If the action is a key-up event on the return key, send the list_item_message_outgoing
-				    if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-					    sendMessage();
-				    }
-				    return true;
-			    }
-	    	});
-	        
-	        // Chat log
-	        mChatArrayAdapter = new MessageAdapter(this);
-	        mChatView = (ListView) findViewById(R.id.chats);
-	        mChatView.setAdapter(mChatArrayAdapter);
+        // Chat log
+        mChatArrayAdapter = new MessageAdapter(this);
+        mChatView = (ListView) findViewById(R.id.chats);
+        mChatView.setAdapter(mChatArrayAdapter);
 
-            mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
+        // Input/Search viewpager
+        List<Fragment> fragments = new ArrayList<Fragment>();
+        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
+        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
+        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
+        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
 
-            //Chat-container //todo extract
-            mChatView.setBackgroundColor(Color.GRAY);
-            mChatView.setOnDragListener(new View.OnDragListener() {
-                @Override
-                public boolean onDrag(View v,  DragEvent event){
-                    switch(event.getAction())
-                    {
-                        case DragEvent.ACTION_DRAG_STARTED:
-                            break;
-                        case DragEvent.ACTION_DRAG_ENTERED:
-                            int x_cord = (int) event.getX();
-                            int y_cord = (int) event.getY();
-                            Log.i(TAG, "ACTION_DRAG_ENTERED x:" + x_cord + " y:" + y_cord);
-                            break;
-                        case DragEvent.ACTION_DRAG_EXITED:
-                            x_cord = (int) event.getX();
-                            y_cord = (int) event.getY();
-                            Log.i(TAG, "ACTION_DRAG_EXITED x:" + x_cord + " y:" + y_cord);
-                            break;
-                        case DragEvent.ACTION_DRAG_LOCATION:
-                            x_cord = (int) event.getX();
-                            y_cord = (int) event.getY();
-                            Log.i(TAG, "ACTION_DRAG_LOCATION x:" + x_cord + " y:" + y_cord);
-                            break;
-                        case DragEvent.ACTION_DRAG_ENDED:
-                            //Drag ended in listview: change conversation  //TODO check if it really ended in the listview!
-//                            mChatView.setBackgroundColor(Color.GRAY);
-                            mDropZoneImage.setVisibility(View.GONE);
+        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
 
-                            Collection<Message> messages = selectedConversation.getMessages();
-                            mChatArrayAdapter.setMessages( new ArrayList<>(messages));
+        FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
+        PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
+
+        mViewPager.setAdapter(wrappedAdapter);
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                Toast.makeText(getApplicationContext(), "Gehen", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
 
-                            int[] dropZoneLocation = new int[2];
-                            ((View)mDropZoneImage).getLocationOnScreen(dropZoneLocation);
+        //Chat-container //todo extract
+        mChatView.setBackgroundColor(Color.GRAY);
+        mChatView.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v,  DragEvent event){
+                switch(event.getAction())
+                {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        int x_cord = (int) event.getX();
+                        int y_cord = (int) event.getY();
+                        Log.i(TAG, "ACTION_DRAG_ENTERED x:" + x_cord + " y:" + y_cord);
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        x_cord = (int) event.getX();
+                        y_cord = (int) event.getY();
+                        Log.i(TAG, "ACTION_DRAG_EXITED x:" + x_cord + " y:" + y_cord);
+                        break;
+                    case DragEvent.ACTION_DRAG_LOCATION:
+                        x_cord = (int) event.getX();
+                        y_cord = (int) event.getY();
+                        Log.i(TAG, "ACTION_DRAG_LOCATION x:" + x_cord + " y:" + y_cord);
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        //TODO check if it ended in the listview!
+                        mDropZoneImage.setVisibility(View.GONE);
 
+                        Collection<Message> messages = selectedConversation.getMessages();
+                        mChatArrayAdapter.setMessages( new ArrayList<>(messages));
 
-                            Log.i(TAG, "ACTION_DRAG_ENDED");
-                            break;
-                        case DragEvent.ACTION_DROP:
-                            Log.i(TAG, "ACTION_DROP");
-                            break;
-                        default: break;
-                    }
-                    return true;
+                        int[] dropZoneLocation = new int[2];
+                        ((View)mDropZoneImage).getLocationOnScreen(dropZoneLocation);
+
+                        Log.i(TAG, "ACTION_DRAG_ENDED");
+                        break;
+                    case DragEvent.ACTION_DROP:
+                        Log.i(TAG, "ACTION_DROP");
+                        break;
+                    default: break;
                 }
-            });
+                return true;
+            }
+        });
 
-            mDropZoneImage = (ImageView) findViewById(R.id.iv_drop_zone);
+        mDropZoneImage = (ImageView) findViewById(R.id.iv_drop_zone);
 
-	        guiLoaded = true;
+        //playground
+        DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
+        List<Message> messages = messageDatabaseAccess.getAll();
+        mChatArrayAdapter.setMessages(messages);
 
-            //playground
-            DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
-            List<Message> messages = messageDatabaseAccess.getAll();
-            mChatArrayAdapter.setMessages(messages);
+        //add conversation
+        CircularImageView imageView = new CircularImageView(getApplicationContext());
 
-            //add conversation
-            CircularImageView imageView = new CircularImageView(getApplicationContext());
 
-    	}
+
+
     }
 
     public void onEvent(ConversationEvent event){
         Log.d(TAG, "Eventbus onEvent event: " + event.toString());
         switch(event.getType()) {
             case SELECTED:
-                //Blur listview
-//                mChatView.setBackgroundColor(Color.GREEN);
                 selectedConversation = event.getConversation();
                 mDropZoneImage.setVisibility(View.VISIBLE);
                 break;
@@ -268,6 +300,27 @@ public class ChatActivity extends Activity {
 
     public void setKnownMasks(Krewe masks) {
         this.knownMasks = masks;
+    }
+
+
+    private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+
+        private final List<Fragment> mViewPagerFragments;
+
+        public FragmentPagerAdapter(FragmentManager fm, List<Fragment> fragments) {
+            super(fm);
+            mViewPagerFragments = fragments;
+        }
+
+        @Override
+        public Fragment getItem(int index) {
+            return mViewPagerFragments.get(index);
+        }
+
+        @Override
+        public int getCount() {
+            return mViewPagerFragments.size();
+        }
     }
 
 }
