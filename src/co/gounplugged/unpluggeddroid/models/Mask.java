@@ -8,7 +8,6 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 @DatabaseTable(tableName = "masks")
 public class Mask {
-    public static final String COUNTRY_ID_FIELD_NAME = "country_id";
 
     @DatabaseField(generatedId = true)
     public long id;
@@ -16,8 +15,12 @@ public class Mask {
     @DatabaseField
     private String phoneNumber;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = COUNTRY_ID_FIELD_NAME)
-    private Country country;
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    @DatabaseField
+    private String countryCode;
     
 
     public Mask() {
@@ -28,8 +31,9 @@ public class Mask {
         return phoneNumber;
     }
 
-    public Mask(String phoneNumber) {
+    public Mask(String phoneNumber, String countryCode) {
         this.phoneNumber = phoneNumber;
+        this.countryCode = countryCode;
     }
 
     public boolean hasArrived() { return phoneNumber == null; }

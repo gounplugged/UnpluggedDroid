@@ -7,6 +7,10 @@ import java.util.List;
  * Created by pili on 20/03/15.
  */
 public class Krewe {
+    public void setMasks(List<Mask> masks) {
+        this.masks = masks;
+    }
+
     private List<Mask> masks;
 
     public Krewe() {
@@ -32,4 +36,5 @@ public class Krewe {
     public Mask getLast() { return masks.get(masks.size() - 1); }
 
     public Mask nextMask() { return masks.get(0); }
+
 }

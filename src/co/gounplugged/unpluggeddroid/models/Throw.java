@@ -10,8 +10,9 @@ import java.util.regex.Pattern;
  */
 public class Throw {
     private final static String TAG = "Throw";
-    private final static String MASK_SEPERATOR = "zQpQQ";
-    private final static String MESSAGE_SEPERATOR = "WIxff";
+    public final static String MASK_SEPERATOR = "zQpQQ";
+    public final static String COUNTRY_CODE_SEPERATOR = "VwvaQ";
+    public final static String MESSAGE_SEPERATOR = "WIxff";
 
     public String getEncryptedContent() {
         return encryptedContent;
@@ -66,7 +67,7 @@ public class Throw {
         } else {
             nextPhoneNumber = null;
         }
-        return new Mask(nextPhoneNumber);
+        return new Mask(nextPhoneNumber, Contact.DEFAULT_COUNTRY_CODE);
     }
 
     private static boolean isValidWThrowTo(String decryptedContent){

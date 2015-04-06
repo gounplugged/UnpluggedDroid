@@ -26,14 +26,14 @@ public class APICaller {
         this.chatActivity = chatActivity;
     }
 
-    public void getMasks() {
+    public void getMasks(final String filterByCountryCode) {
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.d(TAG, response);
-                        chatActivity.setKnownMasks(JSONParser.getKrewe(response));
+                        chatActivity.setKnownMasks(JSONParser.getKrewe(response, filterByCountryCode));
                     }
                 }, new Response.ErrorListener() {
             @Override

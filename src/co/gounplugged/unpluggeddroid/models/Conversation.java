@@ -46,7 +46,7 @@ public class Conversation {
     }
 
     public SecondLine getAndRefreshSecondLine(Krewe knownMasks) {
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER), knownMasks);
+        if(currentSecondLine == null) currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER, Contact.DEFAULT_COUNTRY_CODE), knownMasks);
         return currentSecondLine;
     }
 

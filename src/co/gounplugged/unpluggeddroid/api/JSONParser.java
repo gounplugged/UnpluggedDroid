@@ -15,7 +15,7 @@ import co.gounplugged.unpluggeddroid.models.Mask;
 public class JSONParser {
     private final static String TAG = "JSONParser";
 
-    public static Krewe getKrewe(String serverResponse) {
+    public static Krewe getKrewe(String serverResponse, String filterByCountryCode) {
         Krewe krewe = new Krewe();
         try {
             JSONArray jArray = new JSONArray(serverResponse);
@@ -23,9 +23,15 @@ public class JSONParser {
             {
                 try {
                     JSONObject oneObject = jArray.getJSONObject(i);
-                    String phoneNumber = oneObject.getString("number");
-                    Log.d(TAG, phoneNumber);
-                    krewe.addMask(new Mask(phoneNumber));
+                    String countryCode = oneObject.getString("country_code");
+                    Log.d(TAG, countryCode);
+
+                    if(countryCode.equals(filterByCountryCode)) {
+                        String phoneNumber = oneObject.getString("number");
+                        Log.d(TAG, phoneNumber);
+                        krewe.addMask(new Mask(phoneNumber, countryCode));
+                    }
+
                 } catch (JSONException e) {
                     // Oops
                 }
