@@ -80,6 +80,7 @@ public class ChatActivity extends Activity {
     @Override
     protected void onStart() {
     	super.onStart();
+        EventBus.getDefault().register(this);
     	loadGui();
     }
 
