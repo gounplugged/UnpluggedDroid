@@ -11,6 +11,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
 
 /**
  * Created by pili on 5/04/15.
@@ -19,11 +20,15 @@ public class APICaller {
     private final static String TAG = "APICaller";
     private RequestQueue queue;
     private String url ="https://stormy-hamlet-7282.herokuapp.com/masks";
-    private final ChatActivity chatActivity;
+//    private final ChatActivity chatActivity;
+    private Context mContext;
 
-    public APICaller(Context context, ChatActivity chatActivity) {
+
+
+    public APICaller(Context context) {
         queue = Volley.newRequestQueue(context);
-        this.chatActivity = chatActivity;
+//        this.chatActivity = chatActivity;
+        mContext = context;
     }
 
     public void getMasks(final String filterByCountryCode) {
@@ -33,7 +38,10 @@ public class APICaller {
                     @Override
                     public void onResponse(String response) {
                         Log.d(TAG, response);
-                        chatActivity.setKnownMasks(JSONParser.getKrewe(response, filterByCountryCode));
+                        //Temporarily cache maskes in global app instance
+//                        chatActivity.setKnownMasks(JSONParser.getKrewe(response, filterByCountryCode));
+                        ((BaseApplication)mContext).setKnownMasks(JSONParser.getKrewe(response, filterByCountryCode));
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -44,4 +52,5 @@ public class APICaller {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+
 }

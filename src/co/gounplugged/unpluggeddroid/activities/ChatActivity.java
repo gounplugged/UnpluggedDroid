@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -42,7 +41,6 @@ import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
-import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.MinFragmentPagerAdapter;
 import de.greenrobot.event.EventBus;
 
 
@@ -56,8 +54,6 @@ public class ChatActivity extends FragmentActivity {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	// GUI
-	private ImageButton submitButton;
-	private EditText newPostText;
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatView;
     private ImageView mDropZoneImage;
@@ -66,8 +62,6 @@ public class ChatActivity extends FragmentActivity {
     private MessageHandler mMessageHandler;
 
     private Profile profile;
-    private Krewe knownMasks;
-    private APICaller apiCaller;
     SmsBroadcastReceiver smsBroadcastReceiver;
 
     @Override
@@ -77,14 +71,11 @@ public class ChatActivity extends FragmentActivity {
     	loadGui();
 
         profile = new Profile(getApplicationContext());
-        apiCaller = new APICaller(getApplicationContext(), this);
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
-
-        seedKnownMasks();
     }
 
     @Override
@@ -117,33 +108,13 @@ public class ChatActivity extends FragmentActivity {
     private Conversation selectedConversation = null;
 
     public void loadGui() {
-        // Submit Button
-//        submitButton = (ImageButton) findViewById(R.id.submit_button);
-//        submitButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                sendMessage();
-//            }
-//        });
-//
-//        // Enter pressed submission
-//        newPostText = (EditText) findViewById(R.id.new_post_text);
-//        newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-//                // If the action is a key-up event on the return key, send the list_item_message_outgoing
-//                if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-//                    sendMessage();
-//                }
-//                return true;
-//            }
-//        });
-
         // Chat log
         mChatArrayAdapter = new MessageAdapter(this);
         mChatView = (ListView) findViewById(R.id.chats);
         mChatView.setAdapter(mChatArrayAdapter);
 
         // Input/Search viewpager
-        List<Fragment> fragments = new ArrayList<Fragment>();
+        List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
@@ -159,7 +130,7 @@ public class ChatActivity extends FragmentActivity {
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                Toast.makeText(getApplicationContext(), "Gehen", Toast.LENGTH_LONG).show();
+                //Todo reset or store input values
             }
 
             @Override
@@ -229,9 +200,6 @@ public class ChatActivity extends FragmentActivity {
         //add conversation
         CircularImageView imageView = new CircularImageView(getApplicationContext());
 
-
-
-
     }
 
     public void onEvent(ConversationEvent event){
@@ -247,33 +215,9 @@ public class ChatActivity extends FragmentActivity {
         }
     }
 
-    private void sendMessage() {
-        try {
-            Conversation conversation = new Conversation();
-
-            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-            conversationAccess.create(conversation);
-            conversation.setMessageHandler(mMessageHandler);
-            selectedConversation = conversation;
-            conversation.sendMessage(newPostText.getText().toString(), knownMasks);
-            newPostText.setText("");
-
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Failure to send", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-    }
-
-    private void seedKnownMasks() {
-        if(knownMasks == null){
-            knownMasks = new Krewe();
-        }
-        DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(getApplicationContext(), Mask.class);
-        // TODO: Prefill from db
-
-        if(knownMasks.isEmpty()) {
-            apiCaller.getMasks(Contact.DEFAULT_COUNTRY_CODE);
-        }
+    //todo refactor
+    public MessageAdapter getChatArrayAdapter() {
+        return mChatArrayAdapter;
     }
 
     public void processThrow(String s) {
@@ -297,11 +241,6 @@ public class ChatActivity extends FragmentActivity {
 
 
     }
-
-    public void setKnownMasks(Krewe masks) {
-        this.knownMasks = masks;
-    }
-
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
 
