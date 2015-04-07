@@ -7,7 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Message {
 
     public static final String CONVERSATION_ID_FIELD_NAME = "conversation_id";
-
+    public static final String MASK_ID_FIELD_NAME = "mask_id";
 
     public static final int TYPE_INCOMING = 1;
     public static final int TYPE_OUTGOING = 2;
@@ -17,6 +17,9 @@ public class Message {
 
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = CONVERSATION_ID_FIELD_NAME)
     private Conversation conversation;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = MASK_ID_FIELD_NAME)
+    private Mask maskOnOtherEnd;
 
     @DatabaseField
     private String mMessage;
@@ -73,6 +76,10 @@ public class Message {
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
     }
+
+    public void setMaskOnOtherEnd(Mask maskOnOtherEnd) { this.maskOnOtherEnd = maskOnOtherEnd; }
+
+    public Mask getMaskOnOtherEnd() { return maskOnOtherEnd; }
 
     @Override
     public String toString() {
