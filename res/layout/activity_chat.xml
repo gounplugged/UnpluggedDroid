@@ -11,56 +11,26 @@
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
-        android:layout_above="@+id/bottom_container"/>
+        android:layout_above="@+id/viewpager"/>
 
 
-    <RelativeLayout
-        android:id="@+id/bottom_container"
-        android:layout_height="80dp"
+    <co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager
+        android:id="@+id/viewpager"
         android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_weight="1"
+        android:layout_alignParentBottom="true">
+    </co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager>
+
+    <ImageView
+        android:id="@+id/iv_drop_zone_delete"
+        android:src="@drawable/drop_zone_red"
+        android:visibility="gone"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_alignParentBottom="true"
-        >
-
-        <EditText
-            android:id="@+id/new_post_text"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"
-            android:hint="Send a message ..."
-            android:textSize="15sp"
-            android:textColor="@color/chat_outgoing_text"
-            android:inputType="textShortMessage"
-            android:imeOptions="actionSend"
-            android:imeActionId="1"
-            android:imeActionLabel="Send"
-            android:layout_toLeftOf="@+id/submit_button"
-            android:background="#fff"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            />
-
-        <ImageButton
-            android:id="@+id/submit_button"
-            android:layout_height="80dp"
-            android:layout_width="80dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:src="@drawable/avatar"
-            android:background="#fff"
-            android:scaleType="centerCrop"
-            />
-
-        <ImageView
-            android:id="@+id/iv_drop_zone"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/drop_zone"
-            android:visibility="gone"
-            android:layout_alignParentRight="true"
-            />
-
-    </RelativeLayout>
-
+        android:layout_alignParentRight="true"
+        />
 
 
     <RelativeLayout
@@ -84,13 +54,22 @@
 
 
         <ListView
-            android:id="@+id/chats"
+            android:id="@+id/lv_chats"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:dividerHeight="0dp"
             android:divider="@drawable/transparent_divider"
             android:stackFromBottom="true"
             android:transcriptMode="alwaysScroll"
+            android:layout_toLeftOf="@+id/conversation_root"
+            />
+
+        <ImageView
+            android:id="@+id/iv_drop_zone_chats"
+            android:src="@drawable/drop_zone"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_toLeftOf="@+id/conversation_root"
             />
 

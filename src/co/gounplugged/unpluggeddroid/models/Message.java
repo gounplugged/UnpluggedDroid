@@ -73,4 +73,19 @@ public class Message {
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("message : { ")
+                .append("\n")
+                .append("id: " + id)
+                .append("\n")
+                .append("type: " + (mType == 1 ? "incoming" : "outgoing"))
+                .append("\n")
+                .append("timestamp: " + mTimeStamp)
+                .append("\n")
+                .append("}")
+                .toString();
+    }
 }
