@@ -13,7 +13,3 @@ android:
 
 before_install:
   - chmod +x gradlew
-#script:
-  # Sonatype bypass
-  #- echo "nexusUsername=dummy" >> library/gradle.properties
-  #- ./gradlew clean assemble check
