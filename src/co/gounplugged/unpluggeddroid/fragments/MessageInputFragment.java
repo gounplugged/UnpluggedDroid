@@ -27,8 +27,6 @@ public class MessageInputFragment extends Fragment {
     private EditText newPostText;
     private MessageHandler mMessageHandler;
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +70,6 @@ public class MessageInputFragment extends Fragment {
             DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getActivity().getApplicationContext(), Conversation.class);
             conversationAccess.create(conversation);
             conversation.setMessageHandler(mMessageHandler);
-//            selectedConversation = conversation;
             conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
             newPostText.setText("");
 

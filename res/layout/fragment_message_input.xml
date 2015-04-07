@@ -35,13 +35,4 @@
         android:scaleType="centerCrop"
         />
 
-    <ImageView
-        android:id="@+id/iv_drop_zone"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@drawable/drop_zone"
-        android:visibility="gone"
-        android:layout_alignParentRight="true"
-        />
-
 </RelativeLayout>

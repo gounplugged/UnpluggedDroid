@@ -24,24 +24,4 @@
         android:paddingRight="8dp"
         />
 
-    <!--<ImageButton-->
-        <!--android:id="@+id/submit_button"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_width="80dp"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:src="@drawable/avatar"-->
-        <!--android:background="#fff"-->
-        <!--android:scaleType="centerCrop"-->
-        <!--/>-->
-
-    <!--<ImageView-->
-        <!--android:id="@+id/iv_drop_zone"-->
-        <!--android:layout_width="80dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:src="@drawable/drop_zone"-->
-        <!--android:visibility="gone"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--/>-->
-
 </RelativeLayout>

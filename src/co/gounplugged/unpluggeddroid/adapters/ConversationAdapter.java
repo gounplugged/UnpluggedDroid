@@ -17,6 +17,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import de.greenrobot.event.EventBus;
 
 public class ConversationAdapter extends BaseAdapter {
@@ -25,10 +26,6 @@ public class ConversationAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
 
     private List<Conversation> mConversations;
-
-    public ConversationAdapter(Context mContext) {
-        this(mContext, null);
-    }
 
     public ConversationAdapter(Context context, List<Conversation> conversationList) {
         this.mContext = context;
@@ -39,11 +36,6 @@ public class ConversationAdapter extends BaseAdapter {
             this.mConversations = conversationList;
     }
 
-
-    public void setConversations(List<Conversation> conversations) {
-        mConversations = conversations;
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getCount() {
@@ -79,8 +71,7 @@ public class ConversationAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-
-    class ViewHolder implements View.OnTouchListener, View.OnLongClickListener {
+    public static class ViewHolder {
 
         private final Conversation mConversation;
         private final CircularImageView mImageView;
@@ -91,41 +82,10 @@ public class ConversationAdapter extends BaseAdapter {
 
             mImageView = (CircularImageView) v.findViewById(R.id.conversation_icon);
             mImageView.setTag(String.valueOf(conversation.id));
-
-//            v.setOnTouchListener(this);
-            v.setOnLongClickListener(this);
         }
 
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                EventBus.getDefault().post(new ConversationEvent(
-                ConversationEvent.ConversationEventType.SELECTED, mConversation));
-
-                ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
-                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-                ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
-
-                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mImageView);
-                v.startDrag(dragData, myShadow, null, 0);
-            }
-            return true;
-        }
-
-
-        @Override
-        public boolean onLongClick(View v) {
-            EventBus.getDefault().post(new ConversationEvent(
-                    ConversationEvent.ConversationEventType.SELECTED, mConversation));
-
-            ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
-            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-            ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
-
-            View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mImageView);
-            v.startDrag(dragData, myShadow, null, 0);
-
-            return true;
+        public Conversation getConversation() {
+            return mConversation;
         }
 
     }

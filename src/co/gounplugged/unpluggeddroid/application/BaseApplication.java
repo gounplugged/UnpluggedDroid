@@ -49,4 +49,5 @@ public class BaseApplication extends Application {
     public void setKnownMasks(Krewe knownMasks) {
         this.mKnownMasks = knownMasks;
     }
+
 }

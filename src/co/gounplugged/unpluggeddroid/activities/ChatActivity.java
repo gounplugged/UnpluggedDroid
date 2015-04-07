@@ -1,7 +1,6 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -11,13 +10,8 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import com.pkmmte.view.CircularImageView;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,23 +19,18 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
-import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
-import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.models.Krewe;
-import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
+import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
-import de.greenrobot.event.EventBus;
 
 
 public class ChatActivity extends FragmentActivity {
@@ -55,14 +44,27 @@ public class ChatActivity extends FragmentActivity {
 
 	// GUI
 	private MessageAdapter mChatArrayAdapter;
-	private ListView mChatView;
-    private ImageView mDropZoneImage;
+	private ListView mChatListView;
     private InfiniteViewPager mViewPager;
+    private ConversationContainer mConversationContainer;
+    private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
 
     private MessageHandler mMessageHandler;
 
     private Profile profile;
     SmsBroadcastReceiver smsBroadcastReceiver;
+    private Conversation mSelectedConversation;
+
+
+    private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
+
+        @Override
+        public void onConversationSelected(Conversation conversation) {
+            Log.i(TAG, "onConversationSelected: " + conversation.toString());
+            mSelectedConversation = conversation;
+            showDropZones();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,13 +93,14 @@ public class ChatActivity extends FragmentActivity {
     @Override
     protected synchronized void onResume() {
     	super.onResume();
-        EventBus.getDefault().register(this);
+        mConversationContainer.setConversationListener(conversationListener);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(this);
+        mConversationContainer.removeConversationListener(conversationListener);
     }
 
     @Override
@@ -105,22 +108,21 @@ public class ChatActivity extends FragmentActivity {
     	super.onDestroy();
     }
 
-    private Conversation selectedConversation = null;
+    
 
-    public void loadGui() {
-        // Chat log
-        mChatArrayAdapter = new MessageAdapter(this);
-        mChatView = (ListView) findViewById(R.id.chats);
-        mChatView.setAdapter(mChatArrayAdapter);
+    private void loadGui() {
 
-        // Input/Search viewpager
+        // Input/Search infinite-viewpager
+        // It is only possible to achieve wrapping when you have at least 4 pages.
+        // This is because of the way the ViewPager creates, destroys, and displays the pages.
+        // No fix for the general case has been found.
+        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
+
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
-
-        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
 
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
         PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
@@ -129,96 +131,85 @@ public class ChatActivity extends FragmentActivity {
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //Todo reset or store input values
-            }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
             @Override
             public void onPageSelected(int position) {
-
+                Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
+            public void onPageScrollStateChanged(int state) { }
         });
 
+        //drop zone views & animations
+        mImageViewDropZoneDelete = (ImageView) findViewById(R.id.iv_drop_zone_delete);
+        mImageViewDropZoneChats = (ImageView) findViewById(R.id.iv_drop_zone_chats);
 
-        //Chat-container //todo extract
-        mChatView.setBackgroundColor(Color.GRAY);
-        mChatView.setOnDragListener(new View.OnDragListener() {
+        //Check for drop-events on drop-zones
+        mImageViewDropZoneDelete.setOnDragListener(new View.OnDragListener() {
             @Override
-            public boolean onDrag(View v,  DragEvent event){
-                switch(event.getAction())
-                {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        break;
-                    case DragEvent.ACTION_DRAG_ENTERED:
-                        int x_cord = (int) event.getX();
-                        int y_cord = (int) event.getY();
-                        Log.i(TAG, "ACTION_DRAG_ENTERED x:" + x_cord + " y:" + y_cord);
-                        break;
-                    case DragEvent.ACTION_DRAG_EXITED:
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        Log.i(TAG, "ACTION_DRAG_EXITED x:" + x_cord + " y:" + y_cord);
-                        break;
-                    case DragEvent.ACTION_DRAG_LOCATION:
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        Log.i(TAG, "ACTION_DRAG_LOCATION x:" + x_cord + " y:" + y_cord);
-                        break;
+            public boolean onDrag(View v, DragEvent event) {
+                switch (event.getAction()) {
+                    //should always be called
                     case DragEvent.ACTION_DRAG_ENDED:
-                        //TODO check if it ended in the listview!
-                        mDropZoneImage.setVisibility(View.GONE);
-
-                        Collection<Message> messages = selectedConversation.getMessages();
-                        mChatArrayAdapter.setMessages( new ArrayList<>(messages));
-
-                        int[] dropZoneLocation = new int[2];
-                        ((View)mDropZoneImage).getLocationOnScreen(dropZoneLocation);
-
-                        Log.i(TAG, "ACTION_DRAG_ENDED");
+                        hideDropZones();
                         break;
                     case DragEvent.ACTION_DROP:
-                        Log.i(TAG, "ACTION_DROP");
+                        Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
+                        Collection<Message> messages = new ArrayList<>();
+                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
                         break;
-                    default: break;
+                }
+                return true;
+            }
+        });
+        mImageViewDropZoneChats.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DROP:
+                        Log.i(TAG, "Conversation dropped on mChatListView.");
+                        Collection<Message> messages = new ArrayList<>(mSelectedConversation.getMessages());
+                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
+                        break;
                 }
                 return true;
             }
         });
 
-        mDropZoneImage = (ImageView) findViewById(R.id.iv_drop_zone);
+
+        // Chat log //todo extract
+        mChatArrayAdapter = new MessageAdapter(this);
+        mChatListView = (ListView) findViewById(R.id.lv_chats);
+        mChatListView.setAdapter(mChatArrayAdapter);
+
+        //Conversations
+        mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
 
         //playground
         DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
         List<Message> messages = messageDatabaseAccess.getAll();
         mChatArrayAdapter.setMessages(messages);
 
-        //add conversation
-        CircularImageView imageView = new CircularImageView(getApplicationContext());
-
     }
 
-    public void onEvent(ConversationEvent event){
-        Log.d(TAG, "Eventbus onEvent event: " + event.toString());
-        switch(event.getType()) {
-            case SELECTED:
-                selectedConversation = event.getConversation();
-                mDropZoneImage.setVisibility(View.VISIBLE);
-                break;
-            case SWITCHED:
-                mDropZoneImage.setVisibility(View.GONE);
-                break;
-        }
+    private void showDropZones() {
+        mImageViewDropZoneChats.setVisibility(View.VISIBLE);
+        mImageViewDropZoneDelete.setVisibility(View.VISIBLE);
+    }
+
+    private void hideDropZones() {
+        mImageViewDropZoneDelete.setVisibility(View.GONE);
+        mImageViewDropZoneChats.setVisibility(View.GONE);
+
     }
 
     //todo refactor
     public MessageAdapter getChatArrayAdapter() {
         return mChatArrayAdapter;
     }
+
 
     public void processThrow(String s) {
 
@@ -235,7 +226,7 @@ public class ChatActivity extends FragmentActivity {
             DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
             conversationAccess.create(conversation);
 
-            selectedConversation = conversation;
+            mSelectedConversation = conversation;
             conversation.receiveThrow(receivedThrow);
         }
 
