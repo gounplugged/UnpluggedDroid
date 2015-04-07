@@ -1,0 +1,19 @@
+language: android
+
+jdk: openjdk7
+
+android:
+  components:
+    - build-tools-22.0.1
+    - extra-android-support
+    - extra-android-m2repository
+    - android-21
+  licenses:
+    - '.+'
+
+before_install:
+  - chmod +x gradlew
+#script:
+  # Sonatype bypass
+  #- echo "nexusUsername=dummy" >> library/gradle.properties
+  #- ./gradlew clean assemble check
