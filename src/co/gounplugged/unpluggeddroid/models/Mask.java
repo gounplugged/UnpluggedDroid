@@ -31,6 +31,10 @@ public class Mask {
         return phoneNumber;
     }
 
+    public String getFullNumber() {
+        return countryCode + phoneNumber;
+    }
+
     public Mask(String phoneNumber, String countryCode) {
         this.phoneNumber = phoneNumber;
         this.countryCode = countryCode;

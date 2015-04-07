@@ -218,7 +218,7 @@ public class ChatActivity extends FragmentActivity {
         Log.d(TAG, "Next message: " + nextMessage);
 
         if(!receivedThrow.hasArrived()) {
-            mMessageHandler.sendSms(receivedThrow.getThrowTo().getPhoneNumber(), nextMessage);
+            mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
         } else {
             Conversation conversation = new Conversation();
             conversation.setMessageHandler(mMessageHandler);
