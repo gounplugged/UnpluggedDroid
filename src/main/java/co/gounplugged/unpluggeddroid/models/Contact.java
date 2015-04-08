@@ -7,8 +7,8 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 @DatabaseTable(tableName = "masks")
 public class Contact extends Mask {
-    public static final String DEFAULT_CONTACT_NUMBER = "3016864576";
-    public static final String DEFAULT_COUNTRY_CODE = "+1";
+    public static final String DEFAULT_CONTACT_NUMBER = "475932921";
+    public static final String DEFAULT_COUNTRY_CODE = "+32";
 
     public String getName() {
         return name;

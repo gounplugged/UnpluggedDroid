@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 
 public class DatabaseAccess<T> {
@@ -117,7 +118,7 @@ public class DatabaseAccess<T> {
         }
 
         private void createDatabases(SQLiteDatabase db, ConnectionSource connectionSource, Context context) {
-            Class<?>[] columns = {Conversation.class, Message.class};
+            Class<?>[] columns = {Conversation.class, Message.class, Mask.class};
             try {
                 for (Class<?> c : columns) {
                     TableUtils.createTable(connectionSource, c);

@@ -2,7 +2,6 @@ package co.gounplugged.unpluggeddroid.test.models;
 
 import android.test.AndroidTestCase;
 
-import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Throw;

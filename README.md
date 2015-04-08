@@ -1,6 +1,8 @@
 UnpluggedDroid
 ==============
 
+[![Build Status](https://travis-ci.org/timvanginderen/UnpluggedDroid.svg?branch=master)](https://travis-ci.org/timvanginderen/UnpluggedDroid)
+
 This Android messaging application aims to reimplement various exsiting privacy centered technologies with a focus on usability.
 Although this application will help protect users against surveillance, no technology is 100% secure and this application in particular aims to optimize a mix of usability and security.
 If you only wish to maximize security, there are many other existing tools you should probably use instead.

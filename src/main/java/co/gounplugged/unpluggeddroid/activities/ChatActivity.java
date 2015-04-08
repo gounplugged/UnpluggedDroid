@@ -75,19 +75,20 @@ public class ChatActivity extends FragmentActivity {
         profile = new Profile(getApplicationContext());
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
-        IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
     }
 
     @Override
     protected void onStart() {
-    	super.onStart();
+        super.onStart();
+        IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        unregisterReceiver(smsBroadcastReceiver);
     }
 
     @Override
