@@ -40,7 +40,7 @@ public class BaseApplication extends Application {
 
         apiCaller = new APICaller(getApplicationContext());
         seedKnownMasks();
-//        loadContacts();
+        loadContacts();
     }
 
     private void seedKnownMasks() {
@@ -89,8 +89,8 @@ public class BaseApplication extends Application {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         Contact c = null;
                         try {
-                            Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo);
                             c = new Contact(name, phoneNo);
+                            Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo);
                             contacts.add(c);
                         } catch (InvalidPhoneNumberException e) {
                             Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo);
