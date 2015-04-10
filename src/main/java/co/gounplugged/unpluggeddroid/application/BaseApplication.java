@@ -51,7 +51,11 @@ public class BaseApplication extends Application {
         // TODO: Prefill from db
 
         if(mKnownMasks.isEmpty()) {
-            apiCaller.getMasks(Contact.DEFAULT_COUNTRY_CODE);
+            try {
+                apiCaller.getMasks(Mask.parseCountryCode(Contact.DEFAULT_CONTACT_NUMBER));
+            } catch (InvalidPhoneNumberException e) {
+
+            }
         }
     }
 

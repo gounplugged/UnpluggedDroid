@@ -15,7 +15,7 @@ public class SecondLine {
     }
 
     public Throw getThrow(String message) {
-        return new Throw(message, Contact.DEFAULT_COUNTRY_CODE + Contact.DEFAULT_CONTACT_NUMBER, selectedKrewe);
+        return new Throw(message, Contact.DEFAULT_CONTACT_NUMBER, selectedKrewe);
     }
 
 }

@@ -9,8 +9,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
  */
 @DatabaseTable(tableName = "masks")
 public class Contact extends Mask {
-    public static final String DEFAULT_CONTACT_NUMBER = "3016864576";
-    public static final String DEFAULT_COUNTRY_CODE = "+1";
+    public static final String DEFAULT_CONTACT_NUMBER = "+13016864576";
 
     public String getName() {
         return name;

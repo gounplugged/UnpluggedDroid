@@ -16,7 +16,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 @DatabaseTable(tableName = "masks")
 public class Mask {
     private static final String TAG = "Mask";
-    private static String PHONE_NUMBER_REGEX = "(\\+(1|32))(\\d+)";
+    public static String PHONE_NUMBER_REGEX = "(\\+(1|32))(\\d+)";
 
     @DatabaseField(generatedId = true)
     public long id;
@@ -78,7 +78,5 @@ public class Mask {
     public static boolean isValidFullPhoneNumber(String number) {
         return number.matches(PHONE_NUMBER_REGEX);
     }
-
-    public boolean hasArrived() { return phoneNumber == null; }
 
 }

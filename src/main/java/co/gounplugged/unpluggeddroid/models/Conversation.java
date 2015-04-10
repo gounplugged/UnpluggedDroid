@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 
 @DatabaseTable(tableName = "conversations")
@@ -59,9 +60,12 @@ public class Conversation {
     }
 
     public void receiveThrow(Throw receivedThrow) {
-
         try {
-            participant = receivedThrow.getThrownFrom();
+            try {
+                participant = receivedThrow.getThrownFrom();
+            } catch (PrematureReadException e) {
+
+            }
             String nextMessage = receivedThrow.getEncryptedContent();
             Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
             message.setConversation(this);
