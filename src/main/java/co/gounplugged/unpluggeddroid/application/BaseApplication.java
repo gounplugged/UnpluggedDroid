@@ -40,7 +40,7 @@ public class BaseApplication extends Application {
 
         apiCaller = new APICaller(getApplicationContext());
         seedKnownMasks();
-        loadContacts();
+//        loadContacts();
     }
 
     private void seedKnownMasks() {

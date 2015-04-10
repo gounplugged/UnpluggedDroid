@@ -15,7 +15,7 @@ import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
-
+    public static final String PARTICIPANT_ID_FIELD_NAME = "contact_id";
     private SecondLine currentSecondLine;
     private MessageHandler messageHandler;
 
@@ -25,8 +25,8 @@ public class Conversation {
     @ForeignCollectionField
     private Collection<Message> messages;
 
-    @ForeignCollectionField
-    private Contact participant;
+//    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
+//    private Contact participant;
 
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
@@ -55,24 +55,30 @@ public class Conversation {
     }
 
     public SecondLine getAndRefreshSecondLine(Krewe knownMasks) {
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
+        Contact c = null;
+        try {
+            c = new Contact("meh", Contact.DEFAULT_CONTACT_NUMBER);
+        } catch (InvalidPhoneNumberException e) {
+            e.printStackTrace();
+        }
+        if(currentSecondLine == null) currentSecondLine = new SecondLine(c, knownMasks);
         return currentSecondLine;
     }
 
     public void receiveThrow(Throw receivedThrow) {
-        try {
+        /*try {
             try {
                 participant = receivedThrow.getThrownFrom();
             } catch (PrematureReadException e) {
 
-            }
-            String nextMessage = receivedThrow.getEncryptedContent();
-            Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
+            }*/
+            String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
+            Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
             message.setConversation(this);
             messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
-        } catch (InvalidPhoneNumberException e) {
-            //TODO Received message but don't know who its from
-        }
+//        } catch (InvalidPhoneNumberException e) {
+//            //TODO Received message but don't know who its from
+//        }
     }
 
     @Override

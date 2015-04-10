@@ -10,9 +10,6 @@ public class ThrowParser {
     public final static String MASK_SEPARATOR = "zQpQQ";
     public final static String MESSAGE_SEPARATOR = "WIxff";
     public final static String ORIGINATOR_SEPARATOR = "YzLqQ";
-    public final static String MASK_REGEX = Mask.PHONE_NUMBER_REGEX + MASK_SEPARATOR;
-    public final static String MESSAGE_REGEX = "(\\.+)" + MESSAGE_SEPARATOR;
-    public final static String ORIGINATOR_REGEX = Mask.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR;
 
     public static String getNextMask(String content) {
         return content.split(MASK_SEPARATOR)[0];
@@ -20,9 +17,9 @@ public class ThrowParser {
 
     public static boolean isValidRelayThrow(String content){
         return content.matches(
-                MASK_REGEX + "+" +
-                MESSAGE_REGEX +
-                ORIGINATOR_REGEX
+                "(" + Mask.PHONE_NUMBER_REGEX + MASK_SEPARATOR +
+                 ")+(.*" + MESSAGE_SEPARATOR + ")(" +
+                 Mask.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR + ")"
         );
     }
 
@@ -44,18 +41,18 @@ public class ThrowParser {
     }
 
     public static String removeNextMask(String content) {
-        return content.replaceFirst(MASK_REGEX, "");
+        return content.replaceFirst(Mask.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
     }
 
     public static String getOriginatorNumber(String content) {
-        Matcher m = Pattern.compile(MASK_SEPARATOR + "(" + Mask.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR).matcher(content);
+        Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(" + Mask.PHONE_NUMBER_REGEX +")(.*)").matcher(content);
         m.matches();
-        return m.group(1);
+        return m.group(3);
     }
 
     public static String getMessage(String content) {
-        Matcher m = Pattern.compile(MESSAGE_REGEX).matcher(content);
+        Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(.*)").matcher(content);
         m.matches();
-        return m.group();
+        return m.group(1);
     }
 }

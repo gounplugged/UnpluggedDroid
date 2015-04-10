@@ -56,7 +56,6 @@ public class ChatActivity extends FragmentActivity {
     SmsBroadcastReceiver smsBroadcastReceiver;
     private Conversation mSelectedConversation;
 
-
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
 
         @Override
@@ -109,8 +108,6 @@ public class ChatActivity extends FragmentActivity {
     protected void onDestroy() {
     	super.onDestroy();
     }
-
-    
 
     private void loadGui() {
 

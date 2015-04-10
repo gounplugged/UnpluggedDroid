@@ -21,6 +21,7 @@ public class ThrowParserTest extends AndroidTestCase {
     String phone = "+32123";
     String originatorNumber = "+1444";
     String message = "sstestaa";
+    String throwContent;
 
    @Override
     protected void setUp() throws Exception {
@@ -34,6 +35,8 @@ public class ThrowParserTest extends AndroidTestCase {
         for(int i = 0; i< maskRouteLength; i++) {
             maskRoute.addMask(m);
         }
+       ;
+
     }
 
     @Override
@@ -43,23 +46,44 @@ public class ThrowParserTest extends AndroidTestCase {
     }
 
     public void testBuildContent() {
+        throwContent = ThrowParser.contentFor(message, originatorNumber, maskRoute);
         String content =  phone + ThrowParser.MASK_SEPARATOR +
-                            phone + ThrowParser.MASK_SEPARATOR +
-                            phone + ThrowParser.MASK_SEPARATOR +
-                            message + ThrowParser.MESSAGE_SEPARATOR +
-                            originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
-        assertEquals(content, ThrowParser.contentFor(message, originatorNumber, maskRoute));
+                          phone + ThrowParser.MASK_SEPARATOR +
+                          phone + ThrowParser.MASK_SEPARATOR +
+                          message + ThrowParser.MESSAGE_SEPARATOR +
+                          originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
+        assertEquals(content, throwContent);
     }
 
     public void testRemoveNextMask() {
+        throwContent = ThrowParser.contentFor(message, originatorNumber, maskRoute);
+        assertEquals(
+             phone + ThrowParser.MASK_SEPARATOR +
+             phone + ThrowParser.MASK_SEPARATOR +
+             message + ThrowParser.MESSAGE_SEPARATOR +
+             originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR,
 
+             ThrowParser.removeNextMask(throwContent)
+        );
     }
 
     public void testGetOriginatorNumber() {
-
+        throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
+                originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
+        assertEquals(originatorNumber, ThrowParser.getOriginatorNumber(throwContent));
     }
 
     public void testGetMessage() {
+        throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
+                originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
+        assertEquals(message, ThrowParser.getMessage(throwContent));
+    }
 
+    public void testIsValidRelay() {
+        throwContent = ThrowParser.contentFor(message, originatorNumber, maskRoute);
+        assertTrue(ThrowParser.isValidRelayThrow(throwContent));
+        throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
+                originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
+        assertFalse(ThrowParser.isValidRelayThrow(throwContent));
     }
 }
