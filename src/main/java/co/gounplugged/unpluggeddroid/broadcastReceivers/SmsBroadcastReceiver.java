@@ -8,6 +8,8 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Throw;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
@@ -32,7 +34,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             }
             Log.d(TAG, "Received message: " + smsMessageStr);
             //this will update the UI with message
-            chatActivity.processThrow(smsMessageStr);
+            chatActivity.processMessage(smsMessageStr);
         }
     }
 }

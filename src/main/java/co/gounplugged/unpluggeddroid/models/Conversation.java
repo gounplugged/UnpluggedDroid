@@ -1,11 +1,15 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import android.content.Context;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Collection;
 
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 
 @DatabaseTable(tableName = "conversations")
@@ -19,6 +23,9 @@ public class Conversation {
 
     @ForeignCollectionField
     private Collection<Message> messages;
+
+    @ForeignCollectionField
+    private Contact participant;
 
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
@@ -47,16 +54,21 @@ public class Conversation {
     }
 
     public SecondLine getAndRefreshSecondLine(Krewe knownMasks) {
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER, Contact.DEFAULT_COUNTRY_CODE), knownMasks);
+        if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
         return currentSecondLine;
     }
 
     public void receiveThrow(Throw receivedThrow) {
-        String nextMessage = receivedThrow.getEncryptedContent();
-        Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
-        message.setConversation(this);
 
-        messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+        try {
+            participant = receivedThrow.getThrownFrom();
+            String nextMessage = receivedThrow.getEncryptedContent();
+            Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
+            message.setConversation(this);
+            messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+        } catch (InvalidPhoneNumberException e) {
+            //TODO Received message but don't know who its from
+        }
     }
 
     @Override

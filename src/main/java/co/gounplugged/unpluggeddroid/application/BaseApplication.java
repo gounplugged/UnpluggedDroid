@@ -12,6 +12,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
@@ -23,6 +24,11 @@ public class BaseApplication extends Application {
     private static final String TAG = "BaseApplication";
     private APICaller apiCaller;
     private Krewe mKnownMasks;
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
     private List<Contact> contacts;
 
     /**
@@ -77,9 +83,14 @@ public class BaseApplication extends Application {
                             new String[]{id}, null);
                     while (pCur.moveToNext()) {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        Contact c = new Contact(name, phoneNo, "+1");
-                        contacts.add(c);
-                        Log.d(TAG, "Name: " + name + ", Phone No: " + phoneNo);
+                        Contact c = null;
+                        try {
+                            Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo);
+                            c = new Contact(name, phoneNo);
+                            contacts.add(c);
+                        } catch (InvalidPhoneNumberException e) {
+                            Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo);
+                        }
                     }
                     pCur.close();
                 }

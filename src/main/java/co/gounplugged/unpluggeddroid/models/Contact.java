@@ -2,6 +2,8 @@ package co.gounplugged.unpluggeddroid.models;
 
 import com.j256.ormlite.table.DatabaseTable;
 
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+
 /**
  * Created by pili on 20/03/15.
  */
@@ -16,8 +18,8 @@ public class Contact extends Mask {
 
     private String name;
 
-    public Contact(String name, String phoneNumber, String countryCode) {
-        super(phoneNumber, countryCode);
+    public Contact(String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
+        super(fullPhoneNumber);
         this.name = name;
     }
 
