@@ -2,17 +2,14 @@ package co.gounplugged.unpluggeddroid.models;
 
 import android.util.Log;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 
 /**
  * Created by pili on 20/03/15.
  */
 public class Throw {
     private final static String TAG = "Throw";
-    public final static String MASK_SEPERATOR = "zQpQQ";
-    public final static String COUNTRY_CODE_SEPERATOR = "VwvaQ";
-    public final static String MESSAGE_SEPERATOR = "WIxff";
 
     public String getEncryptedContent() {
         return encryptedContent;
@@ -25,13 +22,18 @@ public class Throw {
     }
 
     private final Mask throwTo;
-
-    public Throw(String message, Krewe maskRoute) {
-        this.throwTo = maskRoute.nextMask();
-        this.encryptedContent = encryptedContentFor(message, maskRoute);
+    /*
+        Use to originate a message
+     */
+    public Throw(String message, String originatorNumber, Krewe maskRoute) {
+        this.throwTo = maskRoute.popNextMask();
+        this.encryptedContent = encryptedContentFor(message, originatorNumber, maskRoute);
     }
 
-    public Throw(String encryptedContent) {
+    /*
+        Use when receiving a message from someone else
+     */
+    public Throw(String encryptedContent) throws InvalidPhoneNumberException {
         encryptedContent = decryptContent(encryptedContent);
         this.throwTo = getNextMask(encryptedContent);
         this.encryptedContent = peelOffLayer(encryptedContent);
@@ -41,57 +43,29 @@ public class Throw {
         return encryptedContent;
     }
 
-    private String encryptedContentFor(String message, Krewe krewe) {
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean skippedFirst = false;
-        for(Mask m : krewe.getMasks()) {
-            if(skippedFirst) {
-                stringBuilder.append(m.getCountryCode());
-                stringBuilder.append(COUNTRY_CODE_SEPERATOR);
-                stringBuilder.append(m.getPhoneNumber());
-                stringBuilder.append(MASK_SEPERATOR);
-            } else {
-                skippedFirst = true;
-            }
-        }
-
-        stringBuilder.append(message);
-        stringBuilder.append(MESSAGE_SEPERATOR);
-
-        return  stringBuilder.toString();
+    private String encryptedContentFor(String message, String originatorNumber, Krewe krewe) {
+        return ThrowParser.contentFor(message, originatorNumber, krewe);
     }
 
-    private Mask getNextMask(String decryptedContent) {
-        String nextPhoneNumber;
-        String nextCountryCode;
-        Log.d(TAG, "Has throw arrived: " + String.valueOf(Throw.isValidWThrowTo(decryptedContent)));
-        if(Throw.isValidWThrowTo(decryptedContent)) {
-            String fullNumber = decryptedContent.split(MASK_SEPERATOR)[0];
-            nextCountryCode = fullNumber.split(COUNTRY_CODE_SEPERATOR)[0];
-            nextPhoneNumber = fullNumber.split(COUNTRY_CODE_SEPERATOR)[1];
+    private Mask getNextMask(String decryptedContent) throws InvalidPhoneNumberException {
+        if(ThrowParser.isValidRelayThrow(decryptedContent)) {
+            String nextPhoneNumber = ThrowParser.getNextMask(decryptedContent);
+            return new Mask(nextPhoneNumber);
         } else {
-            nextPhoneNumber = null;
-            nextCountryCode = null;
+            return null;
         }
-        return new Mask(nextPhoneNumber, Contact.DEFAULT_COUNTRY_CODE);
-    }
-
-    private static boolean isValidWThrowTo(String decryptedContent){
-        return decryptedContent.matches("(\\+\\d{1,3}" + COUNTRY_CODE_SEPERATOR + "\\d+" + MASK_SEPERATOR + ")+\\w+" + MESSAGE_SEPERATOR);
     }
 
     private String peelOffLayer(String receivedThrowContent) {
-        String r = "\\+\\d{1,3}" + COUNTRY_CODE_SEPERATOR + "\\d+" + MASK_SEPERATOR;
-        Log.d(TAG, String.valueOf(receivedThrowContent.matches(r)));
-        if(throwTo.hasArrived()) {
-            return receivedThrowContent.split(MESSAGE_SEPERATOR)[0];
+        if(hasArrived()) {
+            return receivedThrowContent;
         } else {
-            return receivedThrowContent.replaceFirst(r, "");
+            return ThrowParser.removeNextMask(receivedThrowContent);
         }
     }
 
     public boolean hasArrived() {
-        return throwTo.hasArrived();
+        return throwTo == null;
     }
 
     @Override
@@ -103,6 +77,15 @@ public class Throw {
 
         Throw rhs = (Throw) obj;
         return encryptedContent.equals(rhs.getEncryptedContent());
+    }
 
+    public Contact getThrownFrom() throws InvalidPhoneNumberException, PrematureReadException {
+        if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original sender");
+        return new Contact("TODO in Throw", ThrowParser.getOriginatorNumber(encryptedContent));
+    }
+
+    public String getDecryptedContent() throws PrematureReadException {
+        if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original content");
+        return ThrowParser.getMessage(encryptedContent);
     }
 }

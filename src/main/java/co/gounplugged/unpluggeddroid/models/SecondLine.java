@@ -11,16 +11,11 @@ public class SecondLine {
 
     public SecondLine(Contact ultimateRecipient, Krewe seedKrewe) {
         this.recipient = recipient;
-        this.selectedKrewe = formSecondLine(ultimateRecipient, seedKrewe);
+        this.selectedKrewe = seedKrewe;
     }
 
     public Throw getThrow(String message) {
-        return new Throw(message, selectedKrewe);
-    }
-
-    private Krewe formSecondLine(Contact ultimateRecipient, Krewe seedKrewe) {
-        seedKrewe.addMask((Mask) ultimateRecipient);
-        return seedKrewe;
+        return new Throw(message, Contact.DEFAULT_CONTACT_NUMBER, selectedKrewe);
     }
 
 }

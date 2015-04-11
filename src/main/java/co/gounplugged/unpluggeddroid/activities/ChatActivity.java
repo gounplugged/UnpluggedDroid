@@ -21,6 +21,7 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
@@ -54,7 +55,6 @@ public class ChatActivity extends FragmentActivity {
     private Profile profile;
     SmsBroadcastReceiver smsBroadcastReceiver;
     private Conversation mSelectedConversation;
-
 
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
 
@@ -108,8 +108,6 @@ public class ChatActivity extends FragmentActivity {
     protected void onDestroy() {
     	super.onDestroy();
     }
-
-    
 
     private void loadGui() {
 
@@ -212,26 +210,30 @@ public class ChatActivity extends FragmentActivity {
     }
 
 
-    public void processThrow(String s) {
+    public void processMessage(String receivedMessage) {
+        Throw receivedThrow = null;
+        try {
+            receivedThrow = new Throw(receivedMessage);
+            String nextMessage = receivedThrow.getEncryptedContent();
+            Log.d(TAG, "Next message: " + nextMessage);
 
-        Throw receivedThrow = new Throw(s);
-        String nextMessage = receivedThrow.getEncryptedContent();
-        Log.d(TAG, "Next message: " + nextMessage);
+            if(!receivedThrow.hasArrived()) {
+                mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
+            } else {
 
-        if(!receivedThrow.hasArrived()) {
-            mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
-        } else {
-            Conversation conversation = new Conversation();
-            conversation.setMessageHandler(mMessageHandler);
+                Conversation conversation = new Conversation();
+//            conversation.setContext(getApplicationContext());
+                conversation.setMessageHandler(mMessageHandler);
 
-            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-            conversationAccess.create(conversation);
+                DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+                conversationAccess.create(conversation);
 
-            mSelectedConversation = conversation;
-            conversation.receiveThrow(receivedThrow);
+                mSelectedConversation = conversation;
+                conversation.receiveThrow(receivedThrow);
+            }
+        } catch (InvalidPhoneNumberException e) {
+            //TODO recover from problem to ensure message delivery
         }
-
-
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

@@ -1,16 +1,21 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import android.content.Context;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Collection;
 
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
-
+    public static final String PARTICIPANT_ID_FIELD_NAME = "contact_id";
     private SecondLine currentSecondLine;
     private MessageHandler messageHandler;
 
@@ -19,6 +24,9 @@ public class Conversation {
 
     @ForeignCollectionField
     private Collection<Message> messages;
+
+//    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
+//    private Contact participant;
 
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
@@ -47,16 +55,30 @@ public class Conversation {
     }
 
     public SecondLine getAndRefreshSecondLine(Krewe knownMasks) {
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(new Contact("Marvin", Contact.DEFAULT_CONTACT_NUMBER, Contact.DEFAULT_COUNTRY_CODE), knownMasks);
+        Contact c = null;
+        try {
+            c = new Contact("meh", Contact.DEFAULT_CONTACT_NUMBER);
+        } catch (InvalidPhoneNumberException e) {
+            e.printStackTrace();
+        }
+        if(currentSecondLine == null) currentSecondLine = new SecondLine(c, knownMasks);
         return currentSecondLine;
     }
 
     public void receiveThrow(Throw receivedThrow) {
-        String nextMessage = receivedThrow.getEncryptedContent();
-        Message message = new Message(nextMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
-        message.setConversation(this);
+        /*try {
+            try {
+                participant = receivedThrow.getThrownFrom();
+            } catch (PrematureReadException e) {
 
-        messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+            }*/
+            String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
+            Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
+            message.setConversation(this);
+            messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
+//        } catch (InvalidPhoneNumberException e) {
+//            //TODO Received message but don't know who its from
+//        }
     }
 
     @Override
