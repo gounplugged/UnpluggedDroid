@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/bottom_container"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
     android:layout_height="80dp"
     android:layout_width="match_parent"
-    android:layout_alignParentBottom="true"
-    >
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/search_contact_text"
@@ -34,3 +34,4 @@
         android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
+
