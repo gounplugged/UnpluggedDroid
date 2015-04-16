@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +46,7 @@ public class MessageInputFragment extends Fragment {
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
-                    sendMessage();
+                    sendMessage(MessageInputFragment.this.newPostText.getText().toString());
                 } catch (InvalidRecipientException e) {
                     e.printStackTrace();
                 }
@@ -59,7 +60,7 @@ public class MessageInputFragment extends Fragment {
                 // If the action is a key-up event on the return key, send the list_item_message_outgoing
                 if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
                     try {
-                        sendMessage();
+                        sendMessage(newPostText.getText().toString());
                     } catch (InvalidRecipientException e) {
                         //TODO define behavior for when message composed without selecting a conversation
                     }
@@ -72,7 +73,10 @@ public class MessageInputFragment extends Fragment {
         return view;
     }
 
-    private void sendMessage() throws InvalidRecipientException {
+    private void sendMessage(String message) throws InvalidRecipientException {
+        if (TextUtils.isEmpty(message))
+            return;
+
         try {
             Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
             conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
