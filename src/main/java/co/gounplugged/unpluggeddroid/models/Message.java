@@ -12,6 +12,8 @@ public class Message {
     public static final int TYPE_INCOMING = 1;
     public static final int TYPE_OUTGOING = 2;
 
+    public String sendOverWire;
+
     @DatabaseField(generatedId = true)
     public long id;
 

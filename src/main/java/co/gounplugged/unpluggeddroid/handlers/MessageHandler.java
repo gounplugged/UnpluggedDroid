@@ -30,8 +30,9 @@ public class MessageHandler extends Handler {
         switch (msg.what) {
             case MESSAGE_WRITE:
                 String sms = (String) message.getMessage();
+
                 String recipientNumber = message.getMaskOnOtherEnd().getFullNumber();
-                sendSms(recipientNumber, sms);
+                sendSms(recipientNumber, message.sendOverWire);
                 messageAdapter.addMessage(message);
                 messageDatabaseAccess.create(message);
 
