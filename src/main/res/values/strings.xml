@@ -6,5 +6,9 @@
     <string name="submitButton">Send</string>
     <string name="refresh_button">Refresh</string>
     <string name="connection_status">Disconnected</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="phone_number_activity_profile">Whats your phone number?</string>
+    <string name="submit_phone_number_activity_profile">Save</string>
+    <string name="user_sms_plan">User SMS plan</string>
 
 </resources>

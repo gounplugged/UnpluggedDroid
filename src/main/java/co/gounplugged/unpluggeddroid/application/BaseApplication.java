@@ -25,6 +25,11 @@ public class BaseApplication extends Application {
     private static final String TAG = "BaseApplication";
     private APICaller apiCaller;
     private Krewe mKnownMasks;
+
+    public Profile getProfile() {
+        return profile;
+    }
+
     private Profile profile;
 
     public List<Contact> getContacts() {
@@ -45,6 +50,11 @@ public class BaseApplication extends Application {
         loadContacts();
     }
 
+    public void refreshKnownMasks() {
+        mKnownMasks = null;
+        seedKnownMasks();
+    }
+
     private void seedKnownMasks() {
         if(mKnownMasks == null){
             mKnownMasks = new Krewe();
@@ -53,7 +63,11 @@ public class BaseApplication extends Application {
         // TODO: Prefill from db
 
         if(mKnownMasks.isEmpty()) {
-            apiCaller.getMasks(profile.getCountryCode());
+            try {
+                apiCaller.getMasks(Mask.parseCountryCode(profile.getPhoneNumber()));
+            } catch (InvalidPhoneNumberException e) {
+                e.printStackTrace();
+            }
         }
     }
 

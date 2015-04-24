@@ -21,8 +21,8 @@ public class Profile {
     public static final int SMS_DEFAULT = SMS_LIMITED;
     public static final String SMS_PLAN_PREFERENCE_NAME = "SMSPref";
 
-    public static final String DEFAULT_COUNTRY_CODE = "+1";
-    public static final String COUNTRY_CODE_PREFERENCE_NAME = "CountryPref";
+    public static final String DEFAULT_PHONE_NUMBER = "+1";
+    public static final String PHONE_NUMBER_PREFERENCE_NAME = "CountryPref";
 
     public int getSmsPlan() {
         return smsPlan;
@@ -30,11 +30,18 @@ public class Profile {
 
     private int smsPlan;
 
-    public String getCountryCode() {
-        return countryCode;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    private String countryCode;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        SharedPreferences.Editor editor = profileSharedPreferences.edit();
+        editor.putString(PHONE_NUMBER_PREFERENCE_NAME, phoneNumber);
+        editor.commit();
+    }
+
+    private String phoneNumber;
 
     public static final String SHARED_PREFERENCES_STRING = "co.gounplugged.unpluggeddroid.PROFILE_SHARED_PREFERENCES";
     private SharedPreferences profileSharedPreferences;
@@ -44,7 +51,7 @@ public class Profile {
                 SHARED_PREFERENCES_STRING, Context.MODE_PRIVATE);
 
         smsPlan = profileSharedPreferences.getInt(SMS_PLAN_PREFERENCE_NAME, SMS_DEFAULT);
-        countryCode = profileSharedPreferences.getString(COUNTRY_CODE_PREFERENCE_NAME, DEFAULT_COUNTRY_CODE);
+        phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, DEFAULT_PHONE_NUMBER);
 
     }
 }
