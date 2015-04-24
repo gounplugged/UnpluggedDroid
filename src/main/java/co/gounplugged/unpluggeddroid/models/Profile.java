@@ -41,6 +41,13 @@ public class Profile {
         editor.commit();
     }
 
+    public void setSmsPlan(int planId) {
+        this.smsPlan = planId;
+        SharedPreferences.Editor editor = profileSharedPreferences.edit();
+        editor.putInt(SMS_PLAN_PREFERENCE_NAME, planId);
+        editor.commit();
+    }
+
     private String phoneNumber;
 
     public static final String SHARED_PREFERENCES_STRING = "co.gounplugged.unpluggeddroid.PROFILE_SHARED_PREFERENCES";

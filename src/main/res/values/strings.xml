@@ -9,6 +9,13 @@
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="phone_number_activity_profile">Whats your phone number?</string>
     <string name="submit_phone_number_activity_profile">Save</string>
+    <string name="sms_plan_activity_profile">What kind of plan do you have for SMS?</string>
     <string name="user_sms_plan">User SMS plan</string>
+
+    <string-array name="sms_plans_array">
+        <item>Unlimited Domestic</item>
+        <item>Unlimited International</item>
+        <item>Limited</item>
+    </string-array>
 
 </resources>

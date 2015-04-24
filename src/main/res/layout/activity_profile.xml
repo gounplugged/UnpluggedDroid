@@ -25,6 +25,25 @@
         android:layout_height="wrap_content"
         android:text="@string/submit_phone_number_activity_profile"
         android:id="@+id/submit_phone_number_activity_profile"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="130dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sms_plan_selection_activity_profile"
+        android:layout_below="@+id/sms_plan_title_activity_profile"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/sms_plan_activity_profile"
+        android:id="@+id/sms_plan_title_activity_profile"
         android:layout_below="@+id/phone_number_activity_profile"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />

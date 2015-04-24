@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -17,7 +19,8 @@ import co.gounplugged.unpluggeddroid.models.Profile;
 
 public class ProfileActivity extends Activity {
     private TextView phoneNumberInput;
-    private Button submitPhoneNumber;
+    private Button submitButton;
+    private Spinner smsPlanSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,20 +28,40 @@ public class ProfileActivity extends Activity {
         setContentView(R.layout.activity_profile);
 
         phoneNumberInput = (TextView) findViewById(R.id.phone_number_activity_profile);
-        submitPhoneNumber = (Button) findViewById(R.id.submit_phone_number_activity_profile);
+        submitButton = (Button) findViewById(R.id.submit_phone_number_activity_profile);
+        smsPlanSpinner = (Spinner) findViewById(R.id.sms_plan_selection_activity_profile);
 
-        submitPhoneNumber.setOnClickListener(new View.OnClickListener() {
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.sms_plans_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        smsPlanSpinner.setAdapter(adapter);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String phoneNumber = phoneNumberInput.getText().toString();
-                Profile p = ((BaseApplication) getApplicationContext()).getProfile();
-                p.setPhoneNumber(phoneNumber);
+                setPhoneNumber();
+                setSmsPlan();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
                 Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
             }
         });
+    }
+
+    private void setSmsPlan() {
+        int selectedId = (int) smsPlanSpinner.getSelectedItemId() + 1;
+        Profile p = ((BaseApplication) getApplicationContext()).getProfile();
+        p.setSmsPlan(selectedId);
+    }
+
+    private void setPhoneNumber() {
+        String phoneNumber = phoneNumberInput.getText().toString();
+        Profile p = ((BaseApplication) getApplicationContext()).getProfile();
+        p.setPhoneNumber(phoneNumber);
     }
 
 
