@@ -27,7 +27,6 @@ import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
-import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
@@ -52,7 +51,6 @@ public class ChatActivity extends FragmentActivity {
 
     private MessageHandler mMessageHandler;
 
-    private Profile profile;
     SmsBroadcastReceiver smsBroadcastReceiver;
     private Conversation mSelectedConversation;
 
@@ -72,7 +70,6 @@ public class ChatActivity extends FragmentActivity {
         setContentView(R.layout.activity_chat);
     	loadGui();
 
-        profile = new Profile(getApplicationContext());
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
