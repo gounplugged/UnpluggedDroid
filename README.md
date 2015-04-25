@@ -33,9 +33,7 @@ Offline communication
 ---------------------
 Integration with [the edgenet](http://theedg.es)
 
-Key sharing
------------
-Todo
-
-
-
+Pawprint not fingerprints
+-------------------------
+When verifying a public key, it is common to share the last 8 bytes as 16 characters of hex encoding. Pawprints instead encode the same information as one nibble + five 1.5 byte blocks. 1.5 bytes maps to 4096 different possibilities, a small enough amount of variation to easily be covered by common words. 
+So it would look something like "F Watch Bridge Cloud Inspiration Place"

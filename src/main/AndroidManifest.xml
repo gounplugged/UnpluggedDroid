@@ -8,36 +8,45 @@
         android:minSdkVersion="15"
         android:targetSdkVersion="20" />
 
-    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <android:uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <android:uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+
     <application
+        android:name=".application.BaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:name=".application.BaseApplication"
-        >
-
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".activities.SplashActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+            android:configChanges="orientation|screenSize|keyboardHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-                android:name=".activities.ChatActivity"
-                android:theme="@style/AppTheme"
-                android:configChanges="orientation|screenSize">
+            android:name=".activities.ChatActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme" >
         </activity>
-
+        <activity
+            android:name=".activities.ProfileActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme" >
+        </activity>
     </application>
 
 </manifest>

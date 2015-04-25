@@ -16,6 +16,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
+import co.gounplugged.unpluggeddroid.models.Profile;
 
 /**
  * Serves as global application instance
@@ -24,6 +25,12 @@ public class BaseApplication extends Application {
     private static final String TAG = "BaseApplication";
     private APICaller apiCaller;
     private Krewe mKnownMasks;
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    private Profile profile;
 
     public List<Contact> getContacts() {
         return contacts;
@@ -37,10 +44,15 @@ public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        profile = new Profile(getApplicationContext());
         apiCaller = new APICaller(getApplicationContext());
         seedKnownMasks();
         loadContacts();
+    }
+
+    public void refreshKnownMasks() {
+        mKnownMasks = null;
+        seedKnownMasks();
     }
 
     private void seedKnownMasks() {
@@ -52,9 +64,9 @@ public class BaseApplication extends Application {
 
         if(mKnownMasks.isEmpty()) {
             try {
-                apiCaller.getMasks(Mask.parseCountryCode(Contact.DEFAULT_CONTACT_NUMBER));
+                apiCaller.getMasks(Mask.parseCountryCode(profile.getPhoneNumber()));
             } catch (InvalidPhoneNumberException e) {
-
+                e.printStackTrace();
             }
         }
     }

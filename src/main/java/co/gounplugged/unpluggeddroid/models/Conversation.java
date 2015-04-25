@@ -47,8 +47,8 @@ public class Conversation {
     public void sendMessage(String sms, Krewe knownMasks) {
         currentSecondLine = getAndRefreshSecondLine(knownMasks);
         Throw t = currentSecondLine.getThrow(sms);
-        sms = t.getEncryptedContent();
         Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
+        message.sendOverWire = t.getEncryptedContent();
         message.setConversation(this);
         message.setMaskOnOtherEnd(t.getThrowTo());
         messageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();

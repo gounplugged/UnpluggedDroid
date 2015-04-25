@@ -23,7 +23,7 @@ public class SplashActivity extends Activity {
             @Override
             public void run() {
                 /* Create an Intent that will start the ChatActivity. */
-                Intent mainIntent = new Intent(SplashActivity.this, ChatActivity.class);
+                Intent mainIntent = new Intent(SplashActivity.this, ProfileActivity.class);
                 SplashActivity.this.startActivity(mainIntent);
                 SplashActivity.this.finish();
             }
