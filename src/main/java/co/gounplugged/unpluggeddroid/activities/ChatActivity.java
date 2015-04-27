@@ -198,7 +198,6 @@ public class ChatActivity extends FragmentActivity {
     private void hideDropZones() {
         mImageViewDropZoneDelete.setVisibility(View.GONE);
         mImageViewDropZoneChats.setVisibility(View.GONE);
-
     }
 
     //todo refactor

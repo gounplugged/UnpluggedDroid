@@ -27,7 +27,7 @@ public class JSONParser {
                     String countryCode = oneObject.getString("country_code");
                     Log.d(TAG, countryCode);
 
-                    if(countryCode.equals(filterByCountryCode)) {
+                    if(filterByCountryCode == null || countryCode.equals(filterByCountryCode)) {
                         String phoneNumber = oneObject.getString("number");
                         Log.d(TAG, phoneNumber);
                         try {

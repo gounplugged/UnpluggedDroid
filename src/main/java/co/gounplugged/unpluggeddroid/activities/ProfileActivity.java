@@ -51,11 +51,13 @@ public class ProfileActivity extends Activity {
     private void setSmsPlan() {
         int selectedId = (int) smsPlanSpinner.getSelectedItemId();
         profile.setSmsPlan(selectedId);
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     private void setPhoneNumber() {
         String phoneNumber = phoneNumberInput.getText().toString();
         profile.setPhoneNumber(phoneNumber);
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     private void setupSmsPlan() {

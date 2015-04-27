@@ -3,15 +3,17 @@ package co.gounplugged.unpluggeddroid.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+
 /**
  * Created by pili on 5/04/15.
  */
 
 public class Profile {
 
-    public static final int SMS_UNLIMITED_DOMESTIC = 1;
-    public static final int SMS_UNLIMITED_INTERNATIONAL = 2;
-    public static final int SMS_LIMITED = 3;
+    public static final int SMS_UNLIMITED_DOMESTIC = 0;
+    public static final int SMS_UNLIMITED_INTERNATIONAL = 1;
+    public static final int SMS_LIMITED = 2;
     public static final int SMS_DEFAULT = SMS_LIMITED;
     public static final String SMS_PLAN_PREFERENCE_NAME = "SMSPref";
 
@@ -67,5 +69,19 @@ public class Profile {
         smsPlan = profileSharedPreferences.getInt(SMS_PLAN_PREFERENCE_NAME, SMS_DEFAULT);
         phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, null);
         contactsSynced = profileSharedPreferences.getBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, false);
+    }
+
+    public String getCountryCodeFilter() {
+        if(smsPlan == SMS_UNLIMITED_INTERNATIONAL) {
+            return null;
+        } else {
+            try {
+                return Mask.parseCountryCode(phoneNumber);
+            } catch (InvalidPhoneNumberException e) {
+                //TODO
+                return null;
+            }
+        }
+
     }
 }
