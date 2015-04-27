@@ -21,7 +21,6 @@ public class Profile {
     public static final int SMS_DEFAULT = SMS_LIMITED;
     public static final String SMS_PLAN_PREFERENCE_NAME = "SMSPref";
 
-    public static final String DEFAULT_PHONE_NUMBER = "+1";
     public static final String PHONE_NUMBER_PREFERENCE_NAME = "CountryPref";
 
     public int getSmsPlan() {
@@ -58,7 +57,6 @@ public class Profile {
                 SHARED_PREFERENCES_STRING, Context.MODE_PRIVATE);
 
         smsPlan = profileSharedPreferences.getInt(SMS_PLAN_PREFERENCE_NAME, SMS_DEFAULT);
-        phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, DEFAULT_PHONE_NUMBER);
-
+        phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, null);
     }
 }
