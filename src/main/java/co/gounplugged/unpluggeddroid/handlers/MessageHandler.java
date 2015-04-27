@@ -41,7 +41,6 @@ public class MessageHandler extends Handler {
                 messageAdapter.addMessage(message);
                 messageDatabaseAccess.create(message);
                 break;
-
         }
     }
 

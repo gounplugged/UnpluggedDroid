@@ -21,23 +21,19 @@ public class ProfileActivity extends Activity {
     private TextView phoneNumberInput;
     private Button submitButton;
     private Spinner smsPlanSpinner;
+    private Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        phoneNumberInput = (TextView) findViewById(R.id.phone_number_activity_profile);
-        submitButton = (Button) findViewById(R.id.submit_phone_number_activity_profile);
-        smsPlanSpinner = (Spinner) findViewById(R.id.sms_plan_selection_activity_profile);
+        profile = ((BaseApplication) getApplicationContext()).getProfile();
 
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.sms_plans_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        smsPlanSpinner.setAdapter(adapter);
+        setupPhoneNumber();
+        setupSmsPlan();
+        submitButton = (Button) findViewById(R.id.submit_phone_number_activity_profile);
+
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,15 +49,38 @@ public class ProfileActivity extends Activity {
     }
 
     private void setSmsPlan() {
-        int selectedId = (int) smsPlanSpinner.getSelectedItemId() + 1;
-        Profile p = ((BaseApplication) getApplicationContext()).getProfile();
-        p.setSmsPlan(selectedId);
+        int selectedId = (int) smsPlanSpinner.getSelectedItemId();
+        profile.setSmsPlan(selectedId);
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     private void setPhoneNumber() {
         String phoneNumber = phoneNumberInput.getText().toString();
-        Profile p = ((BaseApplication) getApplicationContext()).getProfile();
-        p.setPhoneNumber(phoneNumber);
+        profile.setPhoneNumber(phoneNumber);
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
+    }
+
+    private void setupSmsPlan() {
+        smsPlanSpinner = (Spinner) findViewById(R.id.sms_plan_selection_activity_profile);
+
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.sms_plans_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        smsPlanSpinner.setAdapter(adapter);
+
+        int savedSmsPlan = profile.getSmsPlan();
+        smsPlanSpinner.setSelection(savedSmsPlan);
+    }
+
+    private void setupPhoneNumber() {
+        phoneNumberInput = (TextView) findViewById(R.id.phone_number_activity_profile);
+        String savedPhoneNumber = profile.getPhoneNumber();
+        if(savedPhoneNumber != null) {
+            phoneNumberInput.setText(savedPhoneNumber);
+        }
     }
 
 

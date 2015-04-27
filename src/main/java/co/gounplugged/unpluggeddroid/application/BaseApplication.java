@@ -46,7 +46,7 @@ public class BaseApplication extends Application {
         super.onCreate();
         profile = new Profile(getApplicationContext());
         apiCaller = new APICaller(getApplicationContext());
-        seedKnownMasks();
+//        seedKnownMasks();
         loadContacts();
     }
 
@@ -55,7 +55,9 @@ public class BaseApplication extends Application {
         seedKnownMasks();
     }
 
-    private void seedKnownMasks() {
+    public void seedKnownMasks() {
+        if(profile.getPhoneNumber() == null) return;
+
         if(mKnownMasks == null){
             mKnownMasks = new Krewe();
         }
@@ -63,11 +65,7 @@ public class BaseApplication extends Application {
         // TODO: Prefill from db
 
         if(mKnownMasks.isEmpty()) {
-            try {
-                apiCaller.getMasks(Mask.parseCountryCode(profile.getPhoneNumber()));
-            } catch (InvalidPhoneNumberException e) {
-                e.printStackTrace();
-            }
+            apiCaller.getMasks(profile.getCountryCodeFilter());
         }
     }
 
@@ -81,7 +79,8 @@ public class BaseApplication extends Application {
     }
 
     private void loadContacts() {
-        //TODO: prefill from db
+        if(profile.areContactsSynced()) return;
+
         this.contacts = new ArrayList();
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -109,6 +108,7 @@ public class BaseApplication extends Application {
                         }
                     }
                     pCur.close();
+                    profile.setContactsSynced(true);
                 }
             }
         }
