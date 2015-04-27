@@ -3,12 +3,6 @@ package co.gounplugged.unpluggeddroid.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.j256.ormlite.table.DatabaseTable;
-
-import java.util.StringTokenizer;
-
-import co.gounplugged.unpluggeddroid.R;
-
 /**
  * Created by pili on 5/04/15.
  */
@@ -26,8 +20,22 @@ public class Profile {
     public int getSmsPlan() {
         return smsPlan;
     }
-
     private int smsPlan;
+
+    public static final String ARE_CONTACTS_SYNCED_PREFERENCE_NAME = "ContactsSyncedPref";
+
+    public boolean areContactsSynced() {
+        return contactsSynced;
+    }
+
+    public void setContactsSynced(boolean contactsSynced) {
+        this.contactsSynced = contactsSynced;
+        SharedPreferences.Editor editor = profileSharedPreferences.edit();
+        editor.putBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, contactsSynced);
+        editor.commit();
+    }
+
+    private boolean contactsSynced;
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -58,5 +66,6 @@ public class Profile {
 
         smsPlan = profileSharedPreferences.getInt(SMS_PLAN_PREFERENCE_NAME, SMS_DEFAULT);
         phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, null);
+        contactsSynced = profileSharedPreferences.getBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, false);
     }
 }

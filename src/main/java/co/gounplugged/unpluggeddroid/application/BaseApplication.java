@@ -81,7 +81,8 @@ public class BaseApplication extends Application {
     }
 
     private void loadContacts() {
-        //TODO: prefill from db
+        if(profile.areContactsSynced()) return;
+
         this.contacts = new ArrayList();
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -109,6 +110,7 @@ public class BaseApplication extends Application {
                         }
                     }
                     pCur.close();
+                    profile.setContactsSynced(true);
                 }
             }
         }
