@@ -19,6 +19,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.models.Contact;
 
 public class DatabaseAccess<T> {
 
@@ -83,6 +84,18 @@ public class DatabaseAccess<T> {
         return null;
     }
 
+    public T getFirstString(String columnName, String value) {
+        try {
+            QueryBuilder<T, Long> qb = mDao.queryBuilder();
+            qb.where().eq(columnName, value);
+            PreparedQuery<T> pq = qb.prepare();
+            return mDao.queryForFirst(pq);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<T> getAll() {
         try {
             return mDao.queryForAll();
@@ -118,7 +131,7 @@ public class DatabaseAccess<T> {
         }
 
         private void createDatabases(SQLiteDatabase db, ConnectionSource connectionSource, Context context) {
-            Class<?>[] columns = {Conversation.class, Message.class, Mask.class};
+            Class<?>[] columns = {Conversation.class, Message.class, Mask.class, Contact.class};
             try {
                 for (Class<?> c : columns) {
                     TableUtils.createTable(connectionSource, c);

@@ -76,7 +76,7 @@ public class Profile {
             return null;
         } else {
             try {
-                return Mask.parseCountryCode(phoneNumber);
+                return PhoneNumberParser.parseCountryCode(phoneNumber);
             } catch (InvalidPhoneNumberException e) {
                 //TODO
                 return null;

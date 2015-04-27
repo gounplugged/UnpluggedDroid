@@ -25,6 +25,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Throw;
@@ -52,10 +53,14 @@ public class ChatActivity extends FragmentActivity {
     private MessageHandler mMessageHandler;
 
     SmsBroadcastReceiver smsBroadcastReceiver;
+
+    public Conversation getSelectedConversation() {
+        return mSelectedConversation;
+    }
+
     private Conversation mSelectedConversation;
 
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
-
         @Override
         public void onConversationSelected(Conversation conversation) {
             Log.i(TAG, "onConversationSelected: " + conversation.toString());
@@ -207,9 +212,8 @@ public class ChatActivity extends FragmentActivity {
 
 
     public void processMessage(String receivedMessage) {
-        Throw receivedThrow = null;
         try {
-            receivedThrow = new Throw(receivedMessage);
+            Throw receivedThrow = new Throw(receivedMessage);
             String nextMessage = receivedThrow.getEncryptedContent();
             Log.d(TAG, "Next message: " + nextMessage);
 
@@ -230,6 +234,22 @@ public class ChatActivity extends FragmentActivity {
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
         }
+    }
+
+    public void addConversation(String contactName) {
+//        Conversation conversation = new Conversation();
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getApplicationContext(), Contact.class);
+        Contact c = contactAccess.getFirstString("phoneNumber", contactName);
+
+        if(c == null) {
+            Log.d(TAG, "NOTHING FOUND");
+        } else {
+            Log.d(TAG, "Found contact " + c.getName());
+        }
+
+//        conversationAccess.g
+//        conversationAccess.create(conversation);
+//        conversation.setMessageHandler(mMessageHandler);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

@@ -65,11 +65,7 @@ public class MessageInputFragment extends Fragment {
 
     private void sendMessage() {
         try {
-            Conversation conversation = new Conversation();
-
-            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getActivity().getApplicationContext(), Conversation.class);
-            conversationAccess.create(conversation);
-            conversation.setMessageHandler(mMessageHandler);
+            Conversation conversation = ((ChatActivity)getActivity()).getSelectedConversation();
             conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
             newPostText.setText("");
 
