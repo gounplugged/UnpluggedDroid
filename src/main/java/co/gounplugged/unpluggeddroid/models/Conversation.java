@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid.models;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -9,13 +10,16 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Collection;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
+    private static final String TAG = "Conversation";
     public static final String PARTICIPANT_ID_FIELD_NAME = "contact_id";
+
     private SecondLine currentSecondLine;
     private MessageHandler messageHandler;
 
@@ -25,11 +29,18 @@ public class Conversation {
     @ForeignCollectionField
     private Collection<Message> messages;
 
-//    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
-//    private Contact participant;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
+    private Contact participant;
+    public Contact getParticipant() {
+        return participant;
+    }
 
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
+    }
+
+    public Conversation(Contact participant) {
+        this.participant = participant;
     }
 
     public void setMessageHandler(MessageHandler h) {
@@ -55,30 +66,43 @@ public class Conversation {
     }
 
     public SecondLine getAndRefreshSecondLine(Krewe knownMasks) {
-        Contact c = null;
-        try {
-            c = new Contact("meh", Contact.DEFAULT_CONTACT_NUMBER);
-        } catch (InvalidPhoneNumberException e) {
-            e.printStackTrace();
-        }
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(c, knownMasks);
+        if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
         return currentSecondLine;
     }
 
     public void receiveThrow(Throw receivedThrow) {
-        /*try {
+        try {
             try {
                 participant = receivedThrow.getThrownFrom();
             } catch (PrematureReadException e) {
 
-            }*/
+            }
             String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
             Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
             message.setConversation(this);
             messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
-//        } catch (InvalidPhoneNumberException e) {
-//            //TODO Received message but don't know who its from
-//        }
+        } catch (InvalidPhoneNumberException e) {
+            //TODO Received message but don't know who its from
+        }
+    }
+
+    public static Conversation findOrNew(Contact participant, Context context, MessageHandler messageHandler) {
+        if(participant == null) {
+            Log.d(TAG, "NOTHING FOUND");
+            return null;
+        } else {
+            Log.d(TAG, "Found contact " + participant.getName());
+            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
+            for(Conversation conversation : conversationAccess.getAll()) {
+                if(conversation.getParticipant().equals(participant)) {
+                    return conversation;
+                }
+            }
+            Conversation conversation = new Conversation(participant);
+            conversation.setMessageHandler(messageHandler);
+            conversationAccess.create(conversation);
+            return conversation;
+        }
     }
 
     @Override

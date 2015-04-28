@@ -14,7 +14,7 @@
         android:hint="Search contact"
         android:textSize="15sp"
         android:textColor="@color/chat_outgoing_text"
-        android:inputType="textShortMessage"
+        android:inputType="phone"
         android:imeOptions="actionSend"
         android:imeActionId="1"
         android:imeActionLabel="Send"

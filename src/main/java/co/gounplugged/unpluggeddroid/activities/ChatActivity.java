@@ -22,6 +22,7 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
@@ -220,36 +221,23 @@ public class ChatActivity extends FragmentActivity {
             if(!receivedThrow.hasArrived()) {
                 mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
             } else {
-
-                Conversation conversation = new Conversation();
-//            conversation.setContext(getApplicationContext());
-                conversation.setMessageHandler(mMessageHandler);
-
-                DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-                conversationAccess.create(conversation);
-
-                mSelectedConversation = conversation;
-                conversation.receiveThrow(receivedThrow);
+                try {
+                    Contact participant = receivedThrow.getThrownFrom();
+                    Conversation conversation = Conversation.findOrNew(participant, getApplicationContext(), mMessageHandler);
+                    conversation.receiveThrow(receivedThrow);
+                } catch (PrematureReadException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
         }
     }
 
-    public void addConversation(String contactName) {
-//        Conversation conversation = new Conversation();
+    public void addConversation(String participantPhoneNumber) {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getApplicationContext(), Contact.class);
-        Contact c = contactAccess.getFirstString("phoneNumber", contactName);
-
-        if(c == null) {
-            Log.d(TAG, "NOTHING FOUND");
-        } else {
-            Log.d(TAG, "Found contact " + c.getName());
-        }
-
-//        conversationAccess.g
-//        conversationAccess.create(conversation);
-//        conversation.setMessageHandler(mMessageHandler);
+        Contact contact = contactAccess.getFirstString("phoneNumber", participantPhoneNumber);
+        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
