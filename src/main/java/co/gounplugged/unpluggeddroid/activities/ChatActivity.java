@@ -22,9 +22,11 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Throw;
@@ -52,10 +54,14 @@ public class ChatActivity extends FragmentActivity {
     private MessageHandler mMessageHandler;
 
     SmsBroadcastReceiver smsBroadcastReceiver;
+
+    public Conversation getSelectedConversation() {
+        return mSelectedConversation;
+    }
+
     private Conversation mSelectedConversation;
 
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
-
         @Override
         public void onConversationSelected(Conversation conversation) {
             Log.i(TAG, "onConversationSelected: " + conversation.toString());
@@ -207,29 +213,31 @@ public class ChatActivity extends FragmentActivity {
 
 
     public void processMessage(String receivedMessage) {
-        Throw receivedThrow = null;
         try {
-            receivedThrow = new Throw(receivedMessage);
+            Throw receivedThrow = new Throw(receivedMessage);
             String nextMessage = receivedThrow.getEncryptedContent();
             Log.d(TAG, "Next message: " + nextMessage);
 
             if(!receivedThrow.hasArrived()) {
                 mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
             } else {
-
-                Conversation conversation = new Conversation();
-//            conversation.setContext(getApplicationContext());
-                conversation.setMessageHandler(mMessageHandler);
-
-                DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-                conversationAccess.create(conversation);
-
-                mSelectedConversation = conversation;
-                conversation.receiveThrow(receivedThrow);
+                try {
+                    Contact participant = receivedThrow.getThrownFrom();
+                    Conversation conversation = Conversation.findOrNew(participant, getApplicationContext(), mMessageHandler);
+                    conversation.receiveThrow(receivedThrow);
+                } catch (PrematureReadException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
         }
+    }
+
+    public void addConversation(String participantPhoneNumber) {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getApplicationContext(), Contact.class);
+        Contact contact = contactAccess.getFirstString("phoneNumber", participantPhoneNumber);
+        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
