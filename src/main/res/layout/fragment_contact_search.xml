@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_height="80dp"
     android:layout_width="match_parent"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/search_contact_text"
-        android:layout_height="match_parent"
+    <!--<EditText-->
+        <!--android:id="@+id/search_contact_text"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:hint="Search contact"-->
+        <!--android:textSize="15sp"-->
+        <!--android:textColor="@color/chat_outgoing_text"-->
+        <!--android:imeOptions="actionSend"-->
+        <!--android:imeActionId="1"-->
+        <!--android:imeActionLabel="Send"-->
+        <!--android:layout_toLeftOf="@+id/submit_button"-->
+        <!--android:background="#fff"-->
+        <!--android:paddingLeft="8dp"-->
+        <!--android:paddingRight="8dp"-->
+        <!--/>-->
+
+    <AutoCompleteTextView
+        android:id="@+id/auto_complete_contacts"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:hint="Search contact"
+        android:hint="@string/search_hint"
+        android:imeActionLabel=""
         android:textSize="15sp"
         android:textColor="@color/chat_outgoing_text"
-        android:inputType="phone"
-        android:imeOptions="actionSend"
-        android:imeActionId="1"
-        android:imeActionLabel="Send"
         android:layout_toLeftOf="@+id/submit_button"
+        android:imeOptions="actionSearch"
         android:background="#fff"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        />
+        android:paddingRight="8dp"/>
+
 
     <Button
         android:layout_width="wrap_content"
