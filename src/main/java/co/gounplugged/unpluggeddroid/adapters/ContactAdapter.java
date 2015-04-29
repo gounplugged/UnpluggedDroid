@@ -14,6 +14,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Contact;
 
+@Deprecated
 public class ContactAdapter extends ArrayAdapter<Contact> {
 
     private Context mContext;

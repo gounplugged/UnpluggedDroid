@@ -14,6 +14,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,65 +23,59 @@ import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 public class SearchContactFragment extends Fragment {
     private final static String TAG = "SearchContactFragment";
-    private Button addConversationButton;
+//    private Button addConversationButton;
     private AutoCompleteTextView contactAutoComplete;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_search, container, false);
 
-        // Submit Button
-        addConversationButton  = (Button) view.findViewById(R.id.add_conversation_button);
-        addConversationButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                addConversation();
-            }
-        });
-
-
-        //TODO: run in bg
-//        DatabaseAccess<Contact> contactDatabaseAccess = new DatabaseAccess<>(getActivity(), Contact.class);
-//        List<Contact> contacts = contactDatabaseAccess.getAll();
-//        ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), contacts);
+//        // Submit Button
+//        addConversationButton  = (Button) view.findViewById(R.id.add_conversation_button);
+//        addConversationButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                addConversation();
+//            }
+//        });
 
         contactAutoComplete = (AutoCompleteTextView) view.findViewById(R.id.auto_complete_contacts);
-//        contactAutoComplete.setAdapter(adapter);
-        contactAutoComplete.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
         contactAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> parent, View arg1, int pos, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+                TextView tv = (TextView) view;
+                String name = tv.getText().toString();
+                String phoneNumbers[] = ContactUtil.getPhoneNumbersForContactName(getActivity().getApplicationContext(),
+                        name);
 
-                RelativeLayout rl = (RelativeLayout) arg1;
-                TextView tv = (TextView) rl.getChildAt(0);
-                contactAutoComplete.setText(tv.getText().toString());
+                if (phoneNumbers == null)
+                    return;
 
+                String phoneNumber = null;
+
+                if (phoneNumbers.length > 1) {
+                    //TODO: let user decicde which number to use..
+                    phoneNumber = phoneNumbers[0];
+                } else {
+                    phoneNumber = phoneNumbers[0];
+                }
+
+
+                addConversation(phoneNumber);
             }
 
         });
 
+        //TODO: run in bg
+        String contactNames[] = ContactUtil.getContactNames(getActivity().getApplicationContext());
+
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+                android.R.layout.simple_dropdown_item_1line, contactNames);
         contactAutoComplete.setAdapter(adapter);
 
 
@@ -89,12 +84,9 @@ public class SearchContactFragment extends Fragment {
     }
 
 
-    private static final String[] COUNTRIES = new String[] {
-            "Belgium", "France", "Italy", "Germany", "Spain"
-    };
 
-    private void addConversation() {
-        ((ChatActivity)getActivity()).addConversation(contactAutoComplete.getText().toString());
+    private void addConversation(String phoneNr) {
+        ((ChatActivity)getActivity()).addConversation(phoneNr);
         contactAutoComplete.setText("");
     }
 }
