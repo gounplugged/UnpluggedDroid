@@ -13,6 +13,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Krewe;
@@ -71,6 +72,8 @@ public class BaseApplication extends Application {
     }
 
     public Krewe getKnownMasks() {
+
+        Log.d(TAG, "There are this many known masks " + mKnownMasks.getMasks().size());
         return mKnownMasks;
     }
 
@@ -84,7 +87,4 @@ public class BaseApplication extends Application {
         profile.setContactsSynced(true);
     }
 
-    public Conversation getLastSelectedConversation() {
-        return Conversation.findById(getApplicationContext(), profile.getLastSelectedConversationId());
-    }
 }

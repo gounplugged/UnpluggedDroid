@@ -2,6 +2,7 @@ package co.gounplugged.unpluggeddroid.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 
@@ -10,7 +11,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
  */
 
 public class Profile {
-
+    private static final String TAG = "Profile";
     public static final int SMS_UNLIMITED_DOMESTIC = 0;
     public static final int SMS_UNLIMITED_INTERNATIONAL = 1;
     public static final int SMS_LIMITED = 2;
@@ -89,10 +90,12 @@ public class Profile {
     }
 
     public long getLastSelectedConversationId() {
+        Log.d(TAG, "Getting conversation " + lastSelectedConversationId);
         return lastSelectedConversationId;
     }
 
     public void setLastSavedConversationId(long conversationId) {
+        Log.d(TAG, "Setting conversation to " + conversationId);
         this.lastSelectedConversationId = conversationId;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putLong(LAST_SELECTED_CONVERSATION_ID, lastSelectedConversationId);

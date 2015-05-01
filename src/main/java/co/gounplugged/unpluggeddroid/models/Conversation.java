@@ -12,6 +12,7 @@ import java.util.Collection;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 
@@ -38,13 +39,10 @@ public class Conversation {
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
         participant = null;
+        messageHandler = null;
     }
     public Conversation(Contact participant) {
         this.participant = participant;
-    }
-
-    public void setMessageHandler(MessageHandler h) {
-        this.messageHandler = h;
     }
 
     public Collection<Message> getMessages() {
@@ -62,6 +60,8 @@ public class Conversation {
         message.sendOverWire = t.getEncryptedContent();
         message.setConversation(this);
         message.setMaskOnOtherEnd(t.getThrowTo());
+        Log.d(TAG, "Message handler is " + messageHandler);
+        Log.d(TAG, "Message is " + message);
         messageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
     }
 
@@ -71,6 +71,7 @@ public class Conversation {
     }
 
     public void receiveThrow(Throw receivedThrow) {
+        Log.d(TAG, "receiveThrow");
         String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
         Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
         message.setConversation(this);
@@ -86,19 +87,28 @@ public class Conversation {
             DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
             for(Conversation conversation : conversationAccess.getAll()) {
                 if(conversation.getParticipant().equals(participant)) {
+                    conversation.setMessageHandler(messageHandler);
                     return conversation;
                 }
             }
             Conversation conversation = new Conversation(participant);
-            conversation.setMessageHandler(messageHandler);
             conversationAccess.create(conversation);
+            conversation.setMessageHandler(messageHandler);
             return conversation;
         }
     }
 
-    public static Conversation findById(Context context, long conversationId) {
+    public static Conversation findById(Context context, long conversationId, MessageHandler messageHandler) throws NotFoundInDatabaseException {
+        Log.d(TAG, "Searching for Conversation " + conversationId);
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
-        return conversationAccess.getById(conversationId);
+        Conversation conversation = conversationAccess.getById(conversationId);
+        if(conversation == null) throw new NotFoundInDatabaseException("No conversation found with that ID");
+        conversation.setMessageHandler(messageHandler);
+        return conversation;
+    }
+
+    public void setMessageHandler(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
     }
 
     @Override

@@ -1,8 +1,10 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import android.content.Context;
 import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 
 /**
@@ -79,9 +81,10 @@ public class Throw {
         return encryptedContent.equals(rhs.getEncryptedContent());
     }
 
-    public Contact getThrownFrom() throws InvalidPhoneNumberException, PrematureReadException {
+    public Contact getThrownFrom(Context context)
+            throws InvalidPhoneNumberException, PrematureReadException, NotFoundInDatabaseException {
         if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original sender");
-        return new Contact("TODO in Throw", ThrowParser.getOriginatorNumber(encryptedContent));
+        return Contact.getContact(context, ThrowParser.getOriginatorNumber(encryptedContent));
     }
 
     public String getDecryptedContent() throws PrematureReadException {

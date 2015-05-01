@@ -74,10 +74,9 @@ public class MessageInputFragment extends Fragment {
 
     private void sendMessage() throws InvalidRecipientException {
         try {
-            Conversation conversation = ((ChatActivity)getActivity()).getSelectedConversation();
+            Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
             conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
             newPostText.setText("");
-
         } catch (Exception e) {
             Toast.makeText(getActivity().getApplicationContext(), "Failure to send", Toast.LENGTH_LONG).show();
             e.printStackTrace();
