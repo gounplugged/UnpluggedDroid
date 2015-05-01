@@ -24,6 +24,10 @@ public class Profile {
     }
     private int smsPlan;
 
+    public static final String LAST_SELECTED_CONVERSATION_ID = "LastSelectedConvoPref";
+    private long lastSelectedConversationId;
+
+
     public static final String ARE_CONTACTS_SYNCED_PREFERENCE_NAME = "ContactsSyncedPref";
 
     public boolean areContactsSynced() {
@@ -82,6 +86,16 @@ public class Profile {
                 return null;
             }
         }
+    }
 
+    public long getLastSelectedConversationId() {
+        return lastSelectedConversationId;
+    }
+
+    public void setLastSavedConversationId(long conversationId) {
+        this.lastSelectedConversationId = conversationId;
+        SharedPreferences.Editor editor = profileSharedPreferences.edit();
+        editor.putLong(LAST_SELECTED_CONVERSATION_ID, lastSelectedConversationId);
+        editor.commit();
     }
 }

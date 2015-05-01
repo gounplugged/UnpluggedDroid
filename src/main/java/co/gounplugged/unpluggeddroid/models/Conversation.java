@@ -30,15 +30,15 @@ public class Conversation {
     private Collection<Message> messages;
 
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
-    private Contact participant;
+    private final Contact participant;
     public Contact getParticipant() {
         return participant;
     }
 
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
+        participant = null;
     }
-
     public Conversation(Contact participant) {
         this.participant = participant;
     }
@@ -71,19 +71,10 @@ public class Conversation {
     }
 
     public void receiveThrow(Throw receivedThrow) {
-        try {
-            try {
-                participant = receivedThrow.getThrownFrom();
-            } catch (PrematureReadException e) {
-
-            }
-            String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
-            Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
-            message.setConversation(this);
-            messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
-        } catch (InvalidPhoneNumberException e) {
-            //TODO Received message but don't know who its from
-        }
+        String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
+        Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
+        message.setConversation(this);
+        messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
     }
 
     public static Conversation findOrNew(Contact participant, Context context, MessageHandler messageHandler) {
@@ -103,6 +94,11 @@ public class Conversation {
             conversationAccess.create(conversation);
             return conversation;
         }
+    }
+
+    public static Conversation findById(Context context, long conversationId) {
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
+        return conversationAccess.getById(conversationId);
     }
 
     @Override

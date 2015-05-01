@@ -44,7 +44,11 @@ public class MessageInputFragment extends Fragment {
         submitButton = (ImageButton) view.findViewById(R.id.submit_button);
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                sendMessage();
+                try {
+                    sendMessage();
+                } catch (InvalidRecipientException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

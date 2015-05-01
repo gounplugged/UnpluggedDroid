@@ -38,13 +38,6 @@ public class SearchContactFragment extends Fragment {
 
     private void addConversation() {
         ((ChatActivity)getActivity()).addConversation(contactSearch.getText().toString());
-//        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getActivity().getApplicationContext(), Contact.class);
-//        Contact c = contactAccess.getFirstString("phoneNumber", contactName);
-//        if(c==null) {
-//            Log.d(TAG, "NOTHING FOUND");
-//        } else {
-//            Log.d(TAG, "Found contact " + c.getName());
-//        }
         contactSearch.setText("");
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
@@ -79,6 +80,7 @@ public class ChatActivity extends FragmentActivity {
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
+        mSelectedConversation = ((BaseApplication)getApplicationContext()).getLastSelectedConversation();
     }
 
     @Override

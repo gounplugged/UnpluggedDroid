@@ -14,6 +14,7 @@ import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
@@ -81,5 +82,9 @@ public class BaseApplication extends Application {
         if(profile.areContactsSynced()) return;
         contacts = Contact.loadContacts(getApplicationContext());
         profile.setContactsSynced(true);
+    }
+
+    public Conversation getLastSelectedConversation() {
+        return Conversation.findById(getApplicationContext(), profile.getLastSelectedConversationId());
     }
 }
