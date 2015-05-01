@@ -18,6 +18,7 @@ import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidRecipientException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 
@@ -53,7 +54,11 @@ public class MessageInputFragment extends Fragment {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 // If the action is a key-up event on the return key, send the list_item_message_outgoing
                 if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-                    sendMessage();
+                    try {
+                        sendMessage();
+                    } catch (InvalidRecipientException e) {
+                        //TODO define behavior for when message composed without selecting a conversation
+                    }
                 }
                 return true;
             }
@@ -63,7 +68,7 @@ public class MessageInputFragment extends Fragment {
         return view;
     }
 
-    private void sendMessage() {
+    private void sendMessage() throws InvalidRecipientException {
         try {
             Conversation conversation = ((ChatActivity)getActivity()).getSelectedConversation();
             conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
