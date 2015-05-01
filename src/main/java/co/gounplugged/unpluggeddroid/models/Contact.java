@@ -14,6 +14,7 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 
 /*
 
@@ -95,5 +96,29 @@ public class Contact {
         }
 
         return contacts;
+    }
+
+    public static Contact getContact(Context context, String phoneNumber) throws NotFoundInDatabaseException {
+        try {
+            phoneNumber = PhoneNumberParser.parsePhoneNumber(phoneNumber);
+        } catch (InvalidPhoneNumberException e) {
+            e.printStackTrace();
+        }
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        Contact contact = contactAccess.getFirstString("phoneNumber", phoneNumber);
+        if (contact == null) throw new NotFoundInDatabaseException("Could not find a contact with that phone number");
+        return contact;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Throw))
+            return false;
+        if (obj == this)
+            return true;
+        Contact rhs = (Contact) obj;
+        Log.d(TAG, "Comparing Contact " + id + " against " + rhs.id);
+
+        return id == rhs.id;
     }
 }

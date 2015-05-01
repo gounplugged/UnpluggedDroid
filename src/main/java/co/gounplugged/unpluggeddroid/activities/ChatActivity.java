@@ -19,9 +19,11 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -55,20 +57,24 @@ public class ChatActivity extends FragmentActivity {
 
     SmsBroadcastReceiver smsBroadcastReceiver;
 
-    public Conversation getSelectedConversation() {
-        return mSelectedConversation;
-    }
-
-    private Conversation mSelectedConversation;
-
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
         @Override
         public void onConversationSelected(Conversation conversation) {
             Log.i(TAG, "onConversationSelected: " + conversation.toString());
-            mSelectedConversation = conversation;
+            setLastSelectedConversation(conversation);
             showDropZones();
         }
     };
+
+    public Conversation getLastSelectedConversation() throws NotFoundInDatabaseException {
+        long cid = ((BaseApplication)getApplicationContext()).getProfile().getLastSelectedConversationId();
+        Conversation conversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
+        return conversation;
+    }
+
+    private void setLastSelectedConversation(Conversation conversation) {
+        ((BaseApplication)getApplicationContext()).getProfile().setLastSavedConversationId(conversation.id);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,7 +178,12 @@ public class ChatActivity extends FragmentActivity {
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DROP:
                         Log.i(TAG, "Conversation dropped on mChatListView.");
-                        Collection<Message> messages = new ArrayList<>(mSelectedConversation.getMessages());
+                        Collection<Message> messages = null;
+                        try {
+                            messages = new ArrayList<>(getLastSelectedConversation().getMessages());
+                        } catch (NotFoundInDatabaseException e) {
+                            e.printStackTrace();
+                        }
                         mChatArrayAdapter.setMessages(new ArrayList<>(messages));
                         break;
                 }
@@ -219,14 +230,19 @@ public class ChatActivity extends FragmentActivity {
             Log.d(TAG, "Next message: " + nextMessage);
 
             if(!receivedThrow.hasArrived()) {
+                Log.d(TAG, "Throw again");
                 mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
             } else {
                 try {
-                    Contact participant = receivedThrow.getThrownFrom();
+                    Contact participant = receivedThrow.getThrownFrom(getApplicationContext());
+                    Log.d(TAG, "Chat for contact " + participant.id);
                     Conversation conversation = Conversation.findOrNew(participant, getApplicationContext(), mMessageHandler);
+                    Log.d(TAG, "Conversation for " + conversation.id);
                     conversation.receiveThrow(receivedThrow);
                 } catch (PrematureReadException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Premature");
+                } catch (NotFoundInDatabaseException e) {
+                    Log.e(TAG, "Contact not found");
                 }
             }
         } catch (InvalidPhoneNumberException e) {
@@ -237,7 +253,7 @@ public class ChatActivity extends FragmentActivity {
     public void addConversation(String participantPhoneNumber) {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getApplicationContext(), Contact.class);
         Contact contact = contactAccess.getFirstString("phoneNumber", participantPhoneNumber);
-        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
+        setLastSelectedConversation(Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler));
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
