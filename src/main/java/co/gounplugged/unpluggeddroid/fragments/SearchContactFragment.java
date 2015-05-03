@@ -27,27 +27,19 @@ import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 public class SearchContactFragment extends Fragment {
     private final static String TAG = "SearchContactFragment";
-//    private Button addConversationButton;
     private AutoCompleteTextView contactAutoComplete;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_search, container, false);
 
-//        // Submit Button
-//        addConversationButton  = (Button) view.findViewById(R.id.add_conversation_button);
-//        addConversationButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                addConversation();
-//            }
-//        });
-
         contactAutoComplete = (AutoCompleteTextView) view.findViewById(R.id.auto_complete_contacts);
         contactAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                TextView tv = (TextView) view;
+                RelativeLayout rl = (RelativeLayout) view;
+                TextView tv = (TextView) rl.findViewById(R.id.tv_name);
                 String name = tv.getText().toString();
                 String phoneNumbers[] = ContactUtil.getPhoneNumbersForContactName(getActivity().getApplicationContext(),
                         name);
@@ -70,15 +62,9 @@ public class SearchContactFragment extends Fragment {
 
         });
 
-        //TODO: run in bg
-        String contactNames[] = ContactUtil.getContactNames(getActivity().getApplicationContext());
-
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, contactNames);
+        List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
+        ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
         contactAutoComplete.setAdapter(adapter);
-
-
 
         return view;
     }

@@ -93,25 +93,6 @@ public class ChatActivity extends ActionBarActivity {
         smsBroadcastReceiver.setActivity(this);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
 
-        // Get the intent, verify the action and get the query
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            searchContacts(query);
-        }
-    }
-
-    private void searchContacts(String query) {
-
-    }
-
-
-    //TODO remove
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return super.onCreateOptionsMenu(menu);
-
     }
 
     @Override
@@ -148,11 +129,11 @@ public class ChatActivity extends ActionBarActivity {
     private void loadGui() {
 
         // Input/Search infinite-viewpager
+        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
+
         // It is only possible to achieve wrapping when you have at least 4 pages.
         // This is because of the way the ViewPager creates, destroys, and displays the pages.
         // No fix for the general case has been found.
-        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
-
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
