@@ -64,6 +64,8 @@ public class ChatActivity extends ActionBarActivity {
 
     SmsBroadcastReceiver smsBroadcastReceiver;
 
+    private Conversation mSelectedConversation;
+
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
         @Override
         public void onConversationSelected(Conversation conversation) {
