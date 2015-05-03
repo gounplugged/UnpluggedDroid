@@ -11,12 +11,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ConversationAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -61,7 +64,7 @@ public class ConversationContainer extends LinearLayout {
         mListeners.remove(listener);
     }
 
-    private void init(Context context) {
+    private void init(final Context context) {
         mListeners = new ArrayList<>(10);
 
         LayoutInflater.from(context).inflate(R.layout.conversation_container, this);
@@ -87,9 +90,9 @@ public class ConversationContainer extends LinearLayout {
                     listener.onConversationSelected(conversation);
                 }
 
-                //prepare for drag
                 CircleImageView mImageView = (CircleImageView) view.findViewById(R.id.conversation_icon);
 
+                //prepare for drag
                 ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
                 ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);

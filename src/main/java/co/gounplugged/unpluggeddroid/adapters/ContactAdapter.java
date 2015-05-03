@@ -45,7 +45,6 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
                         mSuggestions.add(contact);
                     }
                 }
-
                 filterResults.values = mSuggestions;
                 filterResults.count = mSuggestions.size();
                 return filterResults;
@@ -107,15 +106,11 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         TextView tvName = (TextView) convertView.findViewById(R.id.tv_name);
         tvName.setText(contact.getName());
 
-
         CircleImageView ivAvatar = (CircleImageView) convertView.findViewById(R.id.iv_avatar);
-
-        Uri uri = Uri.withAppendedPath(
-                ContactsContract.Contacts.CONTENT_LOOKUP_URI, contact.getLookupKey());
 
         // When using network requests we will probably have to use the no-fade option
         // https://github.com/hdodenhof/CircleImageView
-        Picasso.with(mContext).load(uri).into(ivAvatar);
+        Picasso.with(mContext).load(contact.getImageUri()).into(ivAvatar);
 
         return convertView;
     }

@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid.models;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
@@ -72,11 +73,9 @@ public class Contact {
         return name;
     }
 
-    public String getLookupKey() {
-        return mLookupKey;
-    }
-    public void setLookupKey(String lookupKey) {
-        this.mLookupKey = lookupKey;
+    public Uri getImageUri() {
+        return Uri.withAppendedPath(
+                ContactsContract.Contacts.CONTENT_LOOKUP_URI, mLookupKey);
     }
 
     public static List<Contact> loadContacts(Context context) {

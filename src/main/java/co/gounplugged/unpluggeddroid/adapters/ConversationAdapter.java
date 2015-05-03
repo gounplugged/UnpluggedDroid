@@ -6,10 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -53,8 +56,17 @@ public class ConversationAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.list_item_conversation, parent, false);
         }
 
-        if (convertView.getTag() == null)
-            convertView.setTag(new ViewHolder(convertView, conversation));
+        ViewHolder viewHolder;
+        if (convertView.getTag() == null) {
+            viewHolder = new ViewHolder(convertView, conversation);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        //Load avatar
+        Contact contact = conversation.getParticipant();
+        Picasso.with(mContext).load(contact.getImageUri()).into(viewHolder.mImageView);
 
         return convertView;
     }
