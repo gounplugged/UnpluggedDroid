@@ -1,24 +1,17 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-
-import com.pkmmte.view.CircularImageView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.events.ConversationEvent;
 import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
-import de.greenrobot.event.EventBus;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationAdapter extends BaseAdapter {
 
@@ -74,13 +67,13 @@ public class ConversationAdapter extends BaseAdapter {
     public static class ViewHolder {
 
         private final Conversation mConversation;
-        private final CircularImageView mImageView;
+        private final CircleImageView mImageView;
 
         public ViewHolder(View v, Conversation conversation) {
 
             mConversation = conversation;
 
-            mImageView = (CircularImageView) v.findViewById(R.id.conversation_icon);
+            mImageView = (CircleImageView) v.findViewById(R.id.conversation_icon);
             mImageView.setTag(String.valueOf(conversation.id));
         }
 

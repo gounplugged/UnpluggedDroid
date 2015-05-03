@@ -3,6 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+
+        />
+
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"
@@ -10,16 +20,9 @@
         android:textAppearance="?android:attr/textAppearanceListItem"
         android:text="This is an example text."
         android:layout_centerVertical="true"
-        android:paddingTop="16dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="24dp"
+        android:paddingLeft="72dp"
         android:paddingRight="16dp"/>
-
-
-    <ImageView
-        android:id="@+id/iv_avatar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="centerCrop"/>
 
 </RelativeLayout>

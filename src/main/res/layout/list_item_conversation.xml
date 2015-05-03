@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="#fff">
 
-    <com.pkmmte.view.CircularImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/conversation_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
