@@ -1,15 +1,17 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
 import android.content.Context;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.NetworkImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,10 +104,15 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         }
 
 
-        NetworkImageView networkImageView = (NetworkImageView) convertView.findViewById(R.id.niv_avatar);
 
         TextView tvName = (TextView) convertView.findViewById(R.id.tv_name);
         tvName.setText(contact.getName());
+
+        ImageView ivAvatar = (ImageView) convertView.findViewById(R.id.iv_avatar);
+
+        Uri uri = Uri.withAppendedPath(
+                ContactsContract.Contacts.CONTENT_LOOKUP_URI, contact.getLookupKey());
+        Picasso.with(mContext).load(uri).into(ivAvatar);
 
         return convertView;
     }

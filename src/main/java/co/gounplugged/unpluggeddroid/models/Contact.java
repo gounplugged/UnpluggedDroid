@@ -32,15 +32,12 @@ public class Contact {
 
     @DatabaseField
     private String countryCode;
-    public String getCountryCode() {
-        return countryCode;
-    }
 
     @DatabaseField
     private String name;
-    public String getName() {
-        return name;
-    }
+
+    @DatabaseField
+    private String mLookupKey;
 
     public Contact() {
         // all persisted classes must define a no-arg constructor with at least package visibility
@@ -49,6 +46,13 @@ public class Contact {
     public Contact(String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
         this.phoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
         this.countryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
+        this.name = name;;
+    }
+
+    public Contact(String name, String fullPhoneNumber, String lookupKey) throws InvalidPhoneNumberException {
+        this.phoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
+        this.countryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
+        this.mLookupKey = lookupKey;
         this.name = name;
     }
 
@@ -58,6 +62,21 @@ public class Contact {
 
     public String getFullNumber() {
         return countryCode + phoneNumber;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLookupKey() {
+        return mLookupKey;
+    }
+    public void setLookupKey(String lookupKey) {
+        this.mLookupKey = lookupKey;
     }
 
     public static List<Contact> loadContacts(Context context) {
@@ -71,6 +90,7 @@ public class Contact {
             while (cur.moveToNext()) {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                String lookupKey = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
                 if (Integer.parseInt(cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                     Cursor pCur = cr.query(
@@ -82,7 +102,7 @@ public class Contact {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         Contact c = null;
                         try {
-                            c = new Contact(name, phoneNo);
+                            c = new Contact(name, phoneNo, lookupKey);
                             Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo);
                             contacts.add(c);
                             contactAccess.create(c);
