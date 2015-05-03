@@ -258,10 +258,10 @@ public class ChatActivity extends ActionBarActivity {
         }
     }
 
-    public void addConversation(String participantPhoneNumber) {
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getApplicationContext(), Contact.class);
-        Contact contact = contactAccess.getFirstString("phoneNumber", participantPhoneNumber);
-        setLastSelectedConversation(Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler));
+
+    public void addConversation(Contact contact) {
+        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
+        mConversationContainer.addConversation(mSelectedConversation);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

@@ -3,25 +3,17 @@ package co.gounplugged.unpluggeddroid.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
@@ -34,45 +26,30 @@ public class SearchContactFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contact_search, container, false);
 
         contactAutoComplete = (AutoCompleteTextView) view.findViewById(R.id.auto_complete_contacts);
+
+        List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
+        final ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
+
+        contactAutoComplete.setAdapter(adapter);
+
         contactAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                RelativeLayout rl = (RelativeLayout) view;
-                TextView tv = (TextView) rl.findViewById(R.id.tv_name);
-                String name = tv.getText().toString();
-                String phoneNumbers[] = ContactUtil.getPhoneNumbersForContactName(getActivity().getApplicationContext(),
-                        name);
 
-                if (phoneNumbers == null)
-                    return;
-
-                String phoneNumber = null;
-
-                if (phoneNumbers.length > 1) {
-                    //TODO: let user decicde which number to use..
-                    phoneNumber = phoneNumbers[0];
-                } else {
-                    phoneNumber = phoneNumbers[0];
-                }
-
-
-                addConversation(phoneNumber);
+                Contact contact = adapter.getItem(pos);
+                addConversation(contact);
             }
 
         });
-
-        List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
-        ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
-        contactAutoComplete.setAdapter(adapter);
 
         return view;
     }
 
 
 
-    private void addConversation(String phoneNr) {
-        ((ChatActivity)getActivity()).addConversation(phoneNr);
+    private void addConversation(Contact contact) {
+        ((ChatActivity)getActivity()).addConversation(contact);
         contactAutoComplete.setText("");
     }
 }

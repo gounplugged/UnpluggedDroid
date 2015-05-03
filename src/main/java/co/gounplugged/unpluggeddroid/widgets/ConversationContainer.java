@@ -25,6 +25,7 @@ public class ConversationContainer extends LinearLayout {
     private ListView mConversationsListView;
     private List<Conversation> mConversations;
     private List<ConversationListener> mListeners;
+    private ConversationAdapter mAdapter;
 
     //transfers events from conversation-adapter to chat-activity
     private ConversationListener adapterListener = new ConversationListener() {
@@ -71,9 +72,9 @@ public class ConversationContainer extends LinearLayout {
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         mConversations = conversationAccess.getAll();
 
-        ConversationAdapter adapter = new ConversationAdapter(context, mConversations);
+        mAdapter = new ConversationAdapter(context, mConversations);
 
-        mConversationsListView.setAdapter(adapter);
+        mConversationsListView.setAdapter(mAdapter);
 
         mConversationsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -100,6 +101,10 @@ public class ConversationContainer extends LinearLayout {
             }
         });
 
+    }
+
+    public void addConversation(Conversation conversation) {
+        mAdapter.addConversation(conversation);
     }
 
 
