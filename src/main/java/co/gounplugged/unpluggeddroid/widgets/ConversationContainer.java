@@ -10,9 +10,8 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.pkmmte.view.CircularImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +19,16 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ConversationAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationContainer extends LinearLayout {
 
     private ListView mConversationsListView;
     private List<Conversation> mConversations;
     private List<ConversationListener> mListeners;
+    private ConversationAdapter mAdapter;
 
     //transfers events from conversation-adapter to chat-activity
     private ConversationListener adapterListener = new ConversationListener() {
@@ -62,7 +64,7 @@ public class ConversationContainer extends LinearLayout {
         mListeners.remove(listener);
     }
 
-    private void init(Context context) {
+    private void init(final Context context) {
         mListeners = new ArrayList<>(10);
 
         LayoutInflater.from(context).inflate(R.layout.conversation_container, this);
@@ -73,9 +75,9 @@ public class ConversationContainer extends LinearLayout {
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         mConversations = conversationAccess.getAll();
 
-        ConversationAdapter adapter = new ConversationAdapter(context, mConversations);
+        mAdapter = new ConversationAdapter(context, mConversations);
 
-        mConversationsListView.setAdapter(adapter);
+        mConversationsListView.setAdapter(mAdapter);
 
         mConversationsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -88,9 +90,9 @@ public class ConversationContainer extends LinearLayout {
                     listener.onConversationSelected(conversation);
                 }
 
-                //prepare for drag
-                ImageView mImageView = (CircularImageView) view.findViewById(R.id.conversation_icon);
+                CircleImageView mImageView = (CircleImageView) view.findViewById(R.id.conversation_icon);
 
+                //prepare for drag
                 ClipData.Item item = new ClipData.Item((CharSequence)mImageView.getTag());
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
                 ClipData dragData = new ClipData(mImageView.getTag().toString(), mimeTypes, item);
@@ -102,6 +104,10 @@ public class ConversationContainer extends LinearLayout {
             }
         });
 
+    }
+
+    public void addConversation(Conversation conversation) {
+        mAdapter.addConversation(conversation);
     }
 
 

@@ -14,10 +14,11 @@ repositories {
 
 dependencies {
     compile 'com.j256.ormlite:ormlite-android:4.48'
-    compile 'com.pkmmte.view:circularimageview:1.1'
+    compile 'de.hdodenhof:circleimageview:1.2.2'
     compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.mcxiaoke.volley:library:1.0.15'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:1.9.5"
 }

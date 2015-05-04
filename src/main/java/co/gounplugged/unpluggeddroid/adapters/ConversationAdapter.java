@@ -1,24 +1,20 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.pkmmte.view.CircularImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.events.ConversationEvent;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
-import de.greenrobot.event.EventBus;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationAdapter extends BaseAdapter {
 
@@ -60,8 +56,17 @@ public class ConversationAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.list_item_conversation, parent, false);
         }
 
-        if (convertView.getTag() == null)
-            convertView.setTag(new ViewHolder(convertView, conversation));
+        ViewHolder viewHolder;
+        if (convertView.getTag() == null) {
+            viewHolder = new ViewHolder(convertView, conversation);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        //Load avatar
+        Contact contact = conversation.getParticipant();
+        Picasso.with(mContext).load(contact.getImageUri()).into(viewHolder.mImageView);
 
         return convertView;
     }
@@ -74,13 +79,13 @@ public class ConversationAdapter extends BaseAdapter {
     public static class ViewHolder {
 
         private final Conversation mConversation;
-        private final CircularImageView mImageView;
+        private final CircleImageView mImageView;
 
         public ViewHolder(View v, Conversation conversation) {
 
             mConversation = conversation;
 
-            mImageView = (CircularImageView) v.findViewById(R.id.conversation_icon);
+            mImageView = (CircleImageView) v.findViewById(R.id.conversation_icon);
             mImageView.setTag(String.valueOf(conversation.id));
         }
 

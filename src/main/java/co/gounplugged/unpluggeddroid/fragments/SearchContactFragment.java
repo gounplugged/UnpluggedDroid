@@ -3,41 +3,53 @@ package co.gounplugged.unpluggeddroid.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+
+import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 public class SearchContactFragment extends Fragment {
     private final static String TAG = "SearchContactFragment";
-    private Button addConversationButton;
-    private EditText contactSearch;
+    private AutoCompleteTextView contactAutoComplete;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_search, container, false);
 
-        // Submit Button
-        addConversationButton  = (Button) view.findViewById(R.id.add_conversation_button);
-        addConversationButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                addConversation();
+        contactAutoComplete = (AutoCompleteTextView) view.findViewById(R.id.auto_complete_contacts);
+
+        List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
+        final ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
+
+        contactAutoComplete.setAdapter(adapter);
+
+        contactAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+
+                Contact contact = adapter.getItem(pos);
+                addConversation(contact);
             }
+
         });
 
-        contactSearch = (EditText) view.findViewById(R.id.search_contact_text);
         return view;
     }
 
-    private void addConversation() {
-        ((ChatActivity)getActivity()).addConversation(contactSearch.getText().toString());
-        contactSearch.setText("");
+
+
+    private void addConversation(Contact contact) {
+        ((ChatActivity)getActivity()).addConversation(contact);
+        contactAutoComplete.setText("");
     }
 }

@@ -1,25 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="co.gounplugged.unpluggeddroid.activities.ChatActivity" >
-
-    <item
-        android:id="@+id/action_connection_status"
-        android:orderInCategory="100"
-        android:title="@string/connection_status"
-        android:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/action_refresh"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_action_refresh"
-        android:title="Refresh"
-        android:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        />
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
 </menu>

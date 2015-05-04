@@ -18,7 +18,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name=".application.BaseApplication"
         >
 
         <activity
@@ -32,9 +31,8 @@
         </activity>
 
         <activity
-                android:name=".activities.ChatActivity"
-                android:theme="@style/AppTheme"
-                android:configChanges="orientation|screenSize">
+            android:name=".activities.ChatActivity"
+            android:configChanges="orientation|screenSize">
         </activity>
 
     </application>

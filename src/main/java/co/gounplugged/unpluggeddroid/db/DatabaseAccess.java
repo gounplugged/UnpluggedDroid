@@ -105,6 +105,18 @@ public class DatabaseAccess<T> {
         return null;
     }
 
+    public List<T> getAllByColumnValue(String columnName, String value) {
+        try {
+            QueryBuilder<T, Long> qb = mDao.queryBuilder();
+            qb.where().eq(columnName, value);
+            PreparedQuery<T> pq = qb.prepare();
+            return mDao.queryForEq(columnName, value);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public int deleteAll() {
         try {
             DeleteBuilder<T, Long> db = mDao.deleteBuilder();

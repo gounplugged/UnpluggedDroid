@@ -1,14 +1,21 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -37,7 +44,7 @@ import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdap
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
 
 
-public class ChatActivity extends FragmentActivity {
+public class ChatActivity extends ActionBarActivity {
 	// Debug
 	private final String TAG = "ChatActivity";
 	
@@ -56,6 +63,8 @@ public class ChatActivity extends FragmentActivity {
     private MessageHandler mMessageHandler;
 
     SmsBroadcastReceiver smsBroadcastReceiver;
+
+    private Conversation mSelectedConversation;
 
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
         @Override
@@ -85,6 +94,7 @@ public class ChatActivity extends FragmentActivity {
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
+
     }
 
     @Override
@@ -121,11 +131,11 @@ public class ChatActivity extends FragmentActivity {
     private void loadGui() {
 
         // Input/Search infinite-viewpager
+        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
+
         // It is only possible to achieve wrapping when you have at least 4 pages.
         // This is because of the way the ViewPager creates, destroys, and displays the pages.
         // No fix for the general case has been found.
-        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
-
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
@@ -250,10 +260,10 @@ public class ChatActivity extends FragmentActivity {
         }
     }
 
-    public void addConversation(String participantPhoneNumber) {
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(getApplicationContext(), Contact.class);
-        Contact contact = contactAccess.getFirstString("phoneNumber", participantPhoneNumber);
-        setLastSelectedConversation(Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler));
+
+    public void addConversation(Contact contact) {
+        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
+        mConversationContainer.addConversation(mSelectedConversation);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
