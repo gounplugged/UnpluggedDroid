@@ -74,6 +74,7 @@ public class Profile {
         smsPlan = profileSharedPreferences.getInt(SMS_PLAN_PREFERENCE_NAME, SMS_DEFAULT);
         phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, null);
         contactsSynced = profileSharedPreferences.getBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, false);
+        lastSelectedConversationId = profileSharedPreferences.getLong(LAST_SELECTED_CONVERSATION_ID, 0);
     }
 
     public String getCountryCodeFilter() {
@@ -94,7 +95,7 @@ public class Profile {
         return lastSelectedConversationId;
     }
 
-    public void setLastSavedConversationId(long conversationId) {
+    public void setLastSelectedConversationId(long conversationId) {
         Log.d(TAG, "Setting conversation to " + conversationId);
         this.lastSelectedConversationId = conversationId;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
