@@ -265,8 +265,12 @@ public class ChatActivity extends ActionBarActivity {
 
 
     public void addConversation(Contact contact) {
-        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
-        mConversationContainer.addConversation(mSelectedConversation);
+        try {
+            mSelectedConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
+        } catch (NotFoundInDatabaseException e) {
+            mSelectedConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
+            mConversationContainer.addConversation(mSelectedConversation);
+        }
         setLastSelectedConversation(mSelectedConversation);
     }
 
