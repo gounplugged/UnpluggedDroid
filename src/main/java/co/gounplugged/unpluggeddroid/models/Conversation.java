@@ -133,10 +133,11 @@ public class Conversation {
                 .append("\n")
                 .append("id: " + id)
                 .append("\n");
-
-        for (Message message : messages) {
-            builder.append(message.toString())
-                    .append("\n");
+        if (messages != null && !messages.isEmpty()) {
+            for (Message message : messages) {
+                builder.append(message.toString())
+                        .append("\n");
+            }
         }
 
         builder.append("}");

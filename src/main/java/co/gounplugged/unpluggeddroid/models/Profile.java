@@ -90,12 +90,12 @@ public class Profile {
         }
     }
 
-    public long getLastSelectedConversationId() {
+    public long getLastConversationId() {
         Log.d(TAG, "Getting conversation " + lastSelectedConversationId);
         return lastSelectedConversationId;
     }
 
-    public void setLastSelectedConversationId(long conversationId) {
+    public void setLastConversationId(long conversationId) {
         Log.d(TAG, "Setting conversation to " + conversationId);
         this.lastSelectedConversationId = conversationId;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
