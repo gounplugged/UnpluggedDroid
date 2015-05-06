@@ -6,14 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationAdapter extends BaseAdapter {
@@ -27,11 +26,10 @@ public class ConversationAdapter extends BaseAdapter {
         this.mContext = context;
         this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (conversationList == null)
-            this.mConversations = new ArrayList<Conversation>();
+            this.mConversations = new ArrayList<>();
         else
             this.mConversations = conversationList;
     }
-
 
     @Override
     public int getCount() {
@@ -66,7 +64,7 @@ public class ConversationAdapter extends BaseAdapter {
 
         //Load avatar
         Contact contact = conversation.getParticipant();
-        Picasso.with(mContext).load(contact.getImageUri()).into(viewHolder.mImageView);
+        ImageUtil.loadContactImage(mContext, contact, viewHolder.mImageView);
 
         return convertView;
     }

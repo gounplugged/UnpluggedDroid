@@ -7,11 +7,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +16,6 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ConversationAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -33,9 +29,9 @@ public class ConversationContainer extends LinearLayout {
     //transfers events from conversation-adapter to chat-activity
     private ConversationListener adapterListener = new ConversationListener() {
         @Override
-        public void onConversationSelected(Conversation conversation) {
+        public void onConversationClicked(Conversation conversation) {
             for (ConversationListener listener : mListeners) {
-                listener.onConversationSelected(conversation);
+                listener.onConversationClicked(conversation);
             }
         }
     };
@@ -87,7 +83,7 @@ public class ConversationContainer extends LinearLayout {
                 ConversationAdapter.ViewHolder holder = ((ConversationAdapter.ViewHolder)view.getTag());
                 Conversation conversation = holder.getConversation();
                 for (ConversationListener listener : mListeners) {
-                    listener.onConversationSelected(conversation);
+                    listener.onConversationClicked(conversation);
                 }
 
                 CircleImageView mImageView = (CircleImageView) view.findViewById(R.id.conversation_icon);
@@ -112,7 +108,7 @@ public class ConversationContainer extends LinearLayout {
 
 
     public interface ConversationListener {
-        public void onConversationSelected(Conversation conversation);
+        public void onConversationClicked(Conversation conversation);
     }
 
 

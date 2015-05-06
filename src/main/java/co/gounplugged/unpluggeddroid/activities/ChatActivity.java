@@ -1,21 +1,14 @@
 package co.gounplugged.unpluggeddroid.activities;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.DragEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -65,27 +58,29 @@ public class ChatActivity extends ActionBarActivity {
     SmsBroadcastReceiver smsBroadcastReceiver;
 
     private Conversation mSelectedConversation;
+    private Conversation mClickedConversation;  //TODO refactor global var
 
     private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
+
+        //TODO: clear distinction / proper naming for selecting a conversation and switching to conversation
         @Override
-        public void onConversationSelected(Conversation conversation) {
-            Log.i(TAG, "onConversationSelected: " + conversation.toString());
-            setLastSelectedConversation(conversation);
+        public void onConversationClicked(Conversation conversation) {
+            Log.i(TAG, "onConversationClicked: " + conversation.toString());
+            mClickedConversation = conversation;
             showDropZones();
         }
     };
 
     public Conversation getLastSelectedConversation() throws NotFoundInDatabaseException {
         if(mSelectedConversation == null) {
-            long cid = ((BaseApplication) getApplicationContext()).getProfile().getLastSelectedConversationId();
+            long cid = ((BaseApplication) getApplicationContext()).getProfile().getLastConversationId();
             mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
         }
         return mSelectedConversation;
     }
 
-    private void setLastSelectedConversation(Conversation conversation) {
-        mSelectedConversation = conversation;
-        ((BaseApplication)getApplicationContext()).getProfile().setLastSelectedConversationId(conversation.id);
+    private void setLastConversation() {
+        ((BaseApplication)getApplicationContext()).getProfile().setLastConversationId(mSelectedConversation.id);
     }
 
     @Override
@@ -191,6 +186,8 @@ public class ChatActivity extends ActionBarActivity {
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DROP:
                         Log.i(TAG, "Conversation dropped on mChatListView.");
+                        mSelectedConversation = mClickedConversation;
+                        setLastConversation();
                         Collection<Message> messages = null;
                         try {
                             messages = new ArrayList<>(getLastSelectedConversation().getMessages());
@@ -271,7 +268,7 @@ public class ChatActivity extends ActionBarActivity {
             mSelectedConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
             mConversationContainer.addConversation(mSelectedConversation);
         }
-        setLastSelectedConversation(mSelectedConversation);
+        setLastConversation();
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
