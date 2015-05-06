@@ -1,23 +1,19 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
 import android.content.Context;
-import android.net.Uri;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ContactAdapter extends ArrayAdapter<Contact> {
@@ -110,9 +106,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
 
         CircleImageView ivAvatar = (CircleImageView) convertView.findViewById(R.id.iv_avatar);
 
-        // When using network requests we will probably have to use the no-fade option
-        // https://github.com/hdodenhof/CircleImageView
-        Picasso.with(mContext).load(contact.getImageUri()).into(ivAvatar);
+        ImageUtil.loadContactImage(mContext, contact, ivAvatar);
 
         return convertView;
     }
