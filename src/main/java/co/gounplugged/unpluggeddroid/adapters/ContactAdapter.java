@@ -25,6 +25,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
     private Context mContext;
     private LayoutInflater mInflater;
     private List<Contact> mContacts;
+    private List<Contact> mContactsClone;
     private List<Contact> mSuggestions;
 
     private Filter mFilter = new Filter() {
@@ -40,7 +41,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
             FilterResults filterResults = new FilterResults();
             if(constraint != null) {
                 mSuggestions.clear();
-                for (Contact contact : mContacts) {
+                for (Contact contact : mContactsClone) {
                     if(contact.getName().toLowerCase().startsWith(constraint.toString().toLowerCase())){
                         mSuggestions.add(contact);
                     }
@@ -71,6 +72,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         this.mContext = context;
         this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.mContacts = contacts;
+        this.mContactsClone = new ArrayList<>(contacts);
         this.mSuggestions = new ArrayList<>();
     }
 
