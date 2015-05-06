@@ -131,7 +131,7 @@ public class Contact {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Throw))
+        if (!(obj instanceof Contact))
             return false;
         if (obj == this)
             return true;

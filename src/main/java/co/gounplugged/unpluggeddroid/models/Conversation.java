@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.stmt.query.Not;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Collection;
@@ -41,8 +42,17 @@ public class Conversation {
         participant = null;
         messageHandler = null;
     }
-    public Conversation(Contact participant) {
+
+    public Conversation(Contact participant, MessageHandler messageHandler) {
         this.participant = participant;
+        this.messageHandler = messageHandler;
+    }
+
+    public static Conversation createConversation(Contact participant, Context context, MessageHandler messageHandler) {
+        Conversation conversation = new Conversation(participant, messageHandler);
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
+        conversationAccess.create(conversation);
+        return conversation;
     }
 
     public Collection<Message> getMessages() {
@@ -78,24 +88,29 @@ public class Conversation {
         messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
     }
 
-    public static Conversation findOrNew(Contact participant, Context context, MessageHandler messageHandler) {
+    public static Conversation findOrNew(Contact participant, Context context, MessageHandler messageHandler) throws NotFoundInDatabaseException {
         if(participant == null) {
-            Log.d(TAG, "NOTHING FOUND");
-            return null;
-        } else {
-            Log.d(TAG, "Found contact " + participant.getName());
-            DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
-            for(Conversation conversation : conversationAccess.getAll()) {
-                if(conversation.getParticipant().equals(participant)) {
-                    conversation.setMessageHandler(messageHandler);
-                    return conversation;
-                }
-            }
-            Conversation conversation = new Conversation(participant);
-            conversationAccess.create(conversation);
-            conversation.setMessageHandler(messageHandler);
-            return conversation;
+            // TODO
+        } try {
+            return findByParticipant(participant, context, messageHandler);
+        } catch (NotFoundInDatabaseException e) {
+            return createConversation(participant, context, messageHandler);
         }
+    }
+
+    public static Conversation findByParticipant(Contact participant, Context context, MessageHandler messageHandler) throws NotFoundInDatabaseException {
+        if(participant == null) {
+            // TODO
+        }
+        Log.d(TAG, "Searching for convo with" + participant.getName());
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
+        for(Conversation conversation : conversationAccess.getAll()) {
+            if(conversation.getParticipant().equals(participant)) {
+                conversation.setMessageHandler(messageHandler);
+                return conversation;
+            }
+        }
+        throw new NotFoundInDatabaseException("No existing conversations with this contact");
     }
 
     public static Conversation findById(Context context, long conversationId, MessageHandler messageHandler) throws NotFoundInDatabaseException {

@@ -76,13 +76,16 @@ public class ChatActivity extends ActionBarActivity {
     };
 
     public Conversation getLastSelectedConversation() throws NotFoundInDatabaseException {
-        long cid = ((BaseApplication)getApplicationContext()).getProfile().getLastSelectedConversationId();
-        Conversation conversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
-        return conversation;
+        if(mSelectedConversation == null) {
+            long cid = ((BaseApplication) getApplicationContext()).getProfile().getLastSelectedConversationId();
+            mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
+        }
+        return mSelectedConversation;
     }
 
     private void setLastSelectedConversation(Conversation conversation) {
-        ((BaseApplication)getApplicationContext()).getProfile().setLastSavedConversationId(conversation.id);
+        mSelectedConversation = conversation;
+        ((BaseApplication)getApplicationContext()).getProfile().setLastSelectedConversationId(conversation.id);
     }
 
     @Override
@@ -262,8 +265,13 @@ public class ChatActivity extends ActionBarActivity {
 
 
     public void addConversation(Contact contact) {
-        mSelectedConversation = Conversation.findOrNew(contact, getApplicationContext(), mMessageHandler);
-        mConversationContainer.addConversation(mSelectedConversation);
+        try {
+            mSelectedConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
+        } catch (NotFoundInDatabaseException e) {
+            mSelectedConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
+            mConversationContainer.addConversation(mSelectedConversation);
+        }
+        setLastSelectedConversation(mSelectedConversation);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
