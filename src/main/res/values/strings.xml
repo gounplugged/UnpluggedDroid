@@ -17,5 +17,9 @@
         <item>Unlimited International</item>
         <item>Limited</item>
     </string-array>
+    <string name="title_activity_notifications">NotificationsActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>
