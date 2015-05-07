@@ -106,6 +106,11 @@ public class ConversationContainer extends LinearLayout {
         mAdapter.addConversation(conversation);
     }
 
+    public void removeConversation(Conversation conversation) {
+        mAdapter.removeConversation(conversation);
+    }
+
+
 
     public interface ConversationListener {
         public void onConversationClicked(Conversation conversation);

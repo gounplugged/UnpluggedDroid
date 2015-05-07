@@ -74,6 +74,11 @@ public class ConversationAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void removeConversation(Conversation conversation) {
+        mConversations.remove(conversation);
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder {
 
         private final Conversation mConversation;

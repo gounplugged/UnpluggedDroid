@@ -48,8 +48,6 @@ public class SearchContactFragment extends Fragment {
         return view;
     }
 
-
-
     private void addConversation(Contact contact) {
         ((ChatActivity)getActivity()).addConversation(contact);
         contactAutoComplete.setText("");

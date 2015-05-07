@@ -34,19 +34,19 @@ public class ProfileActivity extends Activity {
         setupSmsPlan();
         submitButton = (Button) findViewById(R.id.submit_phone_number_activity_profile);
 
-
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setPhoneNumber();
                 setSmsPlan();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
-                Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
+                Intent mainIntent = new Intent(ProfileActivity.this, SettingsActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
             }
         });
     }
+
 
     private void setSmsPlan() {
         int selectedId = (int) smsPlanSpinner.getSelectedItemId();
