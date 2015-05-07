@@ -8,6 +8,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.stmt.query.Not;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
@@ -144,5 +145,17 @@ public class Conversation {
         builder.append("\n");
 
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Conversation))
+            return false;
+        if (obj == this)
+            return true;
+        Conversation rhs = (Conversation) obj;
+        Log.d(TAG, "Comparing Conversation " + id + " against " + rhs.id);
+
+        return id == rhs.id;
     }
 }

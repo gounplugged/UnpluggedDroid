@@ -186,15 +186,7 @@ public class ChatActivity extends ActionBarActivity {
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DROP:
                         Log.i(TAG, "Conversation dropped on mChatListView.");
-                        mSelectedConversation = mClickedConversation;
-                        setLastConversation();
-                        Collection<Message> messages = null;
-                        try {
-                            messages = new ArrayList<>(getLastSelectedConversation().getMessages());
-                        } catch (NotFoundInDatabaseException e) {
-                            e.printStackTrace();
-                        }
-                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
+                        replaceSelectedConversation(mClickedConversation);
                         break;
                 }
                 return true;
@@ -216,6 +208,21 @@ public class ChatActivity extends ActionBarActivity {
         mChatArrayAdapter.setMessages(messages);
 
     }
+
+    private void replaceSelectedConversation(Conversation newConversation) {
+        if(newConversation == null) return;
+        if(mSelectedConversation != null) mConversationContainer.addConversation(mSelectedConversation);
+
+        mConversationContainer.removeConversation(newConversation);
+        mSelectedConversation = newConversation;
+        setLastConversation();
+
+        Collection<Message> messages = mSelectedConversation.getMessages();
+        ArrayList messageList = new ArrayList();
+        if(messages != null) messageList = new ArrayList<>(messages);
+        mChatArrayAdapter.setMessages(messageList);
+    }
+
 
     private void showDropZones() {
         mImageViewDropZoneChats.setVisibility(View.VISIBLE);
@@ -262,13 +269,18 @@ public class ChatActivity extends ActionBarActivity {
 
 
     public void addConversation(Contact contact) {
+        Conversation newConversation;
+        boolean conversationChanged = false;
+
         try {
-            mSelectedConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
-        } catch (NotFoundInDatabaseException e) {
-            mSelectedConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
-            mConversationContainer.addConversation(mSelectedConversation);
+            newConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
+            if(!mSelectedConversation.equals(newConversation)) conversationChanged = true;
+        } catch(NotFoundInDatabaseException e) {
+            newConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
+            conversationChanged = true;
         }
-        setLastConversation();
+
+        if(conversationChanged) replaceSelectedConversation(newConversation);
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
