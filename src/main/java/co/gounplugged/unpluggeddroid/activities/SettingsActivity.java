@@ -1,9 +1,12 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import co.gounplugged.unpluggeddroid.R;
 
@@ -13,8 +16,37 @@ public class SettingsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-    }
 
+        TextView profileOption = (TextView) findViewById(R.id.text_profile_settings_activity);
+        profileOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(SettingsActivity.this, ProfileActivity.class);
+                SettingsActivity.this.startActivity(mainIntent);
+                SettingsActivity.this.finish();
+            }
+        });
+
+        TextView notificationsOption= (TextView) findViewById(R.id.text_notifications_settings_activity);
+        notificationsOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(SettingsActivity.this, NotificationsActivity.class);
+                SettingsActivity.this.startActivity(mainIntent);
+                SettingsActivity.this.finish();
+            }
+        });
+
+        TextView chatOption= (TextView) findViewById(R.id.option_chat_settings_activity);
+        chatOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(SettingsActivity.this, ChatActivity.class);
+                SettingsActivity.this.startActivity(mainIntent);
+                SettingsActivity.this.finish();
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

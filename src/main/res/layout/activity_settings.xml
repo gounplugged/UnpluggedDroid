@@ -18,16 +18,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
-            android:id="@+id/title_profile_settings_activity"
+            android:text="@string/option_profile_activity_settings"
+            android:id="@+id/text_profile_settings_activity"
             android:layout_gravity="center_horizontal" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
-            android:id="@+id/title_notifications_settings_activity"
+            android:text="@string/option_notifications_activity_settings"
+            android:id="@+id/text_notifications_settings_activity"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/option_chat_activity_settings"
+            android:id="@+id/option_chat_settings_activity"
             android:layout_gravity="center_horizontal" />
     </LinearLayout>
 

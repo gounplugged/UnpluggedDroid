@@ -1,9 +1,12 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import co.gounplugged.unpluggeddroid.R;
 
@@ -14,6 +17,16 @@ public class NotificationsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
+
+        TextView profileOption = (TextView) findViewById(R.id.button_save_notifications_activity);
+        profileOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(NotificationsActivity.this, SettingsActivity.class);
+                NotificationsActivity.this.startActivity(mainIntent);
+                NotificationsActivity.this.finish();
+            }
+        });
     }
 
 

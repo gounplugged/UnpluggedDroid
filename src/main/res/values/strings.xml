@@ -21,5 +21,10 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="option_vibrate_activity_notifications">Vibrate?</string>
+    <string name="option_sound_activity_notifications">Sound</string>
+    <string name="option_notifications_activity_settings">Notifications</string>
+    <string name="option_profile_activity_settings">Profile</string>
+    <string name="option_chat_activity_settings">Back to chat</string>
 
 </resources>

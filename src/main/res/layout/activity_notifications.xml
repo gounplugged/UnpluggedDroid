@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/title_vibration_notificaitons_activity"
+        android:text="@string/option_vibrate_activity_notifications"
+        android:id="@+id/text_vibration_notificaitons_activity"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -29,8 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/title_sound_notifications_activity"
+        android:text="@string/option_sound_activity_notifications"
+        android:id="@+id/text_sound_notifications_activity"
         android:layout_below="@+id/check_notifications_activity"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/spinner_notifications_activity"
-        android:layout_alignTop="@+id/title_sound_notifications_activity"
+        android:layout_alignTop="@+id/text_sound_notifications_activity"
         android:layout_alignLeft="@+id/check_notifications_activity"
         android:layout_alignStart="@+id/check_notifications_activity" />
 
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Button"
-        android:id="@+id/save_notifications_activity"
+        android:id="@+id/button_save_notifications_activity"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
