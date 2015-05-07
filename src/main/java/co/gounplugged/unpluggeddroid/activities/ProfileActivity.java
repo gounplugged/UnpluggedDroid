@@ -47,6 +47,7 @@ public class ProfileActivity extends Activity {
         });
     }
 
+
     private void setSmsPlan() {
         int selectedId = (int) smsPlanSpinner.getSelectedItemId();
         profile.setSmsPlan(selectedId);

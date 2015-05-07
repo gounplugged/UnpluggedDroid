@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.models.Profile;
 
 public class SplashActivity extends Activity {
     /** Duration of wait **/
@@ -22,10 +24,23 @@ public class SplashActivity extends Activity {
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {
-                /* Create an Intent that will start the ChatActivity. */
-                Intent mainIntent = new Intent(SplashActivity.this, ProfileActivity.class);
-                SplashActivity.this.startActivity(mainIntent);
-                SplashActivity.this.finish();
+                // Take user to new Activity depending on state of Application.
+                int applicationState = ((BaseApplication) getApplicationContext()).getProfile().getApplicationState();
+                switch (applicationState) {
+                    // Go to ProfileActivity in order to be able to send messages
+                    case Profile.APPLICATION_STATE_UNINITALIZED:
+                        Intent profileIntent = new Intent(SplashActivity.this, ProfileActivity.class);
+                        SplashActivity.this.startActivity(profileIntent);
+                        SplashActivity.this.finish();
+                        break;
+                    // Use saved settings and go to ChatActivity
+                    case Profile.APPLICATION_STATE_INITALIZED:
+                        Intent chatIntent = new Intent(SplashActivity.this, ChatActivity.class);
+                        SplashActivity.this.startActivity(chatIntent);
+                        SplashActivity.this.finish();
+                        break;
+                }
+
             }
         }, SPLASH_DISPLAY_LENGTH);
     }
