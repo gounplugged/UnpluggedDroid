@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 
@@ -35,7 +36,8 @@ public class Throw {
     /*
         Use when receiving a message from someone else
      */
-    public Throw(String encryptedContent) throws InvalidPhoneNumberException {
+    public Throw(String encryptedContent) throws InvalidPhoneNumberException, InvalidThrowException {
+        if(!ThrowParser.isValidRelayThrow(encryptedContent)) throw new InvalidThrowException("Message is not valid throw");
         encryptedContent = decryptContent(encryptedContent);
         this.throwTo = getNextMask(encryptedContent);
         this.encryptedContent = peelOffLayer(encryptedContent);

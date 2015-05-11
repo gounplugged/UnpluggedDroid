@@ -23,6 +23,7 @@ import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
@@ -100,6 +101,7 @@ public class ChatActivity extends ActionBarActivity {
         super.onStart();
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     @Override
@@ -264,6 +266,8 @@ public class ChatActivity extends ActionBarActivity {
             }
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
+        } catch (InvalidThrowException e) {
+            return;
         }
     }
 
@@ -274,7 +278,7 @@ public class ChatActivity extends ActionBarActivity {
 
         try {
             newConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
-            if(!mSelectedConversation.equals(newConversation)) conversationChanged = true;
+            if(mSelectedConversation == null || !mSelectedConversation.equals(newConversation)) conversationChanged = true;
         } catch(NotFoundInDatabaseException e) {
             newConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
             conversationChanged = true;
