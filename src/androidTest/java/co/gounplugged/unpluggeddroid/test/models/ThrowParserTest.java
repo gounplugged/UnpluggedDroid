@@ -85,5 +85,11 @@ public class ThrowParserTest extends AndroidTestCase {
         throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
                 originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
         assertFalse(ThrowParser.isValidRelayThrow(throwContent));
+
+
+    }
+
+    public void testIsValidThrow() {
+        assertTrue(ThrowParser.isValidThrow("ignoreWIxff+13016864576YzLqQ"));
     }
 }

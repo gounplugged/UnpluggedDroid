@@ -216,9 +216,14 @@ public class ChatActivity extends ActionBarActivity {
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
         mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
-        //playground
-        DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
-        List<Message> messages = messageDatabaseAccess.getAll();
+        List<Message> messages;
+        if(mSelectedConversation == null) {
+            messages = new ArrayList<Message>();
+        } else {
+            //playground
+            DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
+            messages = new ArrayList(mSelectedConversation.getMessages());
+        }
         mChatArrayAdapter.setMessages(messages);
 
     }
@@ -235,6 +240,7 @@ public class ChatActivity extends ActionBarActivity {
         ArrayList messageList = new ArrayList();
         if(messages != null) messageList = new ArrayList<>(messages);
         mChatArrayAdapter.setMessages(messageList);
+
     }
 
 
@@ -255,6 +261,7 @@ public class ChatActivity extends ActionBarActivity {
 
 
     public void processMessage(String receivedMessage) {
+        Log.d(TAG, "Received message: " + receivedMessage);
         try {
             Throw receivedThrow = new Throw(receivedMessage);
             String nextMessage = receivedThrow.getEncryptedContent();
@@ -278,7 +285,9 @@ public class ChatActivity extends ActionBarActivity {
             }
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
+            Log.d(TAG, "Invalid phone number");
         } catch (InvalidThrowException e) {
+            Log.d(TAG, "Invalid throw");
             return;
         }
     }
