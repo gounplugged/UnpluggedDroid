@@ -99,12 +99,13 @@ public class ChatActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        mChatArrayAdapter = new MessageAdapter(this);
+        mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
+        getLastSelectedConversation();
     	loadGui();
 
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
-        mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
-
 
     }
 
@@ -141,7 +142,6 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void loadGui() {
-        getLastSelectedConversation();
         // Input/Search infinite-viewpager
         mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
 
@@ -209,13 +209,12 @@ public class ChatActivity extends ActionBarActivity {
 
 
         // Chat log //todo extract
-        mChatArrayAdapter = new MessageAdapter(this);
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
 
         //Conversations
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
-        mConversationContainer.setConversations(mSelectedConversation);
+        mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
         //playground
         DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);

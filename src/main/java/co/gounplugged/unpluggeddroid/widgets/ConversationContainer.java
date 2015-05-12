@@ -114,7 +114,7 @@ public class ConversationContainer extends LinearLayout {
         public void onConversationClicked(Conversation conversation);
     }
 
-    public void setConversations(Conversation currentConvo) {
+    public void setConversationsAllBut(Conversation currentConvo) {
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getContext(), Conversation.class);
         mConversations = conversationAccess.getAllBut(currentConvo);
         mAdapter.removeConversation(currentConvo);
