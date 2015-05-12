@@ -1,6 +1,10 @@
 package co.gounplugged.unpluggeddroid.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -14,13 +18,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidRecipientException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
+import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 
 public class MessageInputFragment extends Fragment {
@@ -43,6 +51,7 @@ public class MessageInputFragment extends Fragment {
 
         // Submit Button
         submitButton = (ImageButton) view.findViewById(R.id.submit_button);
+        setSubmitButtonImage();
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -69,8 +78,28 @@ public class MessageInputFragment extends Fragment {
             }
         });
 
-
         return view;
+    }
+
+    private void setSubmitButtonImage() {
+        try {
+            Conversation lastConvo = ((ChatActivity) getActivity()).getLastSelectedConversation();
+            if(lastConvo != null) {
+                Contact lastContact = lastConvo.getParticipant();
+                Uri thumbnailUri = lastContact.getImageUri();
+                if(thumbnailUri != null ) {
+                    try {
+                        Bitmap bp = MediaStore.Images.Media.getBitmap(((ChatActivity) getActivity()).getContentResolver(), thumbnailUri);
+                        submitButton.setImageBitmap(bp);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (NotFoundInDatabaseException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void sendMessage(String message) throws InvalidRecipientException {
