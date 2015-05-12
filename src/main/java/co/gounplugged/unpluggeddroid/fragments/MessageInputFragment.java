@@ -1,9 +1,11 @@
 package co.gounplugged.unpluggeddroid.fragments;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,7 +21,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
@@ -31,6 +35,7 @@ import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 
 public class MessageInputFragment extends Fragment {
     private static final String TAG = "MessageInputFragment";
@@ -49,6 +54,7 @@ public class MessageInputFragment extends Fragment {
     @Override
     public void setMenuVisibility(final boolean visible) {
         super.setMenuVisibility(visible);
+        Log.d(TAG, "Menu visibility set to : " + visible);
         if (visible && submitButton != null) {
             setSubmitButtonImage();
         }
@@ -60,7 +66,7 @@ public class MessageInputFragment extends Fragment {
 
         // Submit Button
         submitButton = (ImageButton) view.findViewById(R.id.submit_button);
-
+        setSubmitButtonImage();
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -96,16 +102,7 @@ public class MessageInputFragment extends Fragment {
         if(lastConvo != null) {
             Log.d(TAG, "Convo not null");
             Contact lastContact = lastConvo.getParticipant();
-            Uri thumbnailUri = lastContact.getImageUri();
-            if(thumbnailUri != null ) {
-                try {
-                    Log.d(TAG, "Thumbnail not null");
-                    Bitmap bp = MediaStore.Images.Media.getBitmap(((ChatActivity) getActivity()).getContentResolver(), thumbnailUri);
-                    submitButton.setImageBitmap(bp);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            ImageUtil.loadContactImage(getActivity().getApplicationContext(), lastContact, submitButton);
         }
     }
 
