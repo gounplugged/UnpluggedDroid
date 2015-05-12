@@ -110,13 +110,14 @@ public class ConversationContainer extends LinearLayout {
         mAdapter.removeConversation(conversation);
     }
 
-
-
     public interface ConversationListener {
         public void onConversationClicked(Conversation conversation);
     }
 
-
-
+    public void setConversationsAllBut(Conversation currentConvo) {
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getContext(), Conversation.class);
+        mConversations = conversationAccess.getAllBut(currentConvo);
+        mAdapter.removeConversation(currentConvo);
+    }
 
 }

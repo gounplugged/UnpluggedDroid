@@ -72,7 +72,7 @@ public class BaseApplication extends Application {
     }
 
     public Krewe getKnownMasks() {
-
+        seedKnownMasks();
         Log.d(TAG, "There are this many known masks " + mKnownMasks.getMasks().size());
         return mKnownMasks;
     }

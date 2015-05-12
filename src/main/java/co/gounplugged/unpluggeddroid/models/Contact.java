@@ -47,7 +47,7 @@ public class Contact {
     public Contact(String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
         this.phoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
         this.countryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
-        this.name = name;;
+        this.name = name;
     }
 
     public Contact(String name, String fullPhoneNumber, String lookupKey) throws InvalidPhoneNumberException {
@@ -90,6 +90,7 @@ public class Contact {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 String lookupKey = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+                String thumbnail = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
                 if (Integer.parseInt(cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                     Cursor pCur = cr.query(
@@ -102,11 +103,11 @@ public class Contact {
                         Contact c = null;
                         try {
                             c = new Contact(name, phoneNo, lookupKey);
-                            Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo);
+                            Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo + ", Thumbnail: " + thumbnail);
                             contacts.add(c);
                             contactAccess.create(c);
                         } catch (InvalidPhoneNumberException e) {
-                            Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo);
+                            Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo + ", Thumbnail: " + thumbnail);
                         }
                     }
                     pCur.close();

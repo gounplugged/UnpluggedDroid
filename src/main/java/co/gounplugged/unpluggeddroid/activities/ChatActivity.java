@@ -23,6 +23,7 @@ import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
@@ -31,6 +32,7 @@ import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
@@ -71,10 +73,19 @@ public class ChatActivity extends ActionBarActivity {
         }
     };
 
-    public Conversation getLastSelectedConversation() throws NotFoundInDatabaseException {
+    /*
+        Return the last selected conversation. Null if no last conversation.
+     */
+    public Conversation getLastSelectedConversation() {
         if(mSelectedConversation == null) {
             long cid = ((BaseApplication) getApplicationContext()).getProfile().getLastConversationId();
-            mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
+            if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
+                try {
+                    mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
+                } catch (NotFoundInDatabaseException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return mSelectedConversation;
     }
@@ -87,11 +98,14 @@ public class ChatActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        mChatArrayAdapter = new MessageAdapter(this);
+        mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
+        getLastSelectedConversation();
     	loadGui();
 
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
-        mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
 
     }
 
@@ -100,6 +114,7 @@ public class ChatActivity extends ActionBarActivity {
         super.onStart();
         IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     @Override
@@ -127,7 +142,6 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void loadGui() {
-
         // Input/Search infinite-viewpager
         mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
 
@@ -195,12 +209,12 @@ public class ChatActivity extends ActionBarActivity {
 
 
         // Chat log //todo extract
-        mChatArrayAdapter = new MessageAdapter(this);
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
 
         //Conversations
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
+        mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
         //playground
         DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
@@ -210,7 +224,7 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void replaceSelectedConversation(Conversation newConversation) {
-        if(newConversation == null) return;
+        if(!hasConversationChanged(newConversation)) return;
         if(mSelectedConversation != null) mConversationContainer.addConversation(mSelectedConversation);
 
         mConversationContainer.removeConversation(newConversation);
@@ -264,9 +278,10 @@ public class ChatActivity extends ActionBarActivity {
             }
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
+        } catch (InvalidThrowException e) {
+            return;
         }
     }
-
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
@@ -274,13 +289,18 @@ public class ChatActivity extends ActionBarActivity {
 
         try {
             newConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
-            if(!mSelectedConversation.equals(newConversation)) conversationChanged = true;
         } catch(NotFoundInDatabaseException e) {
             newConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
-            conversationChanged = true;
         }
 
-        if(conversationChanged) replaceSelectedConversation(newConversation);
+       replaceSelectedConversation(newConversation);
+    }
+
+    private boolean hasConversationChanged(Conversation newConversation) {
+        if(newConversation == null) return false;
+        if(mSelectedConversation == null) return true;
+        if(mSelectedConversation.equals(newConversation)) return false;
+        return true;
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

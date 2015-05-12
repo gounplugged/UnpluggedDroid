@@ -14,6 +14,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -105,6 +106,16 @@ public class DatabaseAccess<T> {
         return null;
     }
 
+    public List<T> getAllBut(T but) {
+        List<T> all = getAll();
+        if(but == null) return all;
+        List<T> allBut = new ArrayList<T>();
+        for(T t : all) {
+            if(!t.equals(but)) allBut.add(t);
+        }
+        return allBut;
+    }
+
     public List<T> getAllByColumnValue(String columnName, String value) {
         try {
             QueryBuilder<T, Long> qb = mDao.queryBuilder();
@@ -134,7 +145,6 @@ public class DatabaseAccess<T> {
         public DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             mContext = context;
-
         }
 
         @Override
