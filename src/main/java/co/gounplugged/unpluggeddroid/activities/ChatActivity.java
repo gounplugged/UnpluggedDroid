@@ -32,6 +32,7 @@ import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
@@ -72,10 +73,19 @@ public class ChatActivity extends ActionBarActivity {
         }
     };
 
-    public Conversation getLastSelectedConversation() throws NotFoundInDatabaseException {
+    /*
+        Return the last selected conversation. Null if no last conversation.
+     */
+    public Conversation getLastSelectedConversation() {
         if(mSelectedConversation == null) {
             long cid = ((BaseApplication) getApplicationContext()).getProfile().getLastConversationId();
-            mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
+            if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
+                try {
+                    mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
+                } catch (NotFoundInDatabaseException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return mSelectedConversation;
     }
@@ -88,11 +98,13 @@ public class ChatActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
     	loadGui();
 
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setActivity(this);
         mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
+
 
     }
 
@@ -129,7 +141,7 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void loadGui() {
-
+        getLastSelectedConversation();
         // Input/Search infinite-viewpager
         mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
 
@@ -203,6 +215,7 @@ public class ChatActivity extends ActionBarActivity {
 
         //Conversations
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
+        mConversationContainer.setConversations(mSelectedConversation);
 
         //playground
         DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
@@ -212,7 +225,7 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void replaceSelectedConversation(Conversation newConversation) {
-        if(newConversation == null) return;
+        if(!hasConversationChanged(newConversation)) return;
         if(mSelectedConversation != null) mConversationContainer.addConversation(mSelectedConversation);
 
         mConversationContainer.removeConversation(newConversation);
@@ -271,20 +284,24 @@ public class ChatActivity extends ActionBarActivity {
         }
     }
 
-
     public void addConversation(Contact contact) {
         Conversation newConversation;
         boolean conversationChanged = false;
 
         try {
             newConversation = Conversation.findByParticipant(contact, getApplicationContext(), mMessageHandler);
-            if(mSelectedConversation == null || !mSelectedConversation.equals(newConversation)) conversationChanged = true;
         } catch(NotFoundInDatabaseException e) {
             newConversation = Conversation.createConversation(contact, getApplicationContext(), mMessageHandler);
-            conversationChanged = true;
         }
 
-        if(conversationChanged) replaceSelectedConversation(newConversation);
+       replaceSelectedConversation(newConversation);
+    }
+
+    private boolean hasConversationChanged(Conversation newConversation) {
+        if(newConversation == null) return false;
+        if(mSelectedConversation == null) return true;
+        if(mSelectedConversation.equals(newConversation)) return false;
+        return true;
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

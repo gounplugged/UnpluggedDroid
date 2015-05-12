@@ -25,6 +25,7 @@ public class Profile {
     }
     private int smsPlan;
 
+    public static final int LAST_SELECTED_CONVERSATION_UNSET_ID = -1;
     public static final String LAST_SELECTED_CONVERSATION_ID = "LastSelectedConvoPref";
     private long lastSelectedConversationId;
 
@@ -93,7 +94,7 @@ public class Profile {
         smsPlan = profileSharedPreferences.getInt(SMS_PLAN_PREFERENCE_NAME, SMS_DEFAULT);
         phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, null);
         contactsSynced = profileSharedPreferences.getBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, false);
-        lastSelectedConversationId = profileSharedPreferences.getLong(LAST_SELECTED_CONVERSATION_ID, 0);
+        lastSelectedConversationId = profileSharedPreferences.getLong(LAST_SELECTED_CONVERSATION_ID, LAST_SELECTED_CONVERSATION_UNSET_ID);
         applicationState = profileSharedPreferences.getInt(APPLICATION_STATE_PREFERENCE_NAME, APPLICATION_STATE_UNINITALIZED);
     }
 

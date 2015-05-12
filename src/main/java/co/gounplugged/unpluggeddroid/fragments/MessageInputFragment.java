@@ -8,6 +8,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 
 public class MessageInputFragment extends Fragment {
-
+    private static final String TAG = "MessageInputFragment";
     private ImageButton submitButton;
     private EditText newPostText;
     private MessageHandler mMessageHandler;
@@ -46,12 +47,20 @@ public class MessageInputFragment extends Fragment {
     }
 
     @Override
+    public void setMenuVisibility(final boolean visible) {
+        super.setMenuVisibility(visible);
+        if (visible && submitButton != null) {
+            setSubmitButtonImage();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_message_input, container, false);
 
         // Submit Button
         submitButton = (ImageButton) view.findViewById(R.id.submit_button);
-        setSubmitButtonImage();
+
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -82,37 +91,32 @@ public class MessageInputFragment extends Fragment {
     }
 
     private void setSubmitButtonImage() {
-        try {
-            Conversation lastConvo = ((ChatActivity) getActivity()).getLastSelectedConversation();
-            if(lastConvo != null) {
-                Contact lastContact = lastConvo.getParticipant();
-                Uri thumbnailUri = lastContact.getImageUri();
-                if(thumbnailUri != null ) {
-                    try {
-                        Bitmap bp = MediaStore.Images.Media.getBitmap(((ChatActivity) getActivity()).getContentResolver(), thumbnailUri);
-                        submitButton.setImageBitmap(bp);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        Conversation lastConvo = ((ChatActivity) getActivity()).getLastSelectedConversation();
+        Log.d(TAG, "Found convo");
+        if(lastConvo != null) {
+            Log.d(TAG, "Convo not null");
+            Contact lastContact = lastConvo.getParticipant();
+            Uri thumbnailUri = lastContact.getImageUri();
+            if(thumbnailUri != null ) {
+                try {
+                    Log.d(TAG, "Thumbnail not null");
+                    Bitmap bp = MediaStore.Images.Media.getBitmap(((ChatActivity) getActivity()).getContentResolver(), thumbnailUri);
+                    submitButton.setImageBitmap(bp);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (NotFoundInDatabaseException e) {
-            e.printStackTrace();
         }
-
     }
 
     private void sendMessage(String message) throws InvalidRecipientException {
         if (TextUtils.isEmpty(message))
             return;
 
-        try {
-            Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
+        Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
+        if(conversation != null) {
             conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
             newPostText.setText("");
-        } catch (Exception e) {
-            Toast.makeText(getActivity().getApplicationContext(), "Failure to send", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         }
     }
 }
