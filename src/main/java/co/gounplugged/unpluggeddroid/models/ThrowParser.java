@@ -11,6 +11,9 @@ public class ThrowParser {
     public final static String MESSAGE_SEPARATOR = "WIxff";
     public final static String ORIGINATOR_SEPARATOR = "YzLqQ";
 
+    private final static String THROW_REGEX = "(.*" + MESSAGE_SEPARATOR + ")(" +
+    PhoneNumberParser.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR + ")";
+
     public static String getNextMask(String content) {
         return content.split(MASK_SEPARATOR)[0];
     }
@@ -18,8 +21,12 @@ public class ThrowParser {
     public static boolean isValidRelayThrow(String content){
         return content.matches(
                 "(" + PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR +
-                 ")+(.*" + MESSAGE_SEPARATOR + ")(" +
-                 PhoneNumberParser.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR + ")"
+                 ")+" + THROW_REGEX);
+    }
+
+    public static boolean isValidThrow(String content){
+        return content.matches(
+                THROW_REGEX
         );
     }
 
