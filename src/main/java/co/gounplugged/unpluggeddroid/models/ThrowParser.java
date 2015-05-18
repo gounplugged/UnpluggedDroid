@@ -38,6 +38,9 @@ public class ThrowParser {
             stringBuilder.append(ThrowParser.MASK_SEPARATOR);
         }
 
+        stringBuilder.append(krewe.getRecipient().getFullNumber());
+        stringBuilder.append(ThrowParser.MASK_SEPARATOR);
+
         stringBuilder.append(message);
         stringBuilder.append(ThrowParser.MESSAGE_SEPARATOR);
 

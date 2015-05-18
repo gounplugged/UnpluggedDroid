@@ -20,74 +20,73 @@ public class Profile {
 
     public static final String PHONE_NUMBER_PREFERENCE_NAME = "CountryPref";
 
-    public int getSmsPlan() {
+    public static int getSmsPlan() {
         return smsPlan;
     }
-    private int smsPlan;
+    private static int smsPlan;
 
     public static final int LAST_SELECTED_CONVERSATION_UNSET_ID = -1;
     public static final String LAST_SELECTED_CONVERSATION_ID = "LastSelectedConvoPref";
-    private long lastSelectedConversationId;
+    private static long lastSelectedConversationId;
 
     public static final int APPLICATION_STATE_UNINITALIZED = 0;
     public static final int APPLICATION_STATE_INITALIZED = 1;
     public static final String APPLICATION_STATE_PREFERENCE_NAME = "ApplicationStatePref";
 
-    public int getApplicationState() {
+    public static int getApplicationState() {
         return applicationState;
     }
 
-    public void setApplicationState(int applicationState) {
-        this.applicationState = applicationState;
+    public static void setApplicationState(int state) {
+        applicationState = state;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putInt(APPLICATION_STATE_PREFERENCE_NAME, applicationState);
         editor.commit();
     }
 
-    private int applicationState;
-
+    private static int applicationState;
 
     public static final String ARE_CONTACTS_SYNCED_PREFERENCE_NAME = "ContactsSyncedPref";
 
-    public boolean areContactsSynced() {
+    public static boolean areContactsSynced() {
         return contactsSynced;
     }
 
-    public void setContactsSynced(boolean contactsSynced) {
-        this.contactsSynced = contactsSynced;
+    public static void setContactsSynced(boolean synced) {
+        contactsSynced = synced;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, contactsSynced);
         editor.commit();
     }
 
-    private boolean contactsSynced;
+    private static boolean contactsSynced;
 
-    public String getPhoneNumber() {
+    public static String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public static void setPhoneNumber(String number) {
+        phoneNumber = number;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putString(PHONE_NUMBER_PREFERENCE_NAME, phoneNumber);
         editor.commit();
         updateApplicationState();
     }
 
-    public void setSmsPlan(int planId) {
-        this.smsPlan = planId;
+    public static void setSmsPlan(int planId) {
+        smsPlan = planId;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putInt(SMS_PLAN_PREFERENCE_NAME, planId);
         editor.commit();
         updateApplicationState();
     }
 
-    private String phoneNumber;
+    private static String phoneNumber;
 
     public static final String SHARED_PREFERENCES_STRING = "co.gounplugged.unpluggeddroid.PROFILE_SHARED_PREFERENCES";
-    private SharedPreferences profileSharedPreferences;
+    private static SharedPreferences profileSharedPreferences;
 
-    public Profile(Context context) {
+    public static void loadProfile(Context context) {
         profileSharedPreferences = context.getSharedPreferences(
                 SHARED_PREFERENCES_STRING, Context.MODE_PRIVATE);
 
@@ -98,7 +97,7 @@ public class Profile {
         applicationState = profileSharedPreferences.getInt(APPLICATION_STATE_PREFERENCE_NAME, APPLICATION_STATE_UNINITALIZED);
     }
 
-    public String getCountryCodeFilter() {
+    public static String getCountryCodeFilter() {
         if(smsPlan == SMS_UNLIMITED_INTERNATIONAL) {
             return null;
         } else {
@@ -111,21 +110,21 @@ public class Profile {
         }
     }
 
-    public long getLastConversationId() {
+    public static long getLastConversationId() {
         Log.d(TAG, "Getting conversation " + lastSelectedConversationId);
         return lastSelectedConversationId;
     }
 
-    public void setLastConversationId(long conversationId) {
+    public static void setLastConversationId(long conversationId) {
         Log.d(TAG, "Setting conversation to " + conversationId);
-        this.lastSelectedConversationId = conversationId;
+        lastSelectedConversationId = conversationId;
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putLong(LAST_SELECTED_CONVERSATION_ID, lastSelectedConversationId);
         editor.commit();
     }
 
     // Update application stated based on current settings
-    private void updateApplicationState() {
+    private static void updateApplicationState() {
         switch(applicationState) {
             case APPLICATION_STATE_UNINITALIZED:
                 if(isValidPhoneNumber() && isValidSmsPlan()) setApplicationState(APPLICATION_STATE_INITALIZED);
@@ -136,11 +135,11 @@ public class Profile {
         }
     }
 
-    private boolean isValidPhoneNumber() {
+    private static boolean isValidPhoneNumber() {
         return phoneNumber != null;
     }
 
-    private boolean isValidSmsPlan() {
+    private static boolean isValidSmsPlan() {
         return true;
     }
 }

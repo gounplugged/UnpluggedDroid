@@ -78,7 +78,7 @@ public class ChatActivity extends ActionBarActivity {
      */
     public Conversation getLastSelectedConversation() {
         if(mSelectedConversation == null) {
-            long cid = ((BaseApplication) getApplicationContext()).getProfile().getLastConversationId();
+            long cid = Profile.getLastConversationId();
             if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
                 try {
                     mSelectedConversation = Conversation.findById(getApplicationContext(), cid, mMessageHandler);
@@ -91,7 +91,7 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void setLastConversation() {
-        ((BaseApplication)getApplicationContext()).getProfile().setLastConversationId(mSelectedConversation.id);
+        Profile.setLastConversationId(mSelectedConversation.id);
     }
 
     @Override

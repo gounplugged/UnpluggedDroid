@@ -10,6 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
@@ -64,9 +65,10 @@ public class Conversation {
         this.messages = messages;
     }
 
-    public void sendMessage(String sms, Krewe knownMasks) {
+    public void sendMessage(String sms, List<Mask> knownMasks) {
         currentSecondLine = getAndRefreshSecondLine(knownMasks);
-        Throw t = currentSecondLine.getThrow(sms);
+        Log.d(TAG, "This many masks " + knownMasks.size());
+        Throw t = currentSecondLine.getThrow(sms, Profile.getPhoneNumber());
         Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
         message.sendOverWire = t.getEncryptedContent();
         message.setConversation(this);
@@ -76,7 +78,7 @@ public class Conversation {
         messageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
     }
 
-    public SecondLine getAndRefreshSecondLine(Krewe knownMasks) {
+    public SecondLine getAndRefreshSecondLine(List<Mask> knownMasks) {
         if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
         return currentSecondLine;
     }

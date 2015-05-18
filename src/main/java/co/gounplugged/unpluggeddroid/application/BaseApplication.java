@@ -1,44 +1,21 @@
 package co.gounplugged.unpluggeddroid.application;
 
 import android.app.Application;
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import co.gounplugged.unpluggeddroid.api.APICaller;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.models.Contact;
-import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
+import co.gounplugged.unpluggeddroid.utils.MaskUtil;
 
 /**
  * Serves as global application instance
  */
 public class BaseApplication extends Application {
     private static final String TAG = "BaseApplication";
-    private APICaller apiCaller;
-    private Krewe mKnownMasks;
-
-    public Profile getProfile() {
-        return profile;
-    }
-
-    private Profile profile;
-
-    public List<Contact> getContacts() {
-        return contacts;
-    }
-
-    private List<Contact> contacts;
+    private APICaller mApiCaller;
+    private List<Mask> mKnownMasks;
 
     /**
      * Get new masks from api or cache on app start
@@ -46,10 +23,17 @@ public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        profile = new Profile(getApplicationContext());
-        apiCaller = new APICaller(getApplicationContext());
-//        seedKnownMasks();
+        Profile.loadProfile(getApplicationContext());
+        mApiCaller = new APICaller(getApplicationContext());
         loadContacts();
+        switch(Profile.getApplicationState()) {
+            case(Profile.APPLICATION_STATE_UNINITALIZED):
+
+                break;
+            case(Profile.APPLICATION_STATE_INITALIZED):
+                seedKnownMasks();
+                break;
+        }
     }
 
     public void refreshKnownMasks() {
@@ -58,33 +42,28 @@ public class BaseApplication extends Application {
     }
 
     public void seedKnownMasks() {
-        if(profile.getPhoneNumber() == null) return;
+        if(mKnownMasks == null) mKnownMasks = MaskUtil.getCachedMasks(getApplicationContext());
 
-        if(mKnownMasks == null){
-            mKnownMasks = new Krewe();
-        }
-        DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(getApplicationContext(), Mask.class);
-        // TODO: Prefill from db
+        if(mKnownMasks.isEmpty()) mApiCaller.getMasks(Profile.getCountryCodeFilter());
 
-        if(mKnownMasks.isEmpty()) {
-            apiCaller.getMasks(profile.getCountryCodeFilter());
-        }
+        Log.d(TAG, "Seeded masks " + mKnownMasks.size());
     }
 
-    public Krewe getKnownMasks() {
+    public List<Mask> getKnownMasks() {
         seedKnownMasks();
-        Log.d(TAG, "There are this many known masks " + mKnownMasks.getMasks().size());
+        Log.d(TAG, "There are this many known masks " + mKnownMasks.size());
         return mKnownMasks;
     }
 
-    public void setKnownMasks(Krewe knownMasks) {
+    public void setKnownMasks(List<Mask> knownMasks) {
+        Log.d(TAG, "Setting masks " + knownMasks.size());
         this.mKnownMasks = knownMasks;
     }
 
     private void loadContacts() {
-        if(profile.areContactsSynced()) return;
-        contacts = Contact.loadContacts(getApplicationContext());
-        profile.setContactsSynced(true);
+        if(Profile.areContactsSynced()) return;
+        ContactUtil.loadContacts(getApplicationContext());
+        Profile.setContactsSynced(true);
     }
 
 }

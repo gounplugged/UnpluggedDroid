@@ -21,14 +21,11 @@ public class ProfileActivity extends Activity {
     private TextView phoneNumberInput;
     private Button submitButton;
     private Spinner smsPlanSpinner;
-    private Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-        profile = ((BaseApplication) getApplicationContext()).getProfile();
 
         setupPhoneNumber();
         setupSmsPlan();
@@ -50,13 +47,13 @@ public class ProfileActivity extends Activity {
 
     private void setSmsPlan() {
         int selectedId = (int) smsPlanSpinner.getSelectedItemId();
-        profile.setSmsPlan(selectedId);
+        Profile.setSmsPlan(selectedId);
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     private void setPhoneNumber() {
         String phoneNumber = phoneNumberInput.getText().toString();
-        profile.setPhoneNumber(phoneNumber);
+        Profile.setPhoneNumber(phoneNumber);
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
@@ -71,13 +68,13 @@ public class ProfileActivity extends Activity {
         // Apply the adapter to the spinner
         smsPlanSpinner.setAdapter(adapter);
 
-        int savedSmsPlan = profile.getSmsPlan();
+        int savedSmsPlan = Profile.getSmsPlan();
         smsPlanSpinner.setSelection(savedSmsPlan);
     }
 
     private void setupPhoneNumber() {
         phoneNumberInput = (TextView) findViewById(R.id.phone_number_activity_profile);
-        String savedPhoneNumber = profile.getPhoneNumber();
+        String savedPhoneNumber = Profile.getPhoneNumber();
         if(savedPhoneNumber != null) {
             phoneNumberInput.setText(savedPhoneNumber);
         }
