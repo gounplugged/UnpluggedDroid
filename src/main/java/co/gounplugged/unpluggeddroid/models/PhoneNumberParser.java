@@ -41,7 +41,7 @@ public class PhoneNumberParser {
     }
 
     public static String makeValid(String number, String expectedCountryCode) throws  InvalidPhoneNumberException {
-        String newNumber =  expectedCountryCode + number;
+        String newNumber =  sanitizePhoneNumber(expectedCountryCode + number);
         if(isValidFullPhoneNumber(newNumber)) return newNumber;
         throw new InvalidPhoneNumberException("Malformed phone number");
     }

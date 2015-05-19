@@ -36,7 +36,7 @@ public class BaseApplication extends Application {
         super.onCreate();
         Profile.loadProfile(getApplicationContext());
         mApiCaller = new APICaller(getApplicationContext());
-        loadContacts();
+
         switch(Profile.getApplicationState()) {
             case(Profile.APPLICATION_STATE_UNINITALIZED):
 
@@ -71,7 +71,7 @@ public class BaseApplication extends Application {
         this.mKnownMasks = knownMasks;
     }
 
-    private void loadContacts() {
+    public void loadContacts() {
         if(Profile.areContactsSynced()) return;
         ContactUtil.loadContacts(getApplicationContext());
         Profile.setContactsSynced(true);

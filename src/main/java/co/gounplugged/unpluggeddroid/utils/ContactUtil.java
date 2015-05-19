@@ -14,6 +14,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
+import co.gounplugged.unpluggeddroid.models.Profile;
 
 public class ContactUtil {
     private final static String TAG = "ContactUtil";
@@ -52,7 +53,15 @@ public class ContactUtil {
                             contacts.add(c);
                             contactAccess.create(c);
                         } catch (InvalidPhoneNumberException e) {
-                            Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo + ", Thumbnail: " + thumbnail);
+                            try {
+                                String userCountryCode  = PhoneNumberParser.parseCountryCode(Profile.getPhoneNumber());
+                                String correctedPhoneNumber = PhoneNumberParser.makeValid(phoneNo, userCountryCode);
+                                c = ContactUtil.create(context, name, correctedPhoneNumber, lookupKey);
+                                Log.d(TAG, "Modified Name: " + name + ", Phone No: " + correctedPhoneNumber + ", Thumbnail: " + thumbnail);
+                                contacts.add(c);
+                            } catch (InvalidPhoneNumberException e1) {
+                                Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo + ", Thumbnail: " + thumbnail);
+                            }
                         }
                     }
                     pCur.close();
@@ -75,11 +84,17 @@ public class ContactUtil {
         return contact;
     }
 
+    public static Contact create(Context context, String name, String fullPhoneNumber, String lookupKey) throws InvalidPhoneNumberException {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        Contact c = new Contact(name, fullPhoneNumber, lookupKey);
+        contactAccess.create(c);
+        return c;
+    }
+
     public static Contact create(Context context, String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
         Contact c = new Contact(name, fullPhoneNumber);
         contactAccess.create(c);
         return c;
     }
-
 }
