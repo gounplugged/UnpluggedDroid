@@ -39,4 +39,10 @@ public class PhoneNumberParser {
     public static boolean isValidFullPhoneNumber(String number) {
         return number.matches(PHONE_NUMBER_REGEX);
     }
+
+    public static String makeValid(String number, String expectedCountryCode) throws  InvalidPhoneNumberException {
+        String newNumber =  expectedCountryCode + number;
+        if(isValidFullPhoneNumber(newNumber)) return newNumber;
+        throw new InvalidPhoneNumberException("Malformed phone number");
+    }
 }

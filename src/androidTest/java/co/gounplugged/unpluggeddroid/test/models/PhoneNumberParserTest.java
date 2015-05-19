@@ -40,4 +40,15 @@ public class PhoneNumberParserTest extends AndroidTestCase {
             assertTrue(false);
         }
     }
+
+    public void testMakeValid() {
+        boolean shouldPass = false;
+        try {
+            assertEquals(PhoneNumberParser.makeValid("3016864576", "+1"), marvin);
+            shouldPass = true;
+            assertEquals(PhoneNumberParser.makeValid("3016864@#$%^&576", "+1"), marvin);
+        } catch (InvalidPhoneNumberException e) {
+            assertTrue(shouldPass);
+        }
+    }
 }
