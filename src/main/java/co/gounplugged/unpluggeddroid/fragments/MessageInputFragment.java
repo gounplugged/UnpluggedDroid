@@ -112,7 +112,9 @@ public class MessageInputFragment extends Fragment {
 
         Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
         if(conversation != null) {
-            conversation.sendMessage(newPostText.getText().toString(), ((BaseApplication) getActivity().getApplicationContext()).getKnownMasks());
+            Context context = getActivity().getApplicationContext();
+            String text = newPostText.getText().toString();
+            conversation.sendMessage(context, text);
             newPostText.setText("");
         }
     }

@@ -23,7 +23,6 @@ import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 @DatabaseTable(tableName = "contacts")
 public class Contact {
     private static final String TAG = "Contact";
-    public static final String DEFAULT_CONTACT_NUMBER = "+13016864576";
 
     @DatabaseField(generatedId = true)
     public long id;
@@ -57,16 +56,8 @@ public class Contact {
         this.name = name;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
     public String getFullNumber() {
         return countryCode + phoneNumber;
-    }
-
-    public String getCountryCode() {
-        return countryCode;
     }
 
     public String getName() {

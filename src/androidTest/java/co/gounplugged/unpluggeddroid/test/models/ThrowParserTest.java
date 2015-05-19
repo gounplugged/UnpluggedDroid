@@ -2,6 +2,9 @@ package co.gounplugged.unpluggeddroid.test.models;
 
 import android.test.AndroidTestCase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
@@ -14,8 +17,10 @@ import co.gounplugged.unpluggeddroid.models.ThrowParser;
  */
 public class ThrowParserTest extends AndroidTestCase {
 
-    Krewe maskRoute;
+    Krewe krewe;
+    List<Mask> maskRoute;
     Mask m;
+    Contact destination;
     int maskRouteLength;
 
     String phone = "+32123";
@@ -30,13 +35,14 @@ public class ThrowParserTest extends AndroidTestCase {
 
         maskRouteLength = 3;
         m = new Mask(phone);
-        maskRoute = new Krewe();
+        maskRoute = new ArrayList<Mask>();
+        destination = new Contact(phone, phone);
 
         for(int i = 0; i< maskRouteLength; i++) {
-            maskRoute.addMask(m);
+            maskRoute.add(m);
         }
-       ;
 
+        krewe = new Krewe(destination, maskRoute);
     }
 
     @Override
@@ -46,8 +52,9 @@ public class ThrowParserTest extends AndroidTestCase {
     }
 
     public void testBuildContent() {
-        throwContent = ThrowParser.contentFor(message, originatorNumber, maskRoute);
+        throwContent = ThrowParser.contentFor(message, originatorNumber, krewe);
         String content =  phone + ThrowParser.MASK_SEPARATOR +
+                          phone + ThrowParser.MASK_SEPARATOR +
                           phone + ThrowParser.MASK_SEPARATOR +
                           phone + ThrowParser.MASK_SEPARATOR +
                           message + ThrowParser.MESSAGE_SEPARATOR +
@@ -56,8 +63,9 @@ public class ThrowParserTest extends AndroidTestCase {
     }
 
     public void testRemoveNextMask() {
-        throwContent = ThrowParser.contentFor(message, originatorNumber, maskRoute);
+        throwContent = ThrowParser.contentFor(message, originatorNumber, krewe);
         assertEquals(
+             phone + ThrowParser.MASK_SEPARATOR +
              phone + ThrowParser.MASK_SEPARATOR +
              phone + ThrowParser.MASK_SEPARATOR +
              message + ThrowParser.MESSAGE_SEPARATOR +
@@ -80,7 +88,7 @@ public class ThrowParserTest extends AndroidTestCase {
     }
 
     public void testIsValidRelay() {
-        throwContent = ThrowParser.contentFor(message, originatorNumber, maskRoute);
+        throwContent = ThrowParser.contentFor(message, originatorNumber, krewe);
         assertTrue(ThrowParser.isValidRelayThrow(throwContent));
         throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
                 originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;

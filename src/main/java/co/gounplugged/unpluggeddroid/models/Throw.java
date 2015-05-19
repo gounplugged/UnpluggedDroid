@@ -90,7 +90,7 @@ public class Throw {
         return encryptedContent.equals(rhs.getEncryptedContent());
     }
 
-    public Contact getThrownFrom(Context context)
+    public Contact getThrowOriginator(Context context)
             throws InvalidPhoneNumberException, PrematureReadException, NotFoundInDatabaseException {
         if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original sender");
         return ContactUtil.getContact(context, ThrowParser.getOriginatorNumber(encryptedContent));
