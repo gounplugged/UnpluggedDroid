@@ -29,12 +29,14 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             String smsMessageStr = "";
             for (int i = 0; i < sms.length; ++i) {
                 SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
-                String smsBody = smsMessage.getMessageBody().toString();
-                smsMessageStr += smsBody;
+                chatActivity.processUnknownSMS(smsMessage);
+//                String smsBody = smsMessage.getMessageBody().toString();
+//                smsMessageStr += smsBody;
+
             }
-            Log.d(TAG, "Received message: " + smsMessageStr);
+//            Log.d(TAG, "Received message: " + smsMessageStr);
             //this will update the UI with message
-            chatActivity.processMessage(smsMessageStr);
+//            chatActivity.processSMS(smsMessageStr);
         }
     }
 }

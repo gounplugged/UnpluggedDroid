@@ -7,6 +7,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 /**
  * Created by pili on 20/03/15.
@@ -28,25 +29,31 @@ public class Throw {
     /*
         Use to originate a message
      */
-    public Throw(String message, String originatorNumber, Krewe maskRoute) {
-        this.throwTo = maskRoute.popNextMask();
-        this.encryptedContent = encryptedContentFor(message, originatorNumber, maskRoute);
+    public Throw(String message, String originatorNumber, Krewe krewe) {
+        this.throwTo = krewe.getNextMask();
+        this.encryptedContent = encryptedContentFor(message, originatorNumber, krewe);
     }
 
     /*
         Use when receiving a message from someone else
      */
     public Throw(String encryptedContent) throws InvalidPhoneNumberException, InvalidThrowException {
-        if(!ThrowParser.isValidRelayThrow(encryptedContent)) throw new InvalidThrowException("Message is not valid throw");
+        if(!ThrowParser.isValidThrow(encryptedContent)) throw new InvalidThrowException("Message is not valid throw");
         encryptedContent = decryptContent(encryptedContent);
         this.throwTo = getNextMask(encryptedContent);
         this.encryptedContent = peelOffLayer(encryptedContent);
     }
 
+    /*
+        TODO: Add encryption
+     */
     private String decryptContent(String encryptedContent) {
         return encryptedContent;
     }
 
+    /*
+        TODO: Add encryption
+     */
     private String encryptedContentFor(String message, String originatorNumber, Krewe krewe) {
         return ThrowParser.contentFor(message, originatorNumber, krewe);
     }
@@ -86,7 +93,7 @@ public class Throw {
     public Contact getThrownFrom(Context context)
             throws InvalidPhoneNumberException, PrematureReadException, NotFoundInDatabaseException {
         if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original sender");
-        return Contact.getContact(context, ThrowParser.getOriginatorNumber(encryptedContent));
+        return ContactUtil.getContact(context, ThrowParser.getOriginatorNumber(encryptedContent));
     }
 
     public String getDecryptedContent() throws PrematureReadException {

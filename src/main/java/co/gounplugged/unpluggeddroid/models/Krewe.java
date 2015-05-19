@@ -10,22 +10,12 @@ public class Krewe {
     /*
         Sequential list of all masks
      */
-    public void setMasks(List<Mask> masks) {
+    private final List<Mask> masks;
+    private final Contact recipient;
+
+    public Krewe(Contact recipient, List<Mask> masks) {
         this.masks = masks;
-    }
-
-    private List<Mask> masks;
-
-    public Krewe() {
-        masks = new ArrayList<Mask>();
-    }
-
-    public Krewe(List<Mask> masks) {
-        this.masks = masks;
-    }
-
-    public void addMask(Mask mask) {
-        masks.add(mask);
+        this.recipient = recipient;
     }
 
     public List<Mask> getMasks() {
@@ -36,10 +26,10 @@ public class Krewe {
         return masks == null || masks.size() == 0;
     }
 
-    public Mask getLast() { return masks.get(masks.size() - 1); }
+    public Mask getNextMask() { return masks.get(0); }
 
-    public Mask nextMask() { return masks.get(0); }
-
-    public Mask popNextMask() { return masks.remove(0); }
+    public Contact getRecipient() {
+        return recipient;
+    }
 
 }

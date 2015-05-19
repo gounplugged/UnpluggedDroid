@@ -25,7 +25,7 @@ public class SplashActivity extends Activity {
             @Override
             public void run() {
                 // Take user to new Activity depending on state of Application.
-                int applicationState = ((BaseApplication) getApplicationContext()).getProfile().getApplicationState();
+                int applicationState = Profile.getApplicationState();
                 switch (applicationState) {
                     // Go to ProfileActivity in order to be able to send messages
                     case Profile.APPLICATION_STATE_UNINITALIZED:

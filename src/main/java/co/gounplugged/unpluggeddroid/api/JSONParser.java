@@ -6,6 +6,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
@@ -16,8 +19,8 @@ import co.gounplugged.unpluggeddroid.models.Mask;
 public class JSONParser {
     private final static String TAG = "JSONParser";
 
-    public static Krewe getKrewe(String serverResponse, String filterByCountryCode) {
-        Krewe krewe = new Krewe();
+    public static List<Mask> getMasks(String serverResponse, String filterByCountryCode) {
+        List<Mask> masks = new ArrayList<Mask>();
         try {
             JSONArray jArray = new JSONArray(serverResponse);
             for (int i=0; i < jArray.length(); i++)
@@ -31,7 +34,7 @@ public class JSONParser {
                         String phoneNumber = oneObject.getString("number");
                         Log.d(TAG, phoneNumber);
                         try {
-                            krewe.addMask(new Mask(countryCode + phoneNumber));
+                            masks.add(new Mask(countryCode + phoneNumber));
                         } catch (InvalidPhoneNumberException e) {
                             // Server should not accept invalid numbers to start with
                         }
@@ -44,6 +47,6 @@ public class JSONParser {
         } catch (JSONException e) {
 
         }
-        return krewe;
+        return masks;
     }
 }

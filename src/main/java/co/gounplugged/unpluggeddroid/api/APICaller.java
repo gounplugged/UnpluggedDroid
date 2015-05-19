@@ -20,14 +20,10 @@ public class APICaller {
     private final static String TAG = "APICaller";
     private RequestQueue queue;
     private String url ="https://stormy-hamlet-7282.herokuapp.com/masks";
-//    private final ChatActivity chatActivity;
     private Context mContext;
-
-
 
     public APICaller(Context context) {
         queue = Volley.newRequestQueue(context);
-//        this.chatActivity = chatActivity;
         mContext = context;
     }
 
@@ -39,9 +35,7 @@ public class APICaller {
                     public void onResponse(String response) {
                         Log.d(TAG, response);
                         //Temporarily cache maskes in global app instance
-//                        chatActivity.setKnownMasks(JSONParser.getKrewe(response, filterByCountryCode));
-                        ((BaseApplication)mContext).setKnownMasks(JSONParser.getKrewe(response, filterByCountryCode));
-
+                        ((BaseApplication)mContext).setKnownMasks(JSONParser.getMasks(response, filterByCountryCode));
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -52,5 +46,4 @@ public class APICaller {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-
 }
