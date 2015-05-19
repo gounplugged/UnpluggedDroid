@@ -23,13 +23,14 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     }
 
     public void onReceive(Context context, Intent intent) {
+
         Bundle intentExtras = intent.getExtras();
         if (intentExtras != null) {
             Object[] sms = (Object[]) intentExtras.get(SMS_BUNDLE);
             String smsMessageStr = "";
             for (int i = 0; i < sms.length; ++i) {
                 SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
-                chatActivity.processUnknownSMS(smsMessage);
+                chatActivity.processUnknownSMS(context, smsMessage);
 //                String smsBody = smsMessage.getMessageBody().toString();
 //                smsMessageStr += smsBody;
 

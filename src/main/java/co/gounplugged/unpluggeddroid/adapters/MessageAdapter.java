@@ -79,7 +79,7 @@ public class MessageAdapter extends BaseAdapter {
         }
 
         TextView tvName = (TextView) convertView.findViewById(R.id.tv_message);
-        tvName.setText(message.getMessage());
+        tvName.setText(message.getText());
 
         return convertView;
     }

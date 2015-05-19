@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,7 @@ import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
+import co.gounplugged.unpluggeddroid.utils.SMSUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
@@ -230,6 +232,69 @@ public class ChatActivity extends ActionBarActivity {
         mChatArrayAdapter.setMessages(messages);
 
     }
+    public void processUnknownSMS(Context context, SmsMessage receivedSMS) {
+        String receivedText = receivedSMS.getMessageBody().toString();
+        Log.d(TAG, "Received text: " + receivedText);
+
+        try {
+            Throw receivedThrow = new Throw(receivedText);
+            processThrow(context, receivedThrow);
+        }  catch (InvalidThrowException e) {
+            processRegularSMS(context, receivedSMS);
+        } catch (InvalidPhoneNumberException e) {
+            //TODO recover from problem to ensure message delivery
+        }
+    }
+
+    private void processThrow(Context context, Throw receivedThrow) {
+        String nextText = receivedThrow.getEncryptedContent();
+        Log.d(TAG, "Next message: " + nextText);
+
+        if(!receivedThrow.hasArrived()) {
+            Log.d(TAG, "Throw again");
+            SMSUtil.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextText);
+        } else {
+            try {
+                Contact originator = receivedThrow.getThrowOriginator(context);
+                Log.d(TAG, "Chat for contact " + originator.id);
+                Conversation conversation = ConversationUtil.findOrNew(originator, context, mMessageHandler);
+                Log.d(TAG, "Conversation for " + conversation.id);
+                conversation.receiveThrow(context, receivedThrow);
+            } catch (PrematureReadException e) {
+                Log.e(TAG, "Premature");
+
+            } catch (NotFoundInDatabaseException e) {
+                Log.e(TAG, "Contact not found");
+            } catch (InvalidPhoneNumberException e) {
+                //TODO recover from problem to ensure message delivery
+                Log.d(TAG, "Invalid phone number");
+            }
+        }
+    }
+
+    private void processRegularSMS(Context context, SmsMessage receivedSMS) {
+        String originatingAddress = receivedSMS.getOriginatingAddress();
+        Log.d(TAG, "Received regular SMS from " + originatingAddress);
+
+        Contact participant;
+        try {
+            participant = ContactUtil.getContact(getApplicationContext(), originatingAddress);
+        } catch (NotFoundInDatabaseException e) {
+            try {
+                participant = ContactUtil.create(getApplicationContext(), originatingAddress, originatingAddress);
+            } catch (InvalidPhoneNumberException e1) {
+                //TODO should not really be adding a contact, just a new conversation.
+                // Should be able to have conversations not linked to a contact.
+                return;
+            }
+        }
+
+        Log.d(TAG, "Chat for contact " + participant.id);
+        Conversation conversation = null;
+        conversation = ConversationUtil.findOrNew(participant, getApplicationContext(), mMessageHandler);
+        Log.d(TAG, "Conversation for " + conversation.id);
+        conversation.receiveMessage(getApplicationContext(), receivedSMS.getMessageBody().toString());
+    }
 
     private void replaceSelectedConversation(Conversation newConversation) {
         if(!hasConversationChanged(newConversation)) return;
@@ -262,70 +327,6 @@ public class ChatActivity extends ActionBarActivity {
         return mChatArrayAdapter;
     }
 
-
-    public void processUnknownSMS(SmsMessage receivedSMS) {
-        String receivedMessage = receivedSMS.getMessageBody().toString();
-        Log.d(TAG, "Received message: " + receivedMessage);
-        try {
-            Throw receivedThrow = new Throw(receivedMessage);
-            processThrow(receivedThrow);
-        }  catch (InvalidThrowException e) {
-            processRegularSMS(receivedSMS);
-        } catch (InvalidPhoneNumberException e) {
-            //TODO recover from problem to ensure message delivery
-            Log.d(TAG, "Invalid phone number");
-        }
-    }
-
-    private void processThrow(Throw receivedThrow) {
-        String nextMessage = receivedThrow.getEncryptedContent();
-        Log.d(TAG, "Next message: " + nextMessage);
-
-        if(!receivedThrow.hasArrived()) {
-            Log.d(TAG, "Throw again");
-            mMessageHandler.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextMessage);
-        } else {
-            try {
-                Contact participant = receivedThrow.getThrownFrom(getApplicationContext());
-                Log.d(TAG, "Chat for contact " + participant.id);
-                Conversation conversation = ConversationUtil.findOrNew(participant, getApplicationContext(), mMessageHandler);
-                Log.d(TAG, "Conversation for " + conversation.id);
-                conversation.receiveThrow(receivedThrow);
-            } catch (PrematureReadException e) {
-                Log.e(TAG, "Premature");
-
-            } catch (NotFoundInDatabaseException e) {
-                Log.e(TAG, "Contact not found");
-            } catch (InvalidPhoneNumberException e) {
-                //TODO recover from problem to ensure message delivery
-                Log.d(TAG, "Invalid phone number");
-            }
-        }
-    }
-
-    private void processRegularSMS(SmsMessage receivedSMS) {
-        String originatingAddress = receivedSMS.getOriginatingAddress();
-        Log.d(TAG, "Received regular SMS from " + originatingAddress);
-
-        Contact participant;
-        try {
-            participant = ContactUtil.getContact(getApplicationContext(), originatingAddress);
-        } catch (NotFoundInDatabaseException e) {
-            try {
-                participant = ContactUtil.create(getApplicationContext(), originatingAddress, originatingAddress);
-            } catch (InvalidPhoneNumberException e1) {
-                //TODO should not really be adding a contact, just a new conversation.
-                // Should be able to have conversations not linked to a contact.
-                return;
-            }
-        }
-
-        Log.d(TAG, "Chat for contact " + participant.id);
-        Conversation conversation = null;
-        conversation = ConversationUtil.findOrNew(participant, getApplicationContext(), mMessageHandler);
-        Log.d(TAG, "Conversation for " + conversation.id);
-        conversation.receiveMessage(receivedSMS.getMessageBody().toString());
-    }
 
     public void addConversation(Contact contact) {
         Conversation newConversation;

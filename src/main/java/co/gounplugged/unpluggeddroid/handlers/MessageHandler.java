@@ -29,23 +29,11 @@ public class MessageHandler extends Handler {
         Message message = (Message) msg.obj;
         switch (msg.what) {
             case MESSAGE_WRITE:
-                String sms = (String) message.getMessage();
-
-                String recipientNumber = message.getMaskOnOtherEnd().getFullNumber();
-                sendSms(recipientNumber, message.sendOverWire);
                 messageAdapter.addMessage(message);
-                messageDatabaseAccess.create(message);
-
                 break;
             case MESSAGE_READ:
                 messageAdapter.addMessage(message);
-                messageDatabaseAccess.create(message);
                 break;
         }
-    }
-
-    public void sendSms(String fullPhoneNumber, String s) {
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(fullPhoneNumber, null, s, null, null);
     }
 }

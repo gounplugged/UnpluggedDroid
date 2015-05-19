@@ -12,19 +12,14 @@ public class Message {
     public static final int TYPE_INCOMING = 1;
     public static final int TYPE_OUTGOING = 2;
 
-    public String sendOverWire;
-
     @DatabaseField(generatedId = true)
     public long id;
 
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = CONVERSATION_ID_FIELD_NAME)
-    private Conversation conversation;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = MASK_ID_FIELD_NAME)
-    private Mask maskOnOtherEnd;
+    private Conversation mConversation;
 
     @DatabaseField
-    private String mMessage;
+    private String mText;
 
     @DatabaseField
     private int mType;
@@ -36,52 +31,26 @@ public class Message {
         // all persisted classes must define a no-arg constructor with at least package visibility
     }
 
-    public Message(String message, int type, long timestamp) {
-        this.mMessage = message;
+    public Message(Conversation conversation, String text, int type, long timestamp) {
+        this.mConversation = conversation;
+        this.mText = text;
         this.mType = type;
         this.mTimeStamp = timestamp;
     }
 
-
-    public String getMessage() {
-        return mMessage;
-    }
-
-    public void setMessage(String message) {
-        this.mMessage = message;
+    public String getText() {
+        return mText;
     }
 
     public int getType() {
         return mType;
     }
 
-    public void setType(int type) {
-        this.mType = type;
-    }
-
-    public long getTimeStamp() {
-        return mTimeStamp;
-    }
-
-    public void setTimeStamp(long timeStamp) {
-        this.mTimeStamp = timeStamp;
-    }
-
     public boolean isOutgoing() { return this.mType == TYPE_OUTGOING; }
 
-    public boolean isIncoming() { return this.mType == TYPE_INCOMING; }
-
     public Conversation getConversation() {
-        return conversation;
+        return mConversation;
     }
-
-    public void setConversation(Conversation conversation) {
-        this.conversation = conversation;
-    }
-
-    public void setMaskOnOtherEnd(Mask maskOnOtherEnd) { this.maskOnOtherEnd = maskOnOtherEnd; }
-
-    public Mask getMaskOnOtherEnd() { return maskOnOtherEnd; }
 
     @Override
     public String toString() {

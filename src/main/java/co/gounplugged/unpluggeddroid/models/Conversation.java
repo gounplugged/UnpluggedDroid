@@ -18,6 +18,8 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
+import co.gounplugged.unpluggeddroid.utils.MessageUtil;
+import co.gounplugged.unpluggeddroid.utils.SMSUtil;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
@@ -29,6 +31,9 @@ public class Conversation {
 
     @DatabaseField(generatedId = true)
     public long id;
+
+    @DatabaseField
+    public boolean isSecondLineCompatibile;
 
     @ForeignCollectionField
     private Collection<Message> messages;
@@ -54,21 +59,33 @@ public class Conversation {
         return messages;
     }
 
-    public void setMessages(Collection<Message> messages) {
-        this.messages = messages;
+    public void sendMessage(Context context, String text) {
+       Message message = MessageUtil.create(
+                context,
+                this,
+                text,
+                Message.TYPE_OUTGOING,
+                System.currentTimeMillis());
+
+        messageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
+        sendSMSOverWire(message, ((BaseApplication) context).getKnownMasks());
     }
 
-    public void sendMessage(String sms, List<Mask> knownMasks) {
-        currentSecondLine = getAndRefreshSecondLine(knownMasks);
-        Log.d(TAG, "This many masks " + knownMasks.size());
-        Throw t = currentSecondLine.getThrow(sms, Profile.getPhoneNumber());
-        Message message = new Message(sms, Message.TYPE_OUTGOING, System.currentTimeMillis());
-        message.sendOverWire = t.getEncryptedContent();
-        message.setConversation(this);
-        message.setMaskOnOtherEnd(t.getThrowTo());
-        Log.d(TAG, "Message handler is " + messageHandler);
-        Log.d(TAG, "Message is " + message);
-        messageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
+    private void sendSMSOverWire(Message message, List<Mask> knownMasks) {
+        String phoneNumber;
+        String text;
+
+        if(isSecondLineComptabile()) {
+            currentSecondLine = getAndRefreshSecondLine(knownMasks);
+            Throw t = currentSecondLine.getThrow(message.getText(), Profile.getPhoneNumber());
+            phoneNumber = t.getThrowTo().getFullNumber();
+            text = t.getEncryptedContent();
+        } else {
+            phoneNumber = participant.getFullNumber();
+            text = message.getText();
+        }
+
+        SMSUtil.sendSms(phoneNumber, text);
     }
 
     public SecondLine getAndRefreshSecondLine(List<Mask> knownMasks) {
@@ -76,15 +93,20 @@ public class Conversation {
         return currentSecondLine;
     }
 
-    public void receiveThrow(Throw receivedThrow) {
+    public void receiveThrow(Context context, Throw receivedThrow) {
         Log.d(TAG, "receiveThrow");
         String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
-        receiveMessage(receivedMessage);
+        receiveMessage(context, receivedMessage);
     }
 
-    public void receiveMessage(String receivedMessage) {
-        Message message = new Message(receivedMessage, Message.TYPE_INCOMING, System.currentTimeMillis());
-        message.setConversation(this);
+    public void receiveMessage(Context context, String text) {
+        Message message = MessageUtil.create(
+                context,
+                this,
+                text,
+                Message.TYPE_INCOMING,
+                System.currentTimeMillis());
+
         messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
     }
 
@@ -119,8 +141,11 @@ public class Conversation {
         if (obj == this)
             return true;
         Conversation rhs = (Conversation) obj;
-        Log.d(TAG, "Comparing Conversation " + id + " against " + rhs.id);
 
         return id == rhs.id;
+    }
+
+    public boolean isSecondLineComptabile() {
+        return isSecondLineCompatibile;
     }
 }
