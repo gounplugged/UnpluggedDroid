@@ -74,4 +74,12 @@ public class ContactUtil {
         if (contact == null) throw new NotFoundInDatabaseException("Could not find a contact with that phone number");
         return contact;
     }
+
+    public static Contact create(Context context, String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        Contact c = new Contact(name, fullPhoneNumber);
+        contactAccess.create(c);
+        return c;
+    }
+
 }

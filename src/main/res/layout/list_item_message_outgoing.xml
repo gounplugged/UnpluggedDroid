@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="This is an example text."
-        android:textColor="@color/black"
+        android:textColor="@color/chat_outgoing_text"
         android:layout_centerVertical="true"
         android:layout_marginRight="12dp"
         android:layout_alignParentRight="true"/>
