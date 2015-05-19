@@ -25,7 +25,6 @@ public class PhoneNumberParser {
         return m.group(group);
     }
 
-
     public static String sanitizePhoneNumber(String number) throws InvalidPhoneNumberException {
         number = number.replaceAll("\\(", "");
         number = number.replaceAll("\\)", "");
