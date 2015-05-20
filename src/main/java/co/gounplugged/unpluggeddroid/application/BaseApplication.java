@@ -2,23 +2,16 @@ package co.gounplugged.unpluggeddroid.application;
 
 import android.app.Application;
 import android.content.Context;
-import android.telephony.SmsMessage;
 import android.util.Log;
+
 import java.util.List;
+
 import co.gounplugged.unpluggeddroid.api.APICaller;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
-import co.gounplugged.unpluggeddroid.models.Contact;
-import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.models.Throw;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
-import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.utils.MaskUtil;
-import co.gounplugged.unpluggeddroid.utils.SMSUtil;
 
 /**
  * Serves as global application instance
@@ -28,12 +21,23 @@ public class BaseApplication extends Application {
     private APICaller mApiCaller;
     private List<Mask> mKnownMasks;
 
+    public static final BaseApplication getInstance(Context c) {
+        return (BaseApplication) c.getApplicationContext();
+    }
+
+    public static class App {
+        public static ThrowManager ThrowManager;
+    }
+
     /**
      * Get new masks from api or cache on app start
      */
     @Override
     public void onCreate() {
         super.onCreate();
+
+        initManagers();
+
         Profile.loadProfile(getApplicationContext());
         mApiCaller = new APICaller(getApplicationContext());
 
@@ -45,6 +49,10 @@ public class BaseApplication extends Application {
                 seedKnownMasks();
                 break;
         }
+    }
+
+    private void initManagers() {
+        App.ThrowManager = new ThrowManager(getApplicationContext());
     }
 
     public void refreshKnownMasks() {

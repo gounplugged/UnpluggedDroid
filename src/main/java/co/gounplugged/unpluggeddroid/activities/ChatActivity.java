@@ -42,6 +42,7 @@ import co.gounplugged.unpluggeddroid.utils.SMSUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
+import de.greenrobot.event.EventBus;
 
 
 public class ChatActivity extends ActionBarActivity {
@@ -59,8 +60,6 @@ public class ChatActivity extends ActionBarActivity {
     private InfiniteViewPager mViewPager;
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
-
-    private MessageHandler mMessageHandler;
 
     SmsBroadcastReceiver smsBroadcastReceiver;
 
@@ -86,7 +85,8 @@ public class ChatActivity extends ActionBarActivity {
             long cid = Profile.getLastConversationId();
             if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
                 try {
-                    mSelectedConversation = ConversationUtil.findById(getApplicationContext(), cid, mMessageHandler);
+                    mSelectedConversation = ConversationUtil.findById(getApplicationContext(), cid,
+                            BaseApplication.App.ThrowManager.getMessageHandler());
                 } catch (NotFoundInDatabaseException e) {
                     e.printStackTrace();
                 }
@@ -105,7 +105,6 @@ public class ChatActivity extends ActionBarActivity {
         setContentView(R.layout.activity_chat);
 
         mChatArrayAdapter = new MessageAdapter(this);
-        mMessageHandler = new MessageHandler(mChatArrayAdapter, getApplicationContext());
         getLastSelectedConversation();
     	loadGui();
 
@@ -133,18 +132,27 @@ public class ChatActivity extends ActionBarActivity {
     	super.onResume();
         mConversationContainer.setConversationListener(conversationListener);
 
+        EventBus.getDefault().removeStickyEvent(Message.class);
+        EventBus.getDefault().registerSticky(this);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mConversationContainer.removeConversationListener(conversationListener);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onDestroy() {
     	super.onDestroy();
     }
+
+    public void onEventMainThread(Message message) {
+        mChatArrayAdapter.addMessage(message);
+    }
+
 
     private void loadGui() {
         // Input/Search infinite-viewpager
@@ -232,69 +240,6 @@ public class ChatActivity extends ActionBarActivity {
         mChatArrayAdapter.setMessages(messages);
 
     }
-    public void processUnknownSMS(Context context, SmsMessage receivedSMS) {
-        String receivedText = receivedSMS.getMessageBody().toString();
-        Log.d(TAG, "Received text: " + receivedText);
-
-        try {
-            Throw receivedThrow = new Throw(receivedText);
-            processThrow(context, receivedThrow);
-        }  catch (InvalidThrowException e) {
-            processRegularSMS(context, receivedSMS);
-        } catch (InvalidPhoneNumberException e) {
-            //TODO recover from problem to ensure message delivery
-        }
-    }
-
-    private void processThrow(Context context, Throw receivedThrow) {
-        String nextText = receivedThrow.getEncryptedContent();
-        Log.d(TAG, "Next message: " + nextText);
-
-        if(!receivedThrow.hasArrived()) {
-            Log.d(TAG, "Throw again");
-            SMSUtil.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextText);
-        } else {
-            try {
-                Contact originator = receivedThrow.getThrowOriginator(context);
-                Log.d(TAG, "Chat for contact " + originator.id);
-                Conversation conversation = ConversationUtil.findOrNew(originator, context, mMessageHandler);
-                Log.d(TAG, "Conversation for " + conversation.id);
-                conversation.receiveThrow(context, receivedThrow);
-            } catch (PrematureReadException e) {
-                Log.e(TAG, "Premature");
-
-            } catch (NotFoundInDatabaseException e) {
-                Log.e(TAG, "Contact not found");
-            } catch (InvalidPhoneNumberException e) {
-                //TODO recover from problem to ensure message delivery
-                Log.d(TAG, "Invalid phone number");
-            }
-        }
-    }
-
-    private void processRegularSMS(Context context, SmsMessage receivedSMS) {
-        String originatingAddress = receivedSMS.getOriginatingAddress();
-        Log.d(TAG, "Received regular SMS from " + originatingAddress);
-
-        Contact participant;
-        try {
-            participant = ContactUtil.getContact(getApplicationContext(), originatingAddress);
-        } catch (NotFoundInDatabaseException e) {
-            try {
-                participant = ContactUtil.create(getApplicationContext(), originatingAddress, originatingAddress);
-            } catch (InvalidPhoneNumberException e1) {
-                //TODO should not really be adding a contact, just a new conversation.
-                // Should be able to have conversations not linked to a contact.
-                return;
-            }
-        }
-
-        Log.d(TAG, "Chat for contact " + participant.id);
-        Conversation conversation = null;
-        conversation = ConversationUtil.findOrNew(participant, getApplicationContext(), mMessageHandler);
-        Log.d(TAG, "Conversation for " + conversation.id);
-        conversation.receiveMessage(getApplicationContext(), receivedSMS.getMessageBody().toString());
-    }
 
     private void replaceSelectedConversation(Conversation newConversation) {
         if(!hasConversationChanged(newConversation)) return;
@@ -333,9 +278,11 @@ public class ChatActivity extends ActionBarActivity {
         boolean conversationChanged = false;
 
         try {
-            newConversation = ConversationUtil.findByParticipant(contact, getApplicationContext(), mMessageHandler);
+            newConversation = ConversationUtil.findByParticipant(contact, getApplicationContext(),
+                    BaseApplication.App.ThrowManager.getMessageHandler());
         } catch(NotFoundInDatabaseException e) {
-            newConversation = ConversationUtil.createConversation(contact, getApplicationContext(), mMessageHandler);
+            newConversation = ConversationUtil.createConversation(contact, getApplicationContext(),
+                    BaseApplication.App.ThrowManager.getMessageHandler());
         }
 
        replaceSelectedConversation(newConversation);

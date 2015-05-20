@@ -41,14 +41,10 @@ public class MessageInputFragment extends Fragment {
     private static final String TAG = "MessageInputFragment";
     private ImageButton submitButton;
     private EditText newPostText;
-    private MessageHandler mMessageHandler;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        MessageAdapter adapter = ((ChatActivity)getActivity()).getChatArrayAdapter();
-        mMessageHandler = new MessageHandler(adapter, getActivity().getApplicationContext());
     }
 
     @Override
