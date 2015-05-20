@@ -7,18 +7,11 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "SmsBroadcastReceiver";
     public static final String SMS_BUNDLE = "pdus";
-
-    private ChatActivity chatActivity;
-
-    public void setActivity(ChatActivity activity) {
-        this.chatActivity = activity;
-    }
 
     public void onReceive(Context context, Intent intent) {
 

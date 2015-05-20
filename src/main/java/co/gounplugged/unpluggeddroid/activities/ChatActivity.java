@@ -1,6 +1,5 @@
 package co.gounplugged.unpluggeddroid.activities;
 
-import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
@@ -24,21 +22,14 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
-import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.models.Throw;
-import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
-import co.gounplugged.unpluggeddroid.utils.SMSUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
@@ -85,8 +76,7 @@ public class ChatActivity extends ActionBarActivity {
             long cid = Profile.getLastConversationId();
             if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
                 try {
-                    mSelectedConversation = ConversationUtil.findById(getApplicationContext(), cid,
-                            BaseApplication.App.ThrowManager.getMessageHandler());
+                    mSelectedConversation = ConversationUtil.findById(getApplicationContext(), cid);
                 } catch (NotFoundInDatabaseException e) {
                     e.printStackTrace();
                 }
@@ -109,7 +99,6 @@ public class ChatActivity extends ActionBarActivity {
     	loadGui();
 
         smsBroadcastReceiver = new SmsBroadcastReceiver();
-        smsBroadcastReceiver.setActivity(this);
 
     }
 
@@ -278,11 +267,9 @@ public class ChatActivity extends ActionBarActivity {
         boolean conversationChanged = false;
 
         try {
-            newConversation = ConversationUtil.findByParticipant(contact, getApplicationContext(),
-                    BaseApplication.App.ThrowManager.getMessageHandler());
+            newConversation = ConversationUtil.findByParticipant(contact, getApplicationContext());
         } catch(NotFoundInDatabaseException e) {
-            newConversation = ConversationUtil.createConversation(contact, getApplicationContext(),
-                    BaseApplication.App.ThrowManager.getMessageHandler());
+            newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
         }
 
        replaceSelectedConversation(newConversation);

@@ -5,21 +5,15 @@ import android.util.Log;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.stmt.query.Not;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
-import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.utils.MessageUtil;
 import co.gounplugged.unpluggeddroid.utils.SMSUtil;
+import de.greenrobot.event.EventBus;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
@@ -27,7 +21,6 @@ public class Conversation {
     public static final String PARTICIPANT_ID_FIELD_NAME = "contact_id";
 
     private SecondLine currentSecondLine;
-    private MessageHandler messageHandler;
 
     @DatabaseField(generatedId = true)
     public long id;
@@ -47,12 +40,10 @@ public class Conversation {
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
         participant = null;
-        messageHandler = null;
     }
 
-    public Conversation(Contact participant, MessageHandler messageHandler) {
+    public Conversation(Contact participant) {
         this.participant = participant;
-        this.messageHandler = messageHandler;
     }
 
     public Collection<Message> getMessages() {
@@ -67,7 +58,8 @@ public class Conversation {
                 Message.TYPE_OUTGOING,
                 System.currentTimeMillis());
 
-        messageHandler.obtainMessage(MessageHandler.MESSAGE_WRITE, -1, -1, message).sendToTarget();
+        EventBus.getDefault().postSticky(message);
+
         sendSMSOverWire(message, ((BaseApplication) context).getKnownMasks());
     }
 
@@ -107,11 +99,8 @@ public class Conversation {
                 Message.TYPE_INCOMING,
                 System.currentTimeMillis());
 
-        messageHandler.obtainMessage(MessageHandler.MESSAGE_READ, -1, -1, message).sendToTarget();
-    }
+        EventBus.getDefault().postSticky(message);
 
-    public void setMessageHandler(MessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
     }
 
     @Override

@@ -9,7 +9,6 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
-import co.gounplugged.unpluggeddroid.handlers.MessageHandler;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Throw;
@@ -22,16 +21,9 @@ public class ThrowManager {
     public static final String TAG = "ThrowManager";
 
     private Context mContext;
-    private MessageHandler mMessageHandler;
-
 
     public ThrowManager(Context context) {
         mContext = context;
-        mMessageHandler = new MessageHandler(context);
-    }
-
-    public MessageHandler getMessageHandler() {
-        return mMessageHandler;
     }
 
     public void processUnknownSMS(SmsMessage receivedSMS) {
@@ -58,7 +50,7 @@ public class ThrowManager {
             try {
                 Contact originator = receivedThrow.getThrowOriginator(context);
                 Log.d(TAG, "Chat for contact " + originator.id);
-                Conversation conversation = ConversationUtil.findOrNew(originator, context, mMessageHandler);
+                Conversation conversation = ConversationUtil.findOrNew(originator, context);
                 Log.d(TAG, "Conversation for " + conversation.id);
                 conversation.receiveThrow(context, receivedThrow);
             } catch (PrematureReadException e) {
@@ -92,7 +84,7 @@ public class ThrowManager {
 
         Log.d(TAG, "Chat for contact " + participant.id);
         Conversation conversation = null;
-        conversation = ConversationUtil.findOrNew(participant, mContext, mMessageHandler);
+        conversation = ConversationUtil.findOrNew(participant, mContext);
         Log.d(TAG, "Conversation for " + conversation.id);
         conversation.receiveMessage(mContext, receivedSMS.getMessageBody().toString());
     }
