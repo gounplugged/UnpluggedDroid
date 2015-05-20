@@ -8,6 +8,7 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Message;
+import de.greenrobot.event.EventBus;
 
 public class MessageHandler extends Handler {
     private static final String TAG = "UnpluggedMessageHandler";
@@ -16,24 +17,17 @@ public class MessageHandler extends Handler {
     public static final int MESSAGE_READ = 1;
     public static final int MESSAGE_WRITE = 2;
 
-    private MessageAdapter messageAdapter;
     private DatabaseAccess<Message> messageDatabaseAccess;
 
-    public MessageHandler(MessageAdapter messageAdapter, Context context) {
-        this.messageAdapter = messageAdapter;
+    public MessageHandler(Context context) {
         this.messageDatabaseAccess = new DatabaseAccess<Message>(context, Message.class);
     }
 
     @Override
     public void handleMessage(android.os.Message msg) {
         Message message = (Message) msg.obj;
-        switch (msg.what) {
-            case MESSAGE_WRITE:
-                messageAdapter.addMessage(message);
-                break;
-            case MESSAGE_READ:
-                messageAdapter.addMessage(message);
-                break;
-        }
+        // Post sticky event (Message.class) for message-adapter-controller (ChatActivity) to handle
+        // when it is registered to event-bus
+        EventBus.getDefault().postSticky(message);
     }
 }
