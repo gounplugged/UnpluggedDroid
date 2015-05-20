@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidRecipientException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -95,7 +96,7 @@ public class MessageInputFragment extends Fragment {
         if(conversation != null) {
             Context context = getActivity().getApplicationContext();
             String text = newPostText.getText().toString();
-            conversation.sendMessage(context, text);
+            BaseApplication.App.ThrowManager.sendMessage(conversation, text);
             newPostText.setText("");
         }
     }

@@ -1,19 +1,11 @@
 package co.gounplugged.unpluggeddroid.models;
 
-import android.content.Context;
-import android.util.Log;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Collection;
 import java.util.List;
-
-import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.utils.MessageUtil;
-import co.gounplugged.unpluggeddroid.utils.SMSUtil;
-import de.greenrobot.event.EventBus;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
@@ -50,59 +42,6 @@ public class Conversation {
         return messages;
     }
 
-    public void sendMessage(Context context, String text) {
-       Message message = MessageUtil.create(
-                context,
-                this,
-                text,
-                Message.TYPE_OUTGOING,
-                System.currentTimeMillis());
-
-        EventBus.getDefault().postSticky(message);
-
-        sendSMSOverWire(message, ((BaseApplication) context).getKnownMasks());
-    }
-
-    private void sendSMSOverWire(Message message, List<Mask> knownMasks) {
-        String phoneNumber;
-        String text;
-
-        if(isSecondLineComptabile()) {
-            currentSecondLine = getAndRefreshSecondLine(knownMasks);
-            Throw t = currentSecondLine.getThrow(message.getText(), Profile.getPhoneNumber());
-            phoneNumber = t.getThrowTo().getFullNumber();
-            text = t.getEncryptedContent();
-        } else {
-            phoneNumber = participant.getFullNumber();
-            text = message.getText();
-        }
-
-        SMSUtil.sendSms(phoneNumber, text);
-    }
-
-    public SecondLine getAndRefreshSecondLine(List<Mask> knownMasks) {
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
-        return currentSecondLine;
-    }
-
-    public void receiveThrow(Context context, Throw receivedThrow) {
-        Log.d(TAG, "receiveThrow");
-        String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
-        receiveMessage(context, receivedMessage);
-    }
-
-    public void receiveMessage(Context context, String text) {
-        Message message = MessageUtil.create(
-                context,
-                this,
-                text,
-                Message.TYPE_INCOMING,
-                System.currentTimeMillis());
-
-        EventBus.getDefault().postSticky(message);
-
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder()
@@ -136,5 +75,18 @@ public class Conversation {
 
     public boolean isSecondLineComptabile() {
         return isSecondLineCompatibile;
+    }
+
+    public SecondLine getCurrentSecondLine() {
+        return currentSecondLine;
+    }
+
+    public SecondLine getAndRefreshSecondLine(List<Mask> knownMasks) {
+        if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
+        return currentSecondLine;
+    }
+
+    public void setCurrentSecondLine(SecondLine currentSecondLine) {
+        this.currentSecondLine = currentSecondLine;
     }
 }
