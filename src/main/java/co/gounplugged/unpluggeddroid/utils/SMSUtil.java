@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid.utils;
 
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 
 import java.util.ArrayList;
 
@@ -11,9 +12,9 @@ public class SMSUtil {
     /*
         Break message up into pieces and send.
      */
-    public static void sendSms(String fullPhoneNumber, String s) {
+    public static void sendSms(String fullPhoneNumber, String textToSend) {
         SmsManager smsManager = SmsManager.getDefault();
-        ArrayList<String> messages = smsManager.divideMessage(s);
+        ArrayList<String> messages = smsManager.divideMessage(textToSend);
 
         try {
             smsManager.sendMultipartTextMessage(fullPhoneNumber, null, messages, null, null);

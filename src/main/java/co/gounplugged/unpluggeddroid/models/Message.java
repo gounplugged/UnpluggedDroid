@@ -52,6 +52,20 @@ public class Message {
         return mConversation;
     }
 
+    /*
+        Mutates text to discreetly inform recipient that they are using this application.
+     */
+    public void mutateTextToShowCompatibility() {
+        this.mText = mText + " ";
+    }
+
+    /*
+        Guesses is a message was created  by an instance o
+     */
+    public static boolean isCompatible(String text) {
+        return text.matches(".*\\s$");
+    }
+
     @Override
     public String toString() {
         return new StringBuilder()
