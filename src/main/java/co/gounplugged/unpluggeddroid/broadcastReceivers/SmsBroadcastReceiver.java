@@ -22,7 +22,9 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             for (int i = 0; i < sms.length; ++i) {
                 SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
                 BaseApplication.App.ThrowManager.processUnknownSMS(smsMessage);
+
                 Log.d(TAG, "Received message: " + smsMessageStr);
+                Log.d(TAG, "Raw PDU: " + new String(smsMessage.getPdu()));
             }
         }
     }
