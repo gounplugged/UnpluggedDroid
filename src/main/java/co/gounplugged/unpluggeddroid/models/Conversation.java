@@ -12,34 +12,31 @@ public class Conversation {
     private static final String TAG = "Conversation";
     public static final String PARTICIPANT_ID_FIELD_NAME = "contact_id";
 
-    private SecondLine currentSecondLine;
+    private SecondLine mCurrentSecondLine;
 
     @DatabaseField(generatedId = true)
     public long id;
 
-    @DatabaseField
-    public boolean isSecondLineCompatibile;
-
     @ForeignCollectionField
-    private Collection<Message> messages;
+    private Collection<Message> mMessages;
 
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
-    private final Contact participant;
+    private final Contact mParticipant;
     public Contact getParticipant() {
-        return participant;
+        return mParticipant;
     }
 
     public Conversation() {
         // all persisted classes must define a no-arg constructor with at least package visibility
-        participant = null;
+        this.mParticipant = null;
     }
 
     public Conversation(Contact participant) {
-        this.participant = participant;
+        this.mParticipant = participant;
     }
 
     public Collection<Message> getMessages() {
-        return messages;
+        return mMessages;
     }
 
     @Override
@@ -49,8 +46,8 @@ public class Conversation {
                 .append("\n")
                 .append("id: " + id)
                 .append("\n");
-        if (messages != null && !messages.isEmpty()) {
-            for (Message message : messages) {
+        if (mMessages != null && !mMessages.isEmpty()) {
+            for (Message message : mMessages) {
                 builder.append(message.toString())
                         .append("\n");
             }
@@ -74,19 +71,19 @@ public class Conversation {
     }
 
     public boolean isSecondLineComptabile() {
-        return isSecondLineCompatibile;
+        return mParticipant.usesSecondLine();
     }
 
     public SecondLine getCurrentSecondLine() {
-        return currentSecondLine;
+        return mCurrentSecondLine;
     }
 
     public SecondLine getAndRefreshSecondLine(List<Mask> knownMasks) {
-        if(currentSecondLine == null) currentSecondLine = new SecondLine(participant, knownMasks);
-        return currentSecondLine;
+        if(mCurrentSecondLine == null) this.mCurrentSecondLine = new SecondLine(mParticipant, knownMasks);
+        return mCurrentSecondLine;
     }
 
     public void setCurrentSecondLine(SecondLine currentSecondLine) {
-        this.currentSecondLine = currentSecondLine;
+        this.mCurrentSecondLine = currentSecondLine;
     }
 }

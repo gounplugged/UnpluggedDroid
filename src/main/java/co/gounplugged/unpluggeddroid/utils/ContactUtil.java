@@ -79,7 +79,7 @@ public class ContactUtil {
             e.printStackTrace();
         }
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-        Contact contact = contactAccess.getFirstString("phoneNumber", phoneNumber);
+        Contact contact = contactAccess.getFirstString("mPhoneNumber", phoneNumber);
         if (contact == null) throw new NotFoundInDatabaseException("Could not find a contact with that phone number");
         return contact;
     }
@@ -92,8 +92,12 @@ public class ContactUtil {
     }
 
     public static Contact create(Context context, String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
+        return create(context, name, fullPhoneNumber, false);
+    }
+
+    public static Contact create(Context context, String name, String fullPhoneNumber, boolean usesSecondLine) throws InvalidPhoneNumberException {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-        Contact c = new Contact(name, fullPhoneNumber);
+        Contact c = new Contact(name, fullPhoneNumber, usesSecondLine);
         contactAccess.create(c);
         return c;
     }

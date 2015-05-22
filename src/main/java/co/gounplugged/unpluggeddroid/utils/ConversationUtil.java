@@ -25,8 +25,10 @@ public class ConversationUtil {
         if(participant == null) {
             // TODO
         } try {
+            Log.d(TAG, "SEARCHING FOR CONVO");
             return findByParticipant(participant, context);
         } catch (NotFoundInDatabaseException e) {
+            Log.d(TAG, "CREATED NEW CONVO");
             return createConversation(participant, context);
         }
     }
@@ -35,7 +37,6 @@ public class ConversationUtil {
         if(participant == null) {
             // TODO
         }
-        Log.d(TAG, "Searching for convo with" + participant.getName());
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         for(Conversation conversation : conversationAccess.getAll()) {
             if(conversation.getParticipant().equals(participant)) {

@@ -1,13 +1,13 @@
-package co.gounplugged.unpluggeddroid.test.models;
+package co.gounplugged.unpluggeddroid.test.utils;
 
 import android.test.AndroidTestCase;
 
-import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.utils.MessageUtil;
 
 /**
  * Created by Marvin Arnold on 21/05/15.
  */
-public class MessageTest extends AndroidTestCase {
+public class MessageUtilTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         // TODO Auto-generated method stub
@@ -22,8 +22,8 @@ public class MessageTest extends AndroidTestCase {
     }
 
 
-    public void testIsCompatible() {
-        assertTrue(Message.isCompatible("anything "));
-        assertFalse(Message.isCompatible("anything"));
+    public void testIsSLCompatible() {
+        assertTrue(MessageUtil.isSLCompatible("anything "));
+        assertFalse(MessageUtil.isSLCompatible("anything"));
     }
 }

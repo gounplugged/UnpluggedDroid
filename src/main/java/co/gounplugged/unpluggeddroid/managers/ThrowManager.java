@@ -53,6 +53,11 @@ public class ThrowManager {
         }
     }
 
+    /**
+     * Decrypt Throw and either send to next person if relay or add to messages if recipient.
+     * @param context
+     * @param receivedThrow
+     */
     private void processThrow(Context context, Throw receivedThrow) {
         String nextText = receivedThrow.getEncryptedContent();
         Log.d(TAG, "Next message: " + nextText);
@@ -79,14 +84,19 @@ public class ThrowManager {
         }
     }
 
+    /**
+     * Find or create appropriate conversation for this message.
+     * @param receivedSMS
+     */
     private void processRegularSMS(SmsMessage receivedSMS) {
         String originatingAddress = receivedSMS.getOriginatingAddress();
-        Log.d(TAG, "Received regular SMS from " + originatingAddress);
+        String text = receivedSMS.getMessageBody().toString();
 
         Contact participant;
-        try {
+        // Find or create Contact based on sender's phone number
+        try { // Existing contact
             participant = ContactUtil.getContact(mContext, originatingAddress);
-        } catch (NotFoundInDatabaseException e) {
+        } catch (NotFoundInDatabaseException e) { // New contact
             try {
                 participant = ContactUtil.create(mContext, originatingAddress, originatingAddress);
             } catch (InvalidPhoneNumberException e1) {
@@ -95,12 +105,20 @@ public class ThrowManager {
                 return;
             }
         }
+        participant.setUsesSecondLine(MessageUtil.isSLCompatible(text));
 
-        Log.d(TAG, "Chat for contact " + participant.id);
-        Conversation conversation = null;
-        conversation = ConversationUtil.findOrNew(participant, mContext);
-        Log.d(TAG, "Conversation for " + conversation.id);
-        receiveMessage(receivedSMS.getMessageBody().toString(), conversation);
+        // Find or create conversation with participant
+        Conversation conversation = ConversationUtil.findOrNew(participant, mContext);
+
+        addTextToConversation(text, conversation);
+        Log.d(TAG, "Received regular SMS from: " + originatingAddress +
+                    "\nsaying: " + text +
+                    "\nmsg compatibility: " + MessageUtil.isSLCompatible(text) +
+                    "\nrecipient uses SL: " + participant.usesSecondLine() +
+                    "\nconversation compatible: " + conversation.isSecondLineComptabile() +
+                    "\nparticipant: " + participant.id +
+                    "\nconversation participtant: " +conversation.getParticipant().id +
+                    "\nconversation-participant uses: " + conversation.getParticipant().usesSecondLine());
     }
 
     /**
@@ -109,6 +127,11 @@ public class ThrowManager {
      * @param text
      */
     public void sendMessage(Conversation conversation, String text) {
+        Log.d(TAG, "Sending message: " + text +
+                        "\ncompatible: " + MessageUtil.isSLCompatible(text) +
+                        "\nto: " + conversation.getParticipant().getFullNumber() +
+                        "\nuses SL: " + conversation.isSecondLineComptabile()
+        );
         Message message = MessageUtil.create(
                 mContext,
                 conversation,
@@ -122,6 +145,11 @@ public class ThrowManager {
     }
 
 
+    /**
+     *
+     * @param message
+     * @param knownMasks
+     */
     private void sendSMSOverWire(Message message, List<Mask> knownMasks) {
         String phoneNumber;
         String text;
@@ -136,18 +164,29 @@ public class ThrowManager {
             text = t.getEncryptedContent();
         } else {
             phoneNumber = conversation.getParticipant().getFullNumber();
+            message.mutateTextToShowSLCompatibility();
             text = message.getText();
         }
         SMSUtil.sendSms(phoneNumber, text);
     }
 
+    /**
+     *
+     * @param receivedThrow
+     * @param conversation
+     */
     private void receiveThrow(Throw receivedThrow, Conversation conversation) {
         Log.d(TAG, "receiveThrow");
-        String receivedMessage = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
-        receiveMessage(receivedMessage, conversation);
+        String receivedText = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
+        addTextToConversation(receivedText, conversation);
     }
 
-    private void receiveMessage(String text, Conversation conversation) {
+    /**
+     *
+     * @param text
+     * @param conversation
+     */
+    private void addTextToConversation(String text, Conversation conversation) {
         Message message = MessageUtil.create(
                 mContext,
                 conversation,

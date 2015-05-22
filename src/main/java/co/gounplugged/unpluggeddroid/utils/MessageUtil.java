@@ -18,4 +18,18 @@ public class MessageUtil {
         messageAccess.create(m);
         return m;
     }
+
+    /*
+        Mutates text to discreetly inform recipient that they are using SL
+     */
+    public static String mutateTextToShowSLCompatibility(String text) {
+        return text + " ";
+    }
+
+    /*
+        Guesses is a message was created  by another SL
+     */
+    public static boolean isSLCompatible(String text) {
+        return text.matches(".*\\s$");
+    }
 }
