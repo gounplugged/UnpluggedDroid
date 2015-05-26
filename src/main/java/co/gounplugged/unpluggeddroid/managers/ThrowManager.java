@@ -84,7 +84,7 @@ public class ThrowManager {
      */
     private void processRegularSMS(SmsMessage receivedSMS) {
         String originatingAddress = receivedSMS.getOriginatingAddress();
-        String text = receivedSMS.getMessageBody().toString();
+        String text = receivedSMS.getMessageBody();
 
         Contact participant;
         // Find or create Contact based on sender's phone number
@@ -102,8 +102,8 @@ public class ThrowManager {
 
         boolean isSLMessage = MessageUtil.isSLCompatible(text);
         if(isSLMessage) {
-            participant.setUsesSecondLine(isSLMessage);
-            ContactUtil.update(mContext, participant);
+            participant.setUsesSecondLine(mContext, isSLMessage);
+            text = MessageUtil.sanitizeSLCompatibilityText(text);
         }
 
         // Find or create conversation with participant
@@ -128,6 +128,7 @@ public class ThrowManager {
         EventBus.getDefault().postSticky(message);
 
         sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks());
+        Log.d(TAG, "Sending message: " + message);
     }
 
 
@@ -165,7 +166,6 @@ public class ThrowManager {
      * @param conversation
      */
     private void receiveThrow(Throw receivedThrow, Conversation conversation) {
-        Log.d(TAG, "receiveThrow");
         String receivedText = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
         addTextToConversation(receivedText, conversation);
     }
@@ -184,6 +184,7 @@ public class ThrowManager {
                 System.currentTimeMillis());
 
         EventBus.getDefault().postSticky(message);
+        Log.d(TAG, "Received message: " + message);
     }
 
 }

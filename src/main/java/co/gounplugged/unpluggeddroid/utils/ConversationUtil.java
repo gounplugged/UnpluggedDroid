@@ -25,10 +25,8 @@ public class ConversationUtil {
         if(participant == null) {
             // TODO
         } try {
-            Log.d(TAG, "SEARCHING FOR CONVO");
             return findByParticipant(participant, context);
         } catch (NotFoundInDatabaseException e) {
-            Log.d(TAG, "CREATED NEW CONVO");
             return createConversation(participant, context);
         }
     }
@@ -47,7 +45,6 @@ public class ConversationUtil {
     }
 
     public static Conversation findById(Context context, long conversationId) throws NotFoundInDatabaseException {
-        Log.d(TAG, "Searching for Conversation " + conversationId);
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         Conversation conversation = conversationAccess.getById(conversationId);
         if(conversation == null) throw new NotFoundInDatabaseException("No conversation found with that ID");
@@ -62,5 +59,10 @@ public class ConversationUtil {
     public static int refresh(Context context, Conversation conversation) {
         DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
         return contactAccess.refresh(conversation);
+    }
+
+    public static void deleteAll(Context context) {
+        DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
+        contactAccess.deleteAll();
     }
 }

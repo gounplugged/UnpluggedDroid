@@ -106,4 +106,27 @@ public class ContactUtil {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
         return contactAccess.update(contact);
     }
+
+    public static List<Contact> getAll(Context context) {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        return contactAccess.getAll();
+    }
+
+    public static void deleteAll(Context context) {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        contactAccess.deleteAll();
+    }
+
+    public static Contact firstOrCreate(Context context, String name, String phoneNumber) throws InvalidPhoneNumberException {
+        try {
+            return getContact(context, phoneNumber);
+        } catch (NotFoundInDatabaseException e) {
+            return create(context, name, phoneNumber);
+        }
+    }
+
+    public static int refresh(Context context, Contact contact) {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        return contactAccess.refresh(contact);
+    }
 }

@@ -39,14 +39,14 @@ public class ConversationTest extends AndroidTestCase {
         }
     }
 
-    public void sameCompatibilityAsSwitchingParticipant() {
+    public void testSameCompatibilityAsSwitchingParticipant() {
         String number = "+13016864576";
         try {
             Contact user = new Contact("",number, false);
             Conversation users = new Conversation(user);
 
             assertFalse(users.isSecondLineComptabile());
-            user.setUsesSecondLine(true);
+            user.setUsesSecondLine(getContext(), true);
             assertTrue(users.isSecondLineComptabile());
         } catch (InvalidPhoneNumberException e) {
             assertTrue(false);

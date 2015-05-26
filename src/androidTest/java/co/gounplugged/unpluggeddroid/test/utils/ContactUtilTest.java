@@ -25,4 +25,28 @@ public class ContactUtilTest extends AndroidTestCase {
             assertTrue(false);
         }
     }
+
+    public void testFirstOrCreate() {
+        String phoneNumber = "+11";
+        ContactUtil.deleteAll(getContext());
+        try {
+            Contact c1 = ContactUtil.create(getContext(), "", phoneNumber);
+            Contact c2  = ContactUtil.firstOrCreate(getContext(), "", phoneNumber);
+
+            assertEquals(1, ContactUtil.getAll(getContext()).size());
+            assertEquals(c1, c2);
+        } catch (InvalidPhoneNumberException e) {
+            assertTrue(false);
+        }
+    }
+
+    public void testDeleteAll() {
+        try {
+            Contact newContact = ContactUtil.create(getContext(), "", "+11");
+            ContactUtil.deleteAll(getContext());
+            assertEquals(0, ContactUtil.getAll(getContext()).size());
+        } catch (InvalidPhoneNumberException e) {
+            assertTrue(false);
+        }
+    }
 }

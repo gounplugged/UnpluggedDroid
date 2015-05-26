@@ -2,6 +2,8 @@ package co.gounplugged.unpluggeddroid.utils;
 
 import android.content.Context;
 
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
@@ -19,6 +21,16 @@ public class MessageUtil {
         return m;
     }
 
+    public static void deleteAll(Context context) {
+        DatabaseAccess<Message> messageAccess = new DatabaseAccess<>(context, Message.class);
+        messageAccess.deleteAll();
+    }
+
+    public static List<Message> getAll(Context context) {
+        DatabaseAccess<Message> messageAccess = new DatabaseAccess<>(context, Message.class);
+        return messageAccess.getAll();
+    }
+
     /*
         Mutates text to discreetly inform recipient that they are using SL
      */
@@ -31,5 +43,9 @@ public class MessageUtil {
      */
     public static boolean isSLCompatible(String text) {
         return text.matches(".*\\s$");
+    }
+
+    public static String sanitizeSLCompatibilityText(String text) {
+        return text.replaceFirst("\\s$", "");
     }
 }

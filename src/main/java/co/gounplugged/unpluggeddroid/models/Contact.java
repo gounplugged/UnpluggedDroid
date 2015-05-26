@@ -16,6 +16,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 /*
 
@@ -85,7 +86,10 @@ public class Contact {
     public boolean usesSecondLine() {
         return mUsesSecondLine;
     }
-    public void setUsesSecondLine(boolean usesSecondLine) { this.mUsesSecondLine = usesSecondLine; }
+    public void setUsesSecondLine(Context context, boolean usesSecondLine) {
+        this.mUsesSecondLine = usesSecondLine;
+        ContactUtil.update(context, this);
+    }
 
     @Override
     public boolean equals(Object obj) {
