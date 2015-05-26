@@ -54,5 +54,13 @@ public class ConversationUtil {
         return conversation;
     }
 
+    public static int update(Context context, Conversation conversation) {
+        DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
+        return contactAccess.update(conversation);
+    }
 
+    public static int refresh(Context context, Conversation conversation) {
+        DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
+        return contactAccess.refresh(conversation);
+    }
 }

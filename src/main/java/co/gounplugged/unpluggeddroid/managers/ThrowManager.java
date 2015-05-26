@@ -105,8 +105,12 @@ public class ThrowManager {
                 return;
             }
         }
-        participant.setUsesSecondLine(MessageUtil.isSLCompatible(text));
-        ContactUtil.update(mContext, participant);
+
+        boolean isSLMessage = MessageUtil.isSLCompatible(text);
+        if(isSLMessage) {
+            participant.setUsesSecondLine(isSLMessage);
+            ContactUtil.update(mContext, participant);
+        }
 
         // Find or create conversation with participant
         Conversation conversation = ConversationUtil.findOrNew(participant, mContext);

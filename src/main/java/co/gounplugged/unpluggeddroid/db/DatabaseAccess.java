@@ -55,6 +55,15 @@ public class DatabaseAccess<T> {
         return 0;
     }
 
+    public int refresh(T model) {
+        try {
+            return mDao.refresh(model);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public int update(T model) {
         try {
             return mDao.update(model);

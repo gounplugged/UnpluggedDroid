@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid.adapters;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,23 +14,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
+import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 
 public class MessageAdapter extends BaseAdapter {
-
+    private static final String TAG = "MessageAdapter";
     private Context mContext;
     private LayoutInflater mInflater;
-
+    private Conversation mCurrentConversation;
     private List<Message> mMessages;
 
-    public MessageAdapter(Context context) {
+    public MessageAdapter(Context context, Conversation conversation) {
         this.mContext = context;
         this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mMessages = new ArrayList<Message>();
+        setConversation(conversation);
     }
 
-    public void setMessages(List<Message> messages) {
-        mMessages = messages;
+    public void setConversation(Conversation conversation) {
+        ConversationUtil.refresh(mContext, conversation);
+        this.mCurrentConversation = conversation;
+        refreshMessages();
+    }
+
+    public void refreshMessages() {
+        if(mCurrentConversation == null) {
+            this.mMessages = new ArrayList<Message>();
+        } else {
+            this.mMessages = new ArrayList(mCurrentConversation.getMessages());
+        }
         notifyDataSetChanged();
     }
 
@@ -85,7 +98,8 @@ public class MessageAdapter extends BaseAdapter {
     }
 
     public void addMessage(Message message) {
-        mMessages.add(message);
-        notifyDataSetChanged();
+        if(message.getConversation().equals(mCurrentConversation)) {
+            refreshMessages();
+        }
     }
 }
