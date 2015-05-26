@@ -106,19 +106,12 @@ public class ThrowManager {
             }
         }
         participant.setUsesSecondLine(MessageUtil.isSLCompatible(text));
+        ContactUtil.update(mContext, participant);
 
         // Find or create conversation with participant
         Conversation conversation = ConversationUtil.findOrNew(participant, mContext);
 
         addTextToConversation(text, conversation);
-        Log.d(TAG, "Received regular SMS from: " + originatingAddress +
-                    "\nsaying: " + text +
-                    "\nmsg compatibility: " + MessageUtil.isSLCompatible(text) +
-                    "\nrecipient uses SL: " + participant.usesSecondLine() +
-                    "\nconversation compatible: " + conversation.isSecondLineComptabile() +
-                    "\nparticipant: " + participant.id +
-                    "\nconversation participtant: " +conversation.getParticipant().id +
-                    "\nconversation-participant uses: " + conversation.getParticipant().usesSecondLine());
     }
 
     /**
@@ -127,11 +120,6 @@ public class ThrowManager {
      * @param text
      */
     public void sendMessage(Conversation conversation, String text) {
-        Log.d(TAG, "Sending message: " + text +
-                        "\ncompatible: " + MessageUtil.isSLCompatible(text) +
-                        "\nto: " + conversation.getParticipant().getFullNumber() +
-                        "\nuses SL: " + conversation.isSecondLineComptabile()
-        );
         Message message = MessageUtil.create(
                 mContext,
                 conversation,

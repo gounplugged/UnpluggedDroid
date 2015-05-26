@@ -97,4 +97,6 @@ public class Contact {
 
         return id == rhs.id;
     }
+
+
 }

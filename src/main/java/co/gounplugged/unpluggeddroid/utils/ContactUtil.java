@@ -101,4 +101,9 @@ public class ContactUtil {
         contactAccess.create(c);
         return c;
     }
+
+    public static int update(Context context, Contact contact) {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        return contactAccess.update(contact);
+    }
 }
