@@ -62,20 +62,15 @@ public class BaseApplication extends Application {
 
     public void seedKnownMasks() {
         if(mKnownMasks == null) mKnownMasks = MaskUtil.getCachedMasks(getApplicationContext());
-
         if(mKnownMasks.isEmpty()) mApiCaller.getMasks(Profile.getCountryCodeFilter());
-
-        Log.d(TAG, "Seeded masks " + mKnownMasks.size());
     }
 
     public List<Mask> getKnownMasks() {
         seedKnownMasks();
-        Log.d(TAG, "There are this many known masks " + mKnownMasks.size());
         return mKnownMasks;
     }
 
     public void setKnownMasks(List<Mask> knownMasks) {
-        Log.d(TAG, "Setting masks " + knownMasks.size());
         this.mKnownMasks = knownMasks;
     }
 

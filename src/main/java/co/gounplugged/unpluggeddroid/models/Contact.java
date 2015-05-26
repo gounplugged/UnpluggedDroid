@@ -28,46 +28,64 @@ public class Contact {
     public long id;
 
     @DatabaseField
-    private String phoneNumber;
+    private String mPhoneNumber;
 
     @DatabaseField
-    private String countryCode;
+    private String mCountryCode;
 
     @DatabaseField
-    private String name;
+    private String mName;
 
     @DatabaseField
     private String mLookupKey;
+
+    @DatabaseField
+    private boolean mUsesSecondLine;
 
     public Contact() {
         // all persisted classes must define a no-arg constructor with at least package visibility
     }
 
+    /**
+     * Assume Contacts do not have SL
+     * @param name
+     * @param fullPhoneNumber
+     */
     public Contact(String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
-        this.phoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
-        this.countryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
-        this.name = name;
+        this(name, fullPhoneNumber, false);
+    }
+
+    public Contact(String name, String fullPhoneNumber, boolean usesSecondLine) throws InvalidPhoneNumberException {
+        this.mPhoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
+        this.mCountryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
+        this.mName = name;
+        this.mUsesSecondLine = usesSecondLine;
     }
 
     public Contact(String name, String fullPhoneNumber, String lookupKey) throws InvalidPhoneNumberException {
-        this.phoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
-        this.countryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
+        this.mPhoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
+        this.mCountryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
         this.mLookupKey = lookupKey;
-        this.name = name;
+        this.mName = name;
     }
 
     public String getFullNumber() {
-        return countryCode + phoneNumber;
+        return this.mCountryCode + this.mPhoneNumber;
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     public Uri getImageUri() {
         return Uri.withAppendedPath(
                 ContactsContract.Contacts.CONTENT_LOOKUP_URI, mLookupKey);
     }
+
+    public boolean usesSecondLine() {
+        return mUsesSecondLine;
+    }
+    public void setUsesSecondLine(boolean usesSecondLine) { this.mUsesSecondLine = usesSecondLine; }
 
     @Override
     public boolean equals(Object obj) {
@@ -76,8 +94,9 @@ public class Contact {
         if (obj == this)
             return true;
         Contact rhs = (Contact) obj;
-        Log.d(TAG, "Comparing Contact " + id + " against " + rhs.id);
 
         return id == rhs.id;
     }
+
+
 }

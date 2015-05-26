@@ -3,6 +3,8 @@ package co.gounplugged.unpluggeddroid.models;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import co.gounplugged.unpluggeddroid.utils.MessageUtil;
+
 @DatabaseTable(tableName = "messages")
 public class Message {
 
@@ -50,6 +52,10 @@ public class Message {
 
     public Conversation getConversation() {
         return mConversation;
+    }
+
+    public void mutateTextToShowSLCompatibility() {
+        this.mText = MessageUtil.mutateTextToShowSLCompatibility(mText);
     }
 
     @Override
