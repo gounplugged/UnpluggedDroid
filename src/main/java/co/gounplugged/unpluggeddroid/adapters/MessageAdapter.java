@@ -1,18 +1,13 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
 import java.util.ArrayList;
-
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
@@ -31,12 +26,19 @@ public class MessageAdapter extends BaseAdapter {
         setConversation(conversation);
     }
 
+    /**
+     * Set the current conversation assigned to this adapter.
+     * @param conversation
+     */
     public void setConversation(Conversation conversation) {
         ConversationUtil.refresh(mContext, conversation);
         this.mCurrentConversation = conversation;
         refreshMessages();
     }
 
+    /**
+     * Refresh the messages from the current conversation.
+     */
     public void refreshMessages() {
         if(mCurrentConversation == null) {
             this.mMessages = new ArrayList<Message>();
@@ -97,6 +99,10 @@ public class MessageAdapter extends BaseAdapter {
         return convertView;
     }
 
+    /**
+     * If message belongs to current conversation, refresh the view.
+     * @param message
+     */
     public void addMessage(Message message) {
         if(message.getConversation().equals(mCurrentConversation)) {
             refreshMessages();

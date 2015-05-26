@@ -231,7 +231,6 @@ public class ChatActivity extends ActionBarActivity {
         setLastConversation();
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
-
     }
 
 

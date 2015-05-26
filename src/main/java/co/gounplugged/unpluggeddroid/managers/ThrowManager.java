@@ -59,27 +59,21 @@ public class ThrowManager {
      * @param receivedThrow
      */
     private void processThrow(Context context, Throw receivedThrow) {
-        String nextText = receivedThrow.getEncryptedContent();
-        Log.d(TAG, "Next message: " + nextText);
-
-        if(!receivedThrow.hasArrived()) {
-            Log.d(TAG, "Throw again");
+        if(!receivedThrow.hasArrived()) { // Being used as relay Mask. Throw again.
+            String nextText = receivedThrow.getEncryptedContent();
             SMSUtil.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextText);
-        } else {
+        } else { // Message has received at ultimate recipient
             try {
                 Contact originator = receivedThrow.getThrowOriginator(context);
-                Log.d(TAG, "Chat for contact " + originator.id);
                 Conversation conversation = ConversationUtil.findOrNew(originator, context);
-                Log.d(TAG, "Conversation for " + conversation.id);
                 receiveThrow(receivedThrow, conversation);
-            } catch (PrematureReadException e) {
-                Log.e(TAG, "Premature");
+            } catch (PrematureReadException e) { // Tried reading message even though not ultimate recipient
 
-            } catch (NotFoundInDatabaseException e) {
+            } catch (NotFoundInDatabaseException e) { // Sender not a known contact
                 Log.e(TAG, "Contact not found");
-            } catch (InvalidPhoneNumberException e) {
+            } catch (InvalidPhoneNumberException e) { // Sender number malformed
                 //TODO recover from problem to ensure message delivery
-                Log.d(TAG, "Invalid phone number");
+                Log.e(TAG, "Invalid phone number");
             }
         }
     }
@@ -138,7 +132,7 @@ public class ThrowManager {
 
 
     /**
-     *
+     * Prepare message to be sent over cell network.
      * @param message
      * @param knownMasks
      */
@@ -148,17 +142,20 @@ public class ThrowManager {
 
         Conversation conversation = message.getConversation();
 
+        // SL messages must be encrypted and wrapped in layers
         if(conversation.isSecondLineComptabile()) {
             SecondLine secondLine = conversation.getAndRefreshSecondLine(knownMasks);
             conversation.setCurrentSecondLine(secondLine);
             Throw t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber());
             phoneNumber = t.getThrowTo().getFullNumber();
             text = t.getEncryptedContent();
-        } else {
+        } else { // Regular messages are mutated to indicate they were created with SL
             phoneNumber = conversation.getParticipant().getFullNumber();
             message.mutateTextToShowSLCompatibility();
             text = message.getText();
         }
+
+        // Send text to phoneNumber
         SMSUtil.sendSms(phoneNumber, text);
     }
 
