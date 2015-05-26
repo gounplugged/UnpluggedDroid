@@ -25,11 +25,7 @@ public class MaskTest extends AndroidTestCase{
 
 
         public void testSanitize() {
-            try {
-                assertEquals("+123456789", PhoneNumberParser.sanitizePhoneNumber("(+)123  --456789  ))"));
-            } catch (InvalidPhoneNumberException e) {
-                assertTrue(false);
-            }
+            assertEquals("+123456789", PhoneNumberParser.sanitizePhoneNumber("(+)123  --456789  ))"));
         }
 
        public void testParseNumber() {

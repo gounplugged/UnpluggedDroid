@@ -10,7 +10,6 @@ import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 public class PhoneNumberParserTest extends AndroidTestCase {
     String marvin = "+13016864576";
     String tim = "+32475932921";
-    String confused = "11306864576";
 
     @Override
     protected void setUp() throws Exception {
@@ -28,6 +27,7 @@ public class PhoneNumberParserTest extends AndroidTestCase {
     public void testValidPhoneNumbers() {
         assertTrue(PhoneNumberParser.isValidFullPhoneNumber(marvin));
         assertTrue(PhoneNumberParser.isValidFullPhoneNumber(tim));
+        assertFalse(PhoneNumberParser.isValidFullPhoneNumber("+13016864@#$%^&576"));
     }
 
     public void testParsePhoneNumbers() {
@@ -45,21 +45,28 @@ public class PhoneNumberParserTest extends AndroidTestCase {
     public void testMakeValid() {
         boolean shouldPass = false;
         try {
+            // Don't modify if just needs sanitization
+            assertEquals(PhoneNumberParser.makeValid("+1 3016864576", "+1"), marvin);
+
+            // First try add + because seems to match expected
+            assertEquals(PhoneNumberParser.makeValid("13016864576", "+1"), marvin);
+
+            // Next try to add expected
             assertEquals(PhoneNumberParser.makeValid("3016864576", "+1"), marvin);
+
+            // Will only fail above test if too long
+            assertEquals(PhoneNumberParser.makeValid("346668918977777", "+1"), "+346668918977777");
+
             shouldPass = true;
+            //not a valid phone number
             assertEquals(PhoneNumberParser.makeValid("3016864@#$%^&576", "+1"), marvin);
+
         } catch (InvalidPhoneNumberException e) {
             assertTrue(shouldPass);
         }
     }
 
-    public void testParseNumberMissingPlus() {
-        try {
-            assertEquals(PhoneNumberParser.parseCountryCode(confused), "+1");
-
-            assertEquals(PhoneNumberParser.parsePhoneNumber(confused), "3016864576");
-        } catch (InvalidPhoneNumberException e) {
-            assertTrue(false);
-        }
+    public void testMatchesCountryCode() {
+        assertTrue(PhoneNumberParser.numberMatchesCountryCode(marvin, "+1"));
     }
 }
