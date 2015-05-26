@@ -36,7 +36,6 @@ public class MessageInputFragment extends Fragment {
     @Override
     public void setMenuVisibility(final boolean visible) {
         super.setMenuVisibility(visible);
-        Log.d(TAG, "Menu visibility set to : " + visible);
         if (visible && submitButton != null) {
             setSubmitButtonImage();
         }
@@ -80,9 +79,7 @@ public class MessageInputFragment extends Fragment {
 
     private void setSubmitButtonImage() {
         Conversation lastConvo = ((ChatActivity) getActivity()).getLastSelectedConversation();
-        Log.d(TAG, "Found convo");
         if(lastConvo != null) {
-            Log.d(TAG, "Convo not null");
             Contact lastContact = lastConvo.getParticipant();
             ImageUtil.loadContactImage(getActivity().getApplicationContext(), lastContact, submitButton);
         }

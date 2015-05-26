@@ -3,6 +3,8 @@ package co.gounplugged.unpluggeddroid.utils;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
@@ -11,7 +13,7 @@ import co.gounplugged.unpluggeddroid.models.Conversation;
 /**
  * Created by Marvin Arnold on 18/05/15.
  */
-public class ConversationUtil {
+public class ConversationUtil extends DbUtil {
     private static final String TAG = "ConversationUtil";
 
     public static Conversation createConversation(Contact participant, Context context) {
@@ -25,10 +27,8 @@ public class ConversationUtil {
         if(participant == null) {
             // TODO
         } try {
-            Log.d(TAG, "SEARCHING FOR CONVO");
             return findByParticipant(participant, context);
         } catch (NotFoundInDatabaseException e) {
-            Log.d(TAG, "CREATED NEW CONVO");
             return createConversation(participant, context);
         }
     }
@@ -47,12 +47,25 @@ public class ConversationUtil {
     }
 
     public static Conversation findById(Context context, long conversationId) throws NotFoundInDatabaseException {
-        Log.d(TAG, "Searching for Conversation " + conversationId);
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         Conversation conversation = conversationAccess.getById(conversationId);
         if(conversation == null) throw new NotFoundInDatabaseException("No conversation found with that ID");
         return conversation;
     }
 
+    public static int refresh(Context context, Conversation conversation) {
+        return refresh(context, Conversation.class, conversation);
+    }
 
+    public static int update(Context context, Conversation conversation) {
+        return update(context, Conversation.class, conversation);
+    }
+
+    public static List<Conversation> getAll(Context context) {
+        return getAll(context, Conversation.class);
+    }
+
+    public static void deleteAll(Context context) {
+        deleteAll(context, Conversation.class);
+    }
 }

@@ -94,8 +94,8 @@ public class ChatActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mChatArrayAdapter = new MessageAdapter(this);
         getLastSelectedConversation();
+        mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
 
         smsBroadcastReceiver = new SmsBroadcastReceiver();
@@ -190,7 +190,7 @@ public class ChatActivity extends ActionBarActivity {
                     case DragEvent.ACTION_DROP:
                         Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
                         Collection<Message> messages = new ArrayList<>();
-                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
+//                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
                         break;
                 }
                 return true;
@@ -218,15 +218,7 @@ public class ChatActivity extends ActionBarActivity {
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
         mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
-        List<Message> messages;
-        if(mSelectedConversation == null) {
-            messages = new ArrayList<Message>();
-        } else {
-            //playground
-            DatabaseAccess<Message> messageDatabaseAccess = new DatabaseAccess<>(getApplicationContext(), Message.class);
-            messages = new ArrayList(mSelectedConversation.getMessages());
-        }
-        mChatArrayAdapter.setMessages(messages);
+        mChatArrayAdapter.setConversation(mSelectedConversation);
 
     }
 
@@ -238,11 +230,7 @@ public class ChatActivity extends ActionBarActivity {
         mSelectedConversation = newConversation;
         setLastConversation();
 
-        Collection<Message> messages = mSelectedConversation.getMessages();
-        ArrayList messageList = new ArrayList();
-        if(messages != null) messageList = new ArrayList<>(messages);
-        mChatArrayAdapter.setMessages(messageList);
-
+        mChatArrayAdapter.setConversation(mSelectedConversation);
     }
 
 

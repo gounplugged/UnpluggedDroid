@@ -1,13 +1,13 @@
 package co.gounplugged.unpluggeddroid.models;
 
 import android.content.Context;
-import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
+import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
 /**
  * Created by pili on 20/03/15.

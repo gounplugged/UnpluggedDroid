@@ -20,10 +20,9 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             Object[] sms = (Object[]) intentExtras.get(SMS_BUNDLE);
             String smsMessageStr = "";
             for (int i = 0; i < sms.length; ++i) {
+                Log.d(TAG, "Raw PDU: " + bytesToHex((byte[]) sms[i]));
                 SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
                 BaseApplication.App.ThrowManager.processUnknownSMS(smsMessage);
-                Log.d(TAG, "Raw PDU: " + bytesToHex((byte[]) sms[i]));
-
             }
         }
     }

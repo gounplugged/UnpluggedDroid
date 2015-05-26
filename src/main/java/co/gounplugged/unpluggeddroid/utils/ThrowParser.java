@@ -1,7 +1,10 @@
-package co.gounplugged.unpluggeddroid.models;
+package co.gounplugged.unpluggeddroid.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import co.gounplugged.unpluggeddroid.models.Krewe;
+import co.gounplugged.unpluggeddroid.models.Mask;
 
 /**
  * Created by pili on 10/04/15.

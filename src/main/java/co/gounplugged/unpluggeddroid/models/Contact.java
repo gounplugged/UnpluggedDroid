@@ -1,21 +1,15 @@
 package co.gounplugged.unpluggeddroid.models;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.Log;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
+import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /*
 
@@ -85,7 +79,10 @@ public class Contact {
     public boolean usesSecondLine() {
         return mUsesSecondLine;
     }
-    public void setUsesSecondLine(boolean usesSecondLine) { this.mUsesSecondLine = usesSecondLine; }
+    public void setUsesSecondLine(Context context, boolean usesSecondLine) {
+        this.mUsesSecondLine = usesSecondLine;
+        ContactUtil.update(context, this);
+    }
 
     @Override
     public boolean equals(Object obj) {

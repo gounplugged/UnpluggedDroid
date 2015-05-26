@@ -3,8 +3,7 @@ package co.gounplugged.unpluggeddroid.test.models;
 import android.test.AndroidTestCase;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.models.Mask;
-import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
+import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  * Created by pili on 9/04/15.
@@ -26,11 +25,7 @@ public class MaskTest extends AndroidTestCase{
 
 
         public void testSanitize() {
-            try {
-                assertEquals("+123456789", PhoneNumberParser.sanitizePhoneNumber("(+)123  --456789  ))"));
-            } catch (InvalidPhoneNumberException e) {
-                assertTrue(false);
-            }
+            assertEquals("+123456789", PhoneNumberParser.sanitizePhoneNumber("(+)123  --456789  ))"));
         }
 
        public void testParseNumber() {

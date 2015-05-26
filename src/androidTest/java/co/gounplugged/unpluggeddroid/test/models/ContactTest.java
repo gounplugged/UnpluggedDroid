@@ -4,6 +4,7 @@ import android.test.AndroidTestCase;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 /**
  * Created by Marvin Arnold on 21/05/15.
@@ -20,5 +21,17 @@ public class ContactTest extends AndroidTestCase {
             assertTrue(false);
         }
 
+    }
+
+    public void testSetUsesSecondLine() {
+        try {
+            Contact c = ContactUtil.create(getContext(), "", "+11");
+
+            assertFalse(c.usesSecondLine());
+            c.setUsesSecondLine(getContext(), true);
+            assertTrue(c.usesSecondLine());
+        } catch (InvalidPhoneNumberException e) {
+            assertTrue(false);
+        }
     }
 }

@@ -2,6 +2,8 @@ package co.gounplugged.unpluggeddroid.utils;
 
 import android.content.Context;
 
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
@@ -11,12 +13,16 @@ import co.gounplugged.unpluggeddroid.models.Message;
 /**
  * Created by Marvin Arnold on 19/05/15.
  */
-public class MessageUtil {
+public class MessageUtil extends DbUtil {
     public static Message create(Context context, Conversation conversation, String text, int type, long timestamp) {
         DatabaseAccess<Message> messageAccess = new DatabaseAccess<>(context, Message.class);
         Message m = new Message(conversation, text, type, timestamp);
         messageAccess.create(m);
         return m;
+    }
+
+    public static List<Message> getAll(Context context) {
+        return getAll(context, Message.class);
     }
 
     /*
@@ -31,5 +37,13 @@ public class MessageUtil {
      */
     public static boolean isSLCompatible(String text) {
         return text.matches(".*\\s$");
+    }
+
+    public static String sanitizeSLCompatibilityText(String text) {
+        return text.replaceFirst("\\s$", "");
+    }
+
+    public static void deleteAll(Context context) {
+        deleteAll(context, Message.class);
     }
 }
