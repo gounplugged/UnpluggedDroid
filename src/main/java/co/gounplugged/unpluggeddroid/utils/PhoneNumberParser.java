@@ -16,11 +16,17 @@ public class PhoneNumberParser {
             "4[987654310]|3[9643210]|2[70]|7|1))(\\d{1,14})";
 
     public static String parsePhoneNumber(String fullNumber) throws InvalidPhoneNumberException {
-        return splitOnCountryCode(sanitizePhoneNumber(fullNumber), 3);
+        return parseGroup(fullNumber, 3);
     }
 
     public static String parseCountryCode(String fullNumber) throws InvalidPhoneNumberException{
-        return splitOnCountryCode(sanitizePhoneNumber(fullNumber), 1);
+        return parseGroup(fullNumber, 1);
+    }
+
+    public static String parseGroup(String fullNumber, int group) throws  InvalidPhoneNumberException {
+        fullNumber = sanitizePhoneNumber(fullNumber);
+        if(isValidFullPhoneNumber(fullNumber)) return splitOnCountryCode(fullNumber, group);
+        throw new InvalidPhoneNumberException("malformed number");
     }
 
     public static String splitOnCountryCode(String sanitizedFullNumber, int group) {

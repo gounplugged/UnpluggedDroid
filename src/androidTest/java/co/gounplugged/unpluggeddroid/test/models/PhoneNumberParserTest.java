@@ -69,4 +69,14 @@ public class PhoneNumberParserTest extends AndroidTestCase {
     public void testMatchesCountryCode() {
         assertTrue(PhoneNumberParser.numberMatchesCountryCode(marvin, "+1"));
     }
+
+    public void testDontParseInvalidNumber() {
+        boolean shouldPass = false;
+        try {
+            PhoneNumberParser.parseCountryCode("cat");
+        } catch (Exception e) {
+            shouldPass = true;
+        }
+        assertTrue(shouldPass);
+    }
 }
