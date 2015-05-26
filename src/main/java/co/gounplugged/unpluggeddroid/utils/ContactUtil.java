@@ -13,7 +13,6 @@ import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
-import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
 public class ContactUtil extends DbUtil {

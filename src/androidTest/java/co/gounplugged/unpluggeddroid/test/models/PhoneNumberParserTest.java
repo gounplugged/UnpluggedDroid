@@ -2,7 +2,7 @@ package co.gounplugged.unpluggeddroid.test.models;
 
 import android.test.AndroidTestCase;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
+import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  * Created by Marvin Arnold on 19/05/15.
@@ -10,6 +10,7 @@ import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
 public class PhoneNumberParserTest extends AndroidTestCase {
     String marvin = "+13016864576";
     String tim = "+32475932921";
+    String confused = "11306864576";
 
     @Override
     protected void setUp() throws Exception {
@@ -49,6 +50,16 @@ public class PhoneNumberParserTest extends AndroidTestCase {
             assertEquals(PhoneNumberParser.makeValid("3016864@#$%^&576", "+1"), marvin);
         } catch (InvalidPhoneNumberException e) {
             assertTrue(shouldPass);
+        }
+    }
+
+    public void testParseNumberMissingPlus() {
+        try {
+            assertEquals(PhoneNumberParser.parseCountryCode(confused), "+1");
+
+            assertEquals(PhoneNumberParser.parsePhoneNumber(confused), "3016864576");
+        } catch (InvalidPhoneNumberException e) {
+            assertTrue(false);
         }
     }
 }

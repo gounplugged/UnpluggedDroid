@@ -5,12 +5,10 @@ import android.test.AndroidTestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
-import co.gounplugged.unpluggeddroid.models.Throw;
-import co.gounplugged.unpluggeddroid.models.ThrowParser;
+import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
 /**
  * Created by pili on 5/04/15.
@@ -23,8 +21,8 @@ public class ThrowParserTest extends AndroidTestCase {
     Contact destination;
     int maskRouteLength;
 
-    String phone = "+32123";
-    String originatorNumber = "+1444";
+    String phone = "+13013351139";
+    String originatorNumber = "+13016864576";
     String message = "sstestaa";
     String throwContent;
 

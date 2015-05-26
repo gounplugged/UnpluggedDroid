@@ -14,7 +14,7 @@ import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 public class ContactUtilTest extends AndroidTestCase {
 
     public void testGetContact() throws InvalidPhoneNumberException {
-        String number = "+123";
+        String number = "+13016864576";
         Contact originalContact = ContactUtil.create(getContext(), "", number);
 
         try {
@@ -27,7 +27,7 @@ public class ContactUtilTest extends AndroidTestCase {
     }
 
     public void testFirstOrCreate() {
-        String phoneNumber = "+11";
+        String phoneNumber = "+13016864576";
         ContactUtil.deleteAll(getContext());
         try {
             Contact c1 = ContactUtil.create(getContext(), "", phoneNumber);
@@ -42,7 +42,7 @@ public class ContactUtilTest extends AndroidTestCase {
 
     public void testDeleteAll() {
         try {
-            Contact newContact = ContactUtil.create(getContext(), "", "+11");
+            Contact newContact = ContactUtil.create(getContext(), "", "+13016864576");
             ContactUtil.deleteAll(getContext());
             assertEquals(0, ContactUtil.getAll(getContext()).size());
         } catch (InvalidPhoneNumberException e) {

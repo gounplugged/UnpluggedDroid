@@ -19,7 +19,7 @@ import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.SecondLine;
 import co.gounplugged.unpluggeddroid.models.Throw;
-import co.gounplugged.unpluggeddroid.models.ThrowParser;
+import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.utils.MessageUtil;

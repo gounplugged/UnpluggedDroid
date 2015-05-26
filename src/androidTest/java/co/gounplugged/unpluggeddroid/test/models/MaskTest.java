@@ -3,8 +3,7 @@ package co.gounplugged.unpluggeddroid.test.models;
 import android.test.AndroidTestCase;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.models.Mask;
-import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
+import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  * Created by pili on 9/04/15.

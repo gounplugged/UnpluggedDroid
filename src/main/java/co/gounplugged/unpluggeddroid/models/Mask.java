@@ -1,14 +1,10 @@
 package co.gounplugged.unpluggeddroid.models;
 
-import android.util.Log;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  * Created by pili on 20/03/15.

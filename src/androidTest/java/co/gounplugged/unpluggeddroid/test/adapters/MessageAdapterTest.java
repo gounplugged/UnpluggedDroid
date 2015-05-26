@@ -18,7 +18,7 @@ import co.gounplugged.unpluggeddroid.utils.MessageUtil;
 public class MessageAdapterTest extends AndroidTestCase {
     public void testConversationWMessages() {
         try {
-            Contact participant = ContactUtil.create(getContext(), "", "+130155");
+            Contact participant = ContactUtil.create(getContext(), "", "+13016864576");
             Conversation conversation = ConversationUtil.createConversation(participant, getContext());
 
             Message m1 = MessageUtil.create(getContext(), conversation, "hi", Message.TYPE_OUTGOING, System.currentTimeMillis());
@@ -34,7 +34,7 @@ public class MessageAdapterTest extends AndroidTestCase {
 
     public void testConversationWOMessages() {
         try {
-            Contact participant = ContactUtil.create(getContext(), "", "+130144");
+            Contact participant = ContactUtil.create(getContext(), "", "+13016864576");
             Conversation conversation = ConversationUtil.createConversation(participant, getContext());
             MessageAdapter messageAdapter = new MessageAdapter(getContext(), conversation);
 
