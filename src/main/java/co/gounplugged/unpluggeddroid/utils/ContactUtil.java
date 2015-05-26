@@ -16,7 +16,7 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.PhoneNumberParser;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
-public class ContactUtil {
+public class ContactUtil extends DbUtil {
     private final static String TAG = "ContactUtil";
 
     public static List<Contact> getCachedContacts(Context context) {
@@ -102,21 +102,6 @@ public class ContactUtil {
         return c;
     }
 
-    public static int update(Context context, Contact contact) {
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-        return contactAccess.update(contact);
-    }
-
-    public static List<Contact> getAll(Context context) {
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-        return contactAccess.getAll();
-    }
-
-    public static void deleteAll(Context context) {
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-        contactAccess.deleteAll();
-    }
-
     public static Contact firstOrCreate(Context context, String name, String phoneNumber) throws InvalidPhoneNumberException {
         try {
             return getContact(context, phoneNumber);
@@ -126,7 +111,18 @@ public class ContactUtil {
     }
 
     public static int refresh(Context context, Contact contact) {
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-        return contactAccess.refresh(contact);
+        return refresh(context, Contact.class, contact);
+    }
+
+    public static int update(Context context, Contact contact) {
+        return update(context, Contact.class, contact);
+    }
+
+    public static List<Contact> getAll(Context context) {
+        return getAll(context, Contact.class);
+    }
+
+    public static void deleteAll(Context context) {
+        deleteAll(context, Contact.class);
     }
 }

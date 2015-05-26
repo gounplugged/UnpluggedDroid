@@ -3,6 +3,8 @@ package co.gounplugged.unpluggeddroid.utils;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
@@ -11,7 +13,7 @@ import co.gounplugged.unpluggeddroid.models.Conversation;
 /**
  * Created by Marvin Arnold on 18/05/15.
  */
-public class ConversationUtil {
+public class ConversationUtil extends DbUtil {
     private static final String TAG = "ConversationUtil";
 
     public static Conversation createConversation(Contact participant, Context context) {
@@ -51,18 +53,19 @@ public class ConversationUtil {
         return conversation;
     }
 
-    public static int update(Context context, Conversation conversation) {
-        DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
-        return contactAccess.update(conversation);
+    public static int refresh(Context context, Conversation conversation) {
+        return refresh(context, Conversation.class, conversation);
     }
 
-    public static int refresh(Context context, Conversation conversation) {
-        DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
-        return contactAccess.refresh(conversation);
+    public static int update(Context context, Conversation conversation) {
+        return update(context, Conversation.class, conversation);
+    }
+
+    public static List<Conversation> getAll(Context context) {
+        return getAll(context, Conversation.class);
     }
 
     public static void deleteAll(Context context) {
-        DatabaseAccess<Conversation> contactAccess = new DatabaseAccess<>(context, Conversation.class);
-        contactAccess.deleteAll();
+        deleteAll(context, Conversation.class);
     }
 }

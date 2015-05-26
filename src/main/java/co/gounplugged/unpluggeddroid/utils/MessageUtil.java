@@ -13,7 +13,7 @@ import co.gounplugged.unpluggeddroid.models.Message;
 /**
  * Created by Marvin Arnold on 19/05/15.
  */
-public class MessageUtil {
+public class MessageUtil extends DbUtil {
     public static Message create(Context context, Conversation conversation, String text, int type, long timestamp) {
         DatabaseAccess<Message> messageAccess = new DatabaseAccess<>(context, Message.class);
         Message m = new Message(conversation, text, type, timestamp);
@@ -21,14 +21,8 @@ public class MessageUtil {
         return m;
     }
 
-    public static void deleteAll(Context context) {
-        DatabaseAccess<Message> messageAccess = new DatabaseAccess<>(context, Message.class);
-        messageAccess.deleteAll();
-    }
-
     public static List<Message> getAll(Context context) {
-        DatabaseAccess<Message> messageAccess = new DatabaseAccess<>(context, Message.class);
-        return messageAccess.getAll();
+        return getAll(context, Message.class);
     }
 
     /*
@@ -47,5 +41,9 @@ public class MessageUtil {
 
     public static String sanitizeSLCompatibilityText(String text) {
         return text.replaceFirst("\\s$", "");
+    }
+
+    public static void deleteAll(Context context) {
+        deleteAll(context, Message.class);
     }
 }
