@@ -1,81 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/chat_background">
+    tools:context=".MainActivity" >
 
-
-    <View
-        android:id="@+id/separator"
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_above="@+id/viewpager"/>
-
-
-    <co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager
-        android:id="@+id/viewpager"
+    <FrameLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_weight="1"
-        android:layout_alignParentBottom="true">
-    </co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager>
+        android:layout_height="match_parent" >
 
-    <ImageView
-        android:id="@+id/iv_drop_zone_delete"
-        android:src="@drawable/drop_zone_red"
-        android:visibility="gone"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        />
-
-
-    <RelativeLayout
-        android:id="@+id/top_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/separator">
-
-        <LinearLayout
-            android:layout_width="80dp"
+        <!--main-->
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/conversation_root"
-            android:layout_alignParentRight="true" >
+            android:background="@color/chat_background">
 
-            <co.gounplugged.unpluggeddroid.widgets.ConversationContainer
-                android:id="@+id/conversation_container"
+
+            <View
+                android:id="@+id/separator"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_above="@+id/viewpager"/>
+
+            <co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager
+                android:id="@+id/viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_alignParentBottom="true"/>
+
+            <ImageView
+                android:id="@+id/iv_drop_zone_delete"
+                android:src="@drawable/drop_zone_red"
+                android:visibility="gone"
                 android:layout_width="80dp"
-                android:layout_height="match_parent" />
-
-        </LinearLayout>
-
-
-        <ListView
-            android:id="@+id/lv_chats"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:dividerHeight="0dp"
-            android:divider="@drawable/transparent_divider"
-            android:stackFromBottom="true"
-            android:transcriptMode="alwaysScroll"
-            android:layout_toLeftOf="@+id/conversation_root"
-            />
-
-        <ImageView
-            android:id="@+id/iv_drop_zone_chats"
-            android:src="@drawable/drop_zone"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toLeftOf="@+id/conversation_root"
-            />
-
-    </RelativeLayout>
+                android:layout_height="80dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                />
 
 
+            <RelativeLayout
+                android:id="@+id/top_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/separator">
+
+                <LinearLayout
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/conversation_root"
+                    android:layout_alignParentRight="true" >
+
+                    <co.gounplugged.unpluggeddroid.widgets.ConversationContainer
+                        android:id="@+id/conversation_container"
+                        android:layout_width="80dp"
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
 
 
-</RelativeLayout>
+                <ListView
+                    android:id="@+id/lv_chats"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:dividerHeight="0dp"
+                    android:divider="@drawable/transparent_divider"
+                    android:stackFromBottom="true"
+                    android:transcriptMode="alwaysScroll"
+                    android:layout_toLeftOf="@+id/conversation_root"
+                    />
+
+                <ImageView
+                    android:id="@+id/iv_drop_zone_chats"
+                    android:src="@drawable/drop_zone"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toLeftOf="@+id/conversation_root"
+                    />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+    <ListView
+        android:id="@+id/drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/darker_gray"
+        android:choiceMode="singleChoice"/>
+
+
+</android.support.v4.widget.DrawerLayout>
+
