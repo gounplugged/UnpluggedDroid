@@ -29,7 +29,6 @@
             android:configChanges="orientation|screenSize|keyboardHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -41,15 +40,30 @@
         <activity
             android:name=".activities.ProfileActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.ChatActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatActivity" />
         </activity>
         <activity
             android:name=".activities.NotificationsActivity"
-            android:label="@string/title_activity_notifications" >
+            android:label="@string/title_activity_notifications"
+            android:parentActivityName=".activities.ChatActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatActivity" />
         </activity>
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/title_activity_settings" >
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".activities.ChatActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatActivity" />
         </activity>
     </application>
 

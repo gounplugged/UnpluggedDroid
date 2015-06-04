@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -40,7 +41,7 @@ import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager
 import de.greenrobot.event.EventBus;
 
 
-public class ChatActivity extends ActionBarActivity {
+public class ChatActivity extends BaseActivity {
 	// Debug
 	private final String TAG = "ChatActivity";
 	
@@ -97,6 +98,8 @@ public class ChatActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        hideActionBar();
 
         getLastSelectedConversation();
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);

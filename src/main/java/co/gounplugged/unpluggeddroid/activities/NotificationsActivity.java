@@ -11,12 +11,14 @@ import android.widget.TextView;
 import co.gounplugged.unpluggeddroid.R;
 
 
-public class NotificationsActivity extends ActionBarActivity {
+public class NotificationsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
+
+        displayHomeAsUp();
 
         TextView profileOption = (TextView) findViewById(R.id.button_save_notifications_activity);
         profileOption.setOnClickListener(new View.OnClickListener() {
