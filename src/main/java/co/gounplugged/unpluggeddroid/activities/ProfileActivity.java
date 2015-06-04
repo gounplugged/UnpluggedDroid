@@ -17,7 +17,7 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
-public class ProfileActivity extends Activity {
+public class ProfileActivity extends BaseActivity {
     private TextView phoneNumberInput;
     private Button submitButton;
     private Spinner smsPlanSpinner;
@@ -26,6 +26,8 @@ public class ProfileActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        displayHomeAsUp();
 
         setupPhoneNumber();
         setupSmsPlan();

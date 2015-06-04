@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Window;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends BaseActivity {
     /** Duration of wait **/
     private final int SPLASH_DISPLAY_LENGTH = 2 * 1000;
 
@@ -17,7 +19,10 @@ public class SplashActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
         setContentView(R.layout.activity_splash);
+
+        hideActionBar();
 
         /* New Handler to start the Menu-Activity
          * and close this Splash-Screen after some seconds.*/

@@ -1,15 +1,20 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -36,7 +41,7 @@ import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager
 import de.greenrobot.event.EventBus;
 
 
-public class ChatActivity extends ActionBarActivity {
+public class ChatActivity extends BaseActivity {
 	// Debug
 	private final String TAG = "ChatActivity";
 	
@@ -94,6 +99,8 @@ public class ChatActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        hideActionBar();
+
         getLastSelectedConversation();
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
@@ -144,6 +151,29 @@ public class ChatActivity extends ActionBarActivity {
 
 
     private void loadGui() {
+        // Setup navigation-drawer
+        final String[] menu = getResources().getStringArray(R.array.navigation_menu);
+        ArrayAdapter<String> drawerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menu);
+
+        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        final ListView navList = (ListView) findViewById(R.id.drawer);
+        navList.setAdapter(drawerAdapter);
+        navList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int pos,long id){
+                switch (pos) {
+                    case 0:
+                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                        return;
+                    case 1:
+                        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                        return;
+
+                }
+            }
+        });
+
+
         // Input/Search infinite-viewpager
         mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
 

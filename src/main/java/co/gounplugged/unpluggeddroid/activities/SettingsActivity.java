@@ -11,13 +11,15 @@ import android.widget.TextView;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((BaseApplication) getApplicationContext()).loadContacts();
         setContentView(R.layout.activity_settings);
+
+        displayHomeAsUp();
 
         TextView profileOption = (TextView) findViewById(R.id.text_profile_settings_activity);
         profileOption.setOnClickListener(new View.OnClickListener() {
