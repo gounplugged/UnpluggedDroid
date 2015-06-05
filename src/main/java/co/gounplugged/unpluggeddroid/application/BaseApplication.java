@@ -82,7 +82,8 @@ public class BaseApplication extends Application {
         ContactUtil.loadContactsInThread(getApplicationContext());
         Profile.setContactsSynced(true);
     }
-    private boolean isDefaultSMSApp() {
+
+    public boolean isDefaultSMSApp() {
         String defaultApplication = Settings.Secure.getString(getContentResolver(),  SMS_DEFAULT_APPLICATION);
         String thisApplication = getApplicationContext().getPackageName();
 

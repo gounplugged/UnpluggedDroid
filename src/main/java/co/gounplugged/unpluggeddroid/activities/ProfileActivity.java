@@ -2,6 +2,8 @@ package co.gounplugged.unpluggeddroid.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.preference.Preference;
+import android.provider.Telephony;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,6 +23,8 @@ public class ProfileActivity extends BaseActivity {
     private TextView phoneNumberInput;
     private Button submitButton;
     private Spinner smsPlanSpinner;
+    private TextView defaultAppStatusText;
+    private Preference defaultAppPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,25 @@ public class ProfileActivity extends BaseActivity {
                 ProfileActivity.this.finish();
             }
         });
+
+//        defaultAppPreference =
+
+        defaultAppStatusText = (TextView) findViewById(R.id.default_app_status_title_activity_profile);
+        if(BaseApplication.getInstance(getApplicationContext()).isDefaultSMSApp()) {
+            defaultAppStatusText.setText("This is the default app");
+        } else {
+            defaultAppStatusText.setText("Not the default app");
+            defaultAppStatusText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //http://android-developers.blogspot.com/2013/10/getting-your-sms-apps-ready-for-kitkat.html
+                    Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+                    intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, getApplicationContext().getPackageName());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getApplicationContext().startActivity(intent);
+                }
+            });
+        }
     }
 
 
