@@ -30,6 +30,7 @@ public class SearchContactFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contact_search, container, false);
 
         mContactAutoComplete = (AutoCompleteTextView) view.findViewById(R.id.auto_complete_contacts);
+        mContactAutoComplete.setHint(R.string.search_hint);
 
         List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
         final ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
