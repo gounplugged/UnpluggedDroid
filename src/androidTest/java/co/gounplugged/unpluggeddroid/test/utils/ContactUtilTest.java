@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.test.utils;
 
+import android.content.Context;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -42,11 +43,34 @@ public class ContactUtilTest extends AndroidTestCase {
 
     public void testDeleteAll() {
         try {
-            Contact newContact = ContactUtil.create(getContext(), "", "+13016864576");
+            ContactUtil.create(getContext(), "", "+13016864576");
             ContactUtil.deleteAll(getContext());
             assertEquals(0, ContactUtil.getAll(getContext()).size());
         } catch (InvalidPhoneNumberException e) {
             assertTrue(false);
         }
+    }
+
+    public void testRefreshContact() {
+        ContactUtil.deleteAll(getContext());
+
+        String name = "Marvin A";
+        String lookupKey = "1";
+        String phoneNo = "+13036864576";
+
+        ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
+        ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
+
+        // Should not create a new contact if existing lookup key
+        assertEquals(1, ContactUtil.getAll(getContext()).size());
+
+        name = "Marvin B";
+        phoneNo = "+13016864576";
+        Contact c = ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
+
+        // should refresh info of existing contact
+        assertEquals(1, ContactUtil.getAll(getContext()).size());
+        assertEquals(phoneNo, c.getFullNumber());
+        assertEquals(name, c.getName());
     }
 }

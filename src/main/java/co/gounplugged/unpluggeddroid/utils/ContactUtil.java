@@ -23,12 +23,10 @@ public class ContactUtil extends DbUtil {
         return databaseAccess.getAll();
     }
 
-    public static List<Contact> loadContacts(Context context) {
-        ArrayList<Contact> contacts = new ArrayList<Contact>();
+    public static void loadContacts(Context context) {
         ContentResolver cr = context.getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
-        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
 
         if (cur.getCount() > 0) {
             while (cur.moveToNext()) {
@@ -45,30 +43,63 @@ public class ContactUtil extends DbUtil {
                             new String[]{id}, null);
                     while (pCur.moveToNext()) {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        Contact c = null;
-                        try {
-                            c = new Contact(name, phoneNo, lookupKey);
-                            Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo + ", Thumbnail: " + thumbnail);
-                            contacts.add(c);
-                            contactAccess.create(c);
-                        } catch (InvalidPhoneNumberException e) {
-                            try {
-                                String userCountryCode  = PhoneNumberParser.parseCountryCode(Profile.getPhoneNumber());
-                                String correctedPhoneNumber = PhoneNumberParser.makeValid(phoneNo, userCountryCode);
-                                c = ContactUtil.create(context, name, correctedPhoneNumber, lookupKey);
-                                Log.d(TAG, "Modified Name: " + name + ", Phone No: " + correctedPhoneNumber + ", Thumbnail: " + thumbnail);
-                                contacts.add(c);
-                            } catch (InvalidPhoneNumberException e1) {
-                                Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo + ", Thumbnail: " + thumbnail);
-                            }
-                        }
+
+                        refreshContact(context, lookupKey, name, phoneNo);
                     }
                     pCur.close();
                 }
             }
         }
+    }
 
-        return contacts;
+    /**
+     * First see if contact with lookup key already exists.
+     * Then try to create new contact with phone number.
+     * Then try to correct for invalid phone numbers.
+     * Then skip contact import.
+     * @param context
+     * @param lookupKey
+     * @param name
+     * @param phoneNo
+     * @return
+     */
+    public static Contact refreshContact(Context context, String lookupKey, String name, String phoneNo) {
+        Contact c = null;
+        try {
+            c = lookupContact(context, lookupKey);
+            c.setName(name);
+            try {
+                c.setPhoneNumber(phoneNo);
+            } catch (InvalidPhoneNumberException e) {
+                try {
+                    phoneNo = validPhoneNumber(phoneNo);
+                    c.setPhoneNumber(phoneNo);
+                } catch (InvalidPhoneNumberException e1) {
+                    // TODO: Delete contact? Don't update?
+                }
+            }
+            Log.d(TAG, "Refreshing Name: " + name + ", Phone No: " + phoneNo);
+        } catch (NotFoundInDatabaseException e) {
+            try {
+                c = create(context, name,phoneNo, lookupKey);
+                Log.d(TAG, "Adding Name: " + name + ", Phone No: " + phoneNo);
+            } catch (InvalidPhoneNumberException e1) {
+                try {
+                    String correctedPhoneNumber = validPhoneNumber(phoneNo);
+                    c = ContactUtil.create(context, name, correctedPhoneNumber, lookupKey);
+                    Log.d(TAG, "Mutated Name: " + name + ", Phone No: " + correctedPhoneNumber);
+                } catch (InvalidPhoneNumberException e2) {
+                    Log.d(TAG, "Skipping Name: " + name + ", Phone No: " + phoneNo);
+                }
+            }
+        }
+
+        return c;
+    }
+
+    public static String validPhoneNumber(String invalidPhoneNumber) throws InvalidPhoneNumberException {
+        String userCountryCode  = PhoneNumberParser.parseCountryCode(Profile.getPhoneNumber());
+        return PhoneNumberParser.makeValid(invalidPhoneNumber, userCountryCode);
     }
 
     public static Contact getContact(Context context, String phoneNumber) throws NotFoundInDatabaseException {
@@ -79,6 +110,13 @@ public class ContactUtil extends DbUtil {
         }
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
         Contact contact = contactAccess.getFirstString("mPhoneNumber", phoneNumber);
+        if (contact == null) throw new NotFoundInDatabaseException("Could not find a contact with that phone number");
+        return contact;
+    }
+
+    public static Contact lookupContact(Context context, String lookupId) throws NotFoundInDatabaseException {
+        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
+        Contact contact = contactAccess.getFirstString("mLookupKey", lookupId);
         if (contact == null) throw new NotFoundInDatabaseException("Could not find a contact with that phone number");
         return contact;
     }

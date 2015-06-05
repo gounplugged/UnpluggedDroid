@@ -27,6 +27,15 @@ public class Contact {
     @DatabaseField
     private String mCountryCode;
 
+    public void setName(String mName) {
+        this.mName = mName;
+    }
+
+    public void setPhoneNumber(String fullPhoneNumber) throws InvalidPhoneNumberException{
+        this.mPhoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
+        this.mCountryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
+    }
+
     @DatabaseField
     private String mName;
 
