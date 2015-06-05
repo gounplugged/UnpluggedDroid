@@ -22,6 +22,7 @@ public class SearchContactFragment extends Fragment {
     private final static String TAG = "SearchContactFragment";
     private AutoCompleteTextView contactAutoComplete;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
