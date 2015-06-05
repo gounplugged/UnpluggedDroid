@@ -63,7 +63,7 @@ public class ContactUtil extends DbUtil {
      * @param phoneNo
      * @return
      */
-    public static Contact refreshContact(Context context, String lookupKey, String name, String phoneNo) {
+    public static void refreshContact(Context context, String lookupKey, String name, String phoneNo) {
         Contact c = null;
         try {
             c = lookupContact(context, lookupKey);
@@ -78,6 +78,7 @@ public class ContactUtil extends DbUtil {
                     // TODO: Delete contact? Don't update?
                 }
             }
+            update(context, c);
             Log.d(TAG, "Refreshing Name: " + name + ", Phone No: " + phoneNo);
         } catch (NotFoundInDatabaseException e) {
             try {
@@ -93,8 +94,6 @@ public class ContactUtil extends DbUtil {
                 }
             }
         }
-
-        return c;
     }
 
     public static String validPhoneNumber(String invalidPhoneNumber) throws InvalidPhoneNumberException {

@@ -66,11 +66,19 @@ public class ContactUtilTest extends AndroidTestCase {
 
         name = "Marvin B";
         phoneNo = "+13016864576";
-        Contact c = ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
+        ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
 
-        // should refresh info of existing contact
-        assertEquals(1, ContactUtil.getAll(getContext()).size());
-        assertEquals(phoneNo, c.getFullNumber());
-        assertEquals(name, c.getName());
+        try {
+            Contact c = ContactUtil.lookupContact(getContext(), lookupKey);
+
+            // should refresh info of existing contact
+            assertEquals(1, ContactUtil.getAll(getContext()).size());
+            assertEquals(phoneNo, c.getFullNumber());
+            assertEquals(name, c.getName());
+        } catch (NotFoundInDatabaseException e) {
+            assertTrue(false);
+        }
+
+
     }
 }

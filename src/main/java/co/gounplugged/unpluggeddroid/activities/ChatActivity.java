@@ -27,6 +27,7 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -282,12 +283,16 @@ public class ChatActivity extends BaseActivity {
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
-        boolean conversationChanged = false;
 
         try {
             newConversation = ConversationUtil.findByParticipant(contact, getApplicationContext());
         } catch(NotFoundInDatabaseException e) {
-            newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
+            try {
+                newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
+            } catch (InvalidConversationException e1) {
+                //TODO let user know something went wrong
+                return;
+            }
         }
 
        replaceSelectedConversation(newConversation);
