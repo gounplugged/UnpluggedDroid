@@ -58,8 +58,6 @@ public class ChatActivity extends BaseActivity {
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
 
-    SmsBroadcastReceiver smsBroadcastReceiver;
-
     private Conversation mSelectedConversation;
     private Conversation mClickedConversation;  //TODO refactor global var
 
@@ -106,22 +104,17 @@ public class ChatActivity extends BaseActivity {
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
 
-        smsBroadcastReceiver = new SmsBroadcastReceiver();
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(smsBroadcastReceiver);
     }
 
     @Override
