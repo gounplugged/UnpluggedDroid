@@ -76,7 +76,7 @@ public class BaseApplication extends Application {
 
     public void loadContacts() {
         if(Profile.areContactsSynced()) return;
-        ContactUtil.loadContacts(getApplicationContext());
+        ContactUtil.loadContactsInThread(getApplicationContext());
         Profile.setContactsSynced(true);
     }
 

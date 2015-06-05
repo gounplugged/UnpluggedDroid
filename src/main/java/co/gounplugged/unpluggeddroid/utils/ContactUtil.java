@@ -23,6 +23,16 @@ public class ContactUtil extends DbUtil {
         return databaseAccess.getAll();
     }
 
+    public static void loadContactsInThread(final Context context) {
+        new Thread() {
+            @Override
+            public void run() {
+                loadContacts(context);
+            }
+        }.run();
+    }
+
+
     public static void loadContacts(Context context) {
         ContentResolver cr = context.getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,

@@ -52,7 +52,7 @@ public class SearchContactFragment extends Fragment {
         mRefreshContactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtil.loadContacts(v.getContext());
+                ContactUtil.loadContactsInThread(v.getContext());
             }
         });
 
