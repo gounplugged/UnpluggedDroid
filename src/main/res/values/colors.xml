@@ -2,9 +2,10 @@
 
     <color name="window_background">#2d313d</color>
     <color name="chat_background">#dee1ec</color>
-    <color name="black">#000000</color>
     <color name="chat_incoming_text">#5d728c</color>
     <color name="chat_outgoing_text">#333745</color>
+    <color name="message_hint">#AFAF97</color>
+    <color name="search_hint">#AFAF97</color>
     <color name="chat_timestamp">#b1b7ca</color>
 
 </resources>

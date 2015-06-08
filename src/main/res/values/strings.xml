@@ -11,6 +11,7 @@
     <string name="sms_plan_activity_profile">What kind of plan do you have for SMS?</string>
     <string name="user_sms_plan">User SMS plan</string>
     <string name="search_hint">Search contacts</string>
+    <string name="new_post_text_hint">Input some text</string>
 
     <string-array name="sms_plans_array">
         <item>Unlimited Domestic</item>
@@ -19,7 +20,6 @@
     </string-array>
     <string name="title_activity_notifications">NotificationsActivity</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="option_vibrate_activity_notifications">Vibrate?</string>
     <string name="option_sound_activity_notifications">Sound</string>

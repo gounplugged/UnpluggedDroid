@@ -2,6 +2,8 @@ package co.gounplugged.unpluggeddroid.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.Preference;
+import android.provider.Settings;
 import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
@@ -143,4 +145,6 @@ public class Profile {
     private static boolean isValidSmsPlan() {
         return true;
     }
+
+
 }

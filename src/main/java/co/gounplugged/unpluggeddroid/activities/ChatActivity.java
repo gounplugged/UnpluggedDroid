@@ -27,6 +27,7 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -56,8 +57,6 @@ public class ChatActivity extends BaseActivity {
     private InfiniteViewPager mViewPager;
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
-
-    SmsBroadcastReceiver smsBroadcastReceiver;
 
     private Conversation mSelectedConversation;
     private Conversation mClickedConversation;  //TODO refactor global var
@@ -105,22 +104,17 @@ public class ChatActivity extends BaseActivity {
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
 
-        smsBroadcastReceiver = new SmsBroadcastReceiver();
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        IntentFilter fltr_smsreceived = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        registerReceiver(smsBroadcastReceiver, fltr_smsreceived);
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(smsBroadcastReceiver);
     }
 
     @Override
@@ -282,12 +276,16 @@ public class ChatActivity extends BaseActivity {
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
-        boolean conversationChanged = false;
 
         try {
             newConversation = ConversationUtil.findByParticipant(contact, getApplicationContext());
         } catch(NotFoundInDatabaseException e) {
-            newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
+            try {
+                newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
+            } catch (InvalidConversationException e1) {
+                //TODO let user know something went wrong
+                return;
+            }
         }
 
        replaceSelectedConversation(newConversation);

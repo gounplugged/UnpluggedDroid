@@ -60,6 +60,7 @@ public class MessageInputFragment extends Fragment {
 
         // Enter pressed submission
         newPostText = (EditText) view.findViewById(R.id.new_post_text);
+        newPostText.setHint(R.string.new_post_text_hint);
         newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 // If the action is a key-up event on the return key, send the list_item_message_outgoing

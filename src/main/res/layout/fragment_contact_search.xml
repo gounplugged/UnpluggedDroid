@@ -27,10 +27,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:hint="@string/search_hint"
         android:imeActionLabel=""
         android:textSize="15sp"
         android:textColor="@color/chat_outgoing_text"
+        android:textColorHint="@color/search_hint"
         android:layout_toLeftOf="@+id/submit_button"
         android:imeOptions="actionSearch"
         android:background="#fff"
@@ -38,14 +38,16 @@
         android:paddingRight="8dp"/>
 
 
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="New Button"-->
-        <!--android:id="@+id/add_conversation_button"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_alignParentEnd="true" />-->
+    <ImageButton
+        android:id="@+id/refresh_contacts_button"
+        android:layout_height="80dp"
+        android:layout_width="80dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/refresh"
+        android:background="#fff"
+        android:scaleType="centerCrop"
+        />
 
 </RelativeLayout>
 

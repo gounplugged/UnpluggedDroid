@@ -2,6 +2,7 @@ package co.gounplugged.unpluggeddroid.application;
 
 import android.app.Application;
 import android.content.Context;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.util.List;
@@ -18,6 +19,8 @@ import co.gounplugged.unpluggeddroid.utils.MaskUtil;
  */
 public class BaseApplication extends Application {
     private static final String TAG = "BaseApplication";
+    public static final String SMS_DEFAULT_APPLICATION = "sms_default_application";
+
     private APICaller mApiCaller;
     private List<Mask> mKnownMasks;
 
@@ -76,8 +79,14 @@ public class BaseApplication extends Application {
 
     public void loadContacts() {
         if(Profile.areContactsSynced()) return;
-        ContactUtil.loadContacts(getApplicationContext());
+        ContactUtil.loadContactsInThread(getApplicationContext());
         Profile.setContactsSynced(true);
     }
 
+    public boolean isDefaultSMSApp() {
+        String defaultApplication = Settings.Secure.getString(getContentResolver(),  SMS_DEFAULT_APPLICATION);
+        String thisApplication = getApplicationContext().getPackageName();
+
+        return defaultApplication.equals(thisApplication);
+    }
 }

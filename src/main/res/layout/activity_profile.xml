@@ -48,4 +48,13 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/default_app_status_title_activity_profile"
+        android:layout_below="@+id/sms_plan_selection_activity_profile"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

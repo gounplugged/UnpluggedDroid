@@ -7,6 +7,9 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Collection;
 import java.util.List;
 
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
     private static final String TAG = "Conversation";
@@ -31,7 +34,8 @@ public class Conversation {
         this.mParticipant = null;
     }
 
-    public Conversation(Contact participant) {
+    public Conversation(Contact participant) throws InvalidConversationException{
+        if(participant == null) throw new InvalidConversationException("Conversations must always have at least one participant");
         this.mParticipant = participant;
     }
 

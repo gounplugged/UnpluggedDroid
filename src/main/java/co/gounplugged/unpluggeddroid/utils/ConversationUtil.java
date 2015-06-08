@@ -6,6 +6,7 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -16,17 +17,15 @@ import co.gounplugged.unpluggeddroid.models.Conversation;
 public class ConversationUtil extends DbUtil {
     private static final String TAG = "ConversationUtil";
 
-    public static Conversation createConversation(Contact participant, Context context) {
+    public static Conversation createConversation(Contact participant, Context context) throws InvalidConversationException {
         Conversation conversation = new Conversation(participant);
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
         conversationAccess.create(conversation);
         return conversation;
     }
 
-    public static Conversation findOrNew(Contact participant, Context context) {
-        if(participant == null) {
-            // TODO
-        } try {
+    public static Conversation findOrNew(Contact participant, Context context) throws InvalidConversationException {
+        try {
             return findByParticipant(participant, context);
         } catch (NotFoundInDatabaseException e) {
             return createConversation(participant, context);

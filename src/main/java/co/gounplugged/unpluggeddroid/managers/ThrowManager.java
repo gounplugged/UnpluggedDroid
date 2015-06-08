@@ -8,6 +8,7 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
@@ -74,6 +75,8 @@ public class ThrowManager {
             } catch (InvalidPhoneNumberException e) { // Sender number malformed
                 //TODO recover from problem to ensure message delivery
                 Log.e(TAG, "Invalid phone number");
+            } catch (InvalidConversationException e) {
+                // TODO Originator null
             }
         }
     }
@@ -107,7 +110,12 @@ public class ThrowManager {
         }
 
         // Find or create conversation with participant
-        Conversation conversation = ConversationUtil.findOrNew(participant, mContext);
+        Conversation conversation = null;
+        try {
+            conversation = ConversationUtil.findOrNew(participant, mContext);
+        } catch (InvalidConversationException e) {
+            // TODO can participant ever be null?
+        }
 
         addTextToConversation(text, conversation);
     }
