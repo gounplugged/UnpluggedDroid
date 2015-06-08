@@ -12,6 +12,7 @@
     <string name="user_sms_plan">User SMS plan</string>
     <string name="search_hint">Search contacts</string>
     <string name="new_post_text_hint">Send a message to</string>
+    <string name="new_post_text_hint_first_run">Swipe right to start a new chat</string>
 
     <string-array name="sms_plans_array">
         <item>Unlimited Domestic</item>
