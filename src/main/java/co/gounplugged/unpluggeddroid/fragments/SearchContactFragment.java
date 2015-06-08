@@ -41,7 +41,7 @@ public class SearchContactFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-
+                Log.d(TAG, "auto complete clicked");
                 Contact contact = adapter.getItem(pos);
                 addConversation(contact);
             }

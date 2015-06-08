@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,10 @@ import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationAdapter extends BaseAdapter {
+    private static final String TAG = "ConversationAdapter";
 
     private Context mContext;
     private LayoutInflater mInflater;
-
     private List<Conversation> mConversations;
 
     public ConversationAdapter(Context context, List<Conversation> conversationList) {
@@ -70,6 +71,7 @@ public class ConversationAdapter extends BaseAdapter {
     }
 
     public void addConversation(Conversation conversation) {
+        Log.d(TAG, "conversation added");
         mConversations.add(conversation);
         notifyDataSetChanged();
     }
@@ -79,15 +81,19 @@ public class ConversationAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setConversations(List<Conversation> conversations) {
+        Log.d(TAG, "conversation count: " + conversations.size());
+        mConversations = conversations;
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder {
 
         private final Conversation mConversation;
         private final CircleImageView mImageView;
 
         public ViewHolder(View v, Conversation conversation) {
-
             mConversation = conversation;
-
             mImageView = (CircleImageView) v.findViewById(R.id.conversation_icon);
             mImageView.setTag(String.valueOf(conversation.id));
         }
@@ -95,7 +101,6 @@ public class ConversationAdapter extends BaseAdapter {
         public Conversation getConversation() {
             return mConversation;
         }
-
     }
 
 
