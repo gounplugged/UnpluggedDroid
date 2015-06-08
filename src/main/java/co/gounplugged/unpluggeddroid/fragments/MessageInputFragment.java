@@ -59,8 +59,10 @@ public class MessageInputFragment extends Fragment {
         });
 
         // Enter pressed submission
+        String conversationName = ((ChatActivity) getActivity()).getLastSelectedConversation().getName();
+        String hint = (getString(R.string.new_post_text_hint)) + " " + conversationName;
         newPostText = (EditText) view.findViewById(R.id.new_post_text);
-        newPostText.setHint(R.string.new_post_text_hint);
+        newPostText.setHint(hint);
         newPostText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 // If the action is a key-up event on the return key, send the list_item_message_outgoing
