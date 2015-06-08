@@ -27,7 +27,7 @@ public class MessageAdapterTest extends AndroidTestCase {
             MessageAdapter messageAdapter = new MessageAdapter(getContext(), conversation);
 
             assertEquals(messageAdapter.getCount(), 2);
-        } catch (InvalidPhoneNumberException e) {
+        } catch (Exception e) {
             assertTrue(false);
         }
     }
@@ -39,7 +39,7 @@ public class MessageAdapterTest extends AndroidTestCase {
             MessageAdapter messageAdapter = new MessageAdapter(getContext(), conversation);
 
             assertEquals(messageAdapter.getCount(), 0);
-        } catch (InvalidPhoneNumberException e) {
+        } catch (Exception e) {
             assertTrue(false);
         }
     }

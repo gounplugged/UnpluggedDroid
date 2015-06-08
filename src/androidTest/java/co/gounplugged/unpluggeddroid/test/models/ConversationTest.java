@@ -34,7 +34,7 @@ public class ConversationTest extends AndroidTestCase {
 
             assertTrue(users.isSecondLineComptabile());
             assertFalse(haters.isSecondLineComptabile());
-        } catch (InvalidPhoneNumberException e) {
+        } catch (Exception e) {
             assertTrue(false);
         }
     }
@@ -48,7 +48,7 @@ public class ConversationTest extends AndroidTestCase {
             assertFalse(users.isSecondLineComptabile());
             user.setUsesSecondLine(getContext(), true);
             assertTrue(users.isSecondLineComptabile());
-        } catch (InvalidPhoneNumberException e) {
+        } catch (Exception e) {
             assertTrue(false);
         }
     }
