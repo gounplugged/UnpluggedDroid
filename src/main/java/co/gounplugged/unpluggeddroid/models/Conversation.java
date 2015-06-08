@@ -90,4 +90,8 @@ public class Conversation {
     public void setCurrentSecondLine(SecondLine currentSecondLine) {
         this.mCurrentSecondLine = currentSecondLine;
     }
+
+    public String getName() {
+        return getParticipant().getName();
+    }
 }

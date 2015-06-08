@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,11 +92,14 @@ public class ConversationAdapter extends BaseAdapter {
 
         private final Conversation mConversation;
         private final CircleImageView mImageView;
+        private final TextView  mConversationName;
 
         public ViewHolder(View v, Conversation conversation) {
             mConversation = conversation;
             mImageView = (CircleImageView) v.findViewById(R.id.conversation_icon);
             mImageView.setTag(String.valueOf(conversation.id));
+            mConversationName = (TextView) v.findViewById(R.id.conversation_name);
+            mConversationName.setText(conversation.getName());
         }
 
         public Conversation getConversation() {
