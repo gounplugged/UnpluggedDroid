@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
@@ -89,5 +88,9 @@ public class Conversation {
 
     public void setCurrentSecondLine(SecondLine currentSecondLine) {
         this.mCurrentSecondLine = currentSecondLine;
+    }
+
+    public String getName() {
+        return (getParticipant() == null) ? "" : getParticipant().getName();
     }
 }

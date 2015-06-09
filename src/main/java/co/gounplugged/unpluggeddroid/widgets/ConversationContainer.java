@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ConversationContainer extends LinearLayout {
 
     private ListView mConversationsListView;
-    private List<Conversation> mConversations;
     private List<ConversationListener> mListeners;
     private ConversationAdapter mAdapter;
 
@@ -69,9 +69,8 @@ public class ConversationContainer extends LinearLayout {
 
         //get conversations from cache
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(context, Conversation.class);
-        mConversations = conversationAccess.getAll();
 
-        mAdapter = new ConversationAdapter(context, mConversations);
+        mAdapter = new ConversationAdapter(context, conversationAccess.getAll());
 
         mConversationsListView.setAdapter(mAdapter);
 
@@ -116,8 +115,7 @@ public class ConversationContainer extends LinearLayout {
 
     public void setConversationsAllBut(Conversation currentConvo) {
         DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getContext(), Conversation.class);
-        mConversations = conversationAccess.getAllBut(currentConvo);
-        mAdapter.removeConversation(currentConvo);
+        mAdapter.setConversations(conversationAccess.getAllBut(currentConvo));
     }
 
 }

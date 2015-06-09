@@ -243,7 +243,6 @@ public class ChatActivity extends BaseActivity {
         mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
-
     }
 
     private void replaceSelectedConversation(Conversation newConversation) {

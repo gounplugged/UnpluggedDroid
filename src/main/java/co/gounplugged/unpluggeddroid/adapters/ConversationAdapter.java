@@ -1,10 +1,12 @@
 package co.gounplugged.unpluggeddroid.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +18,10 @@ import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationAdapter extends BaseAdapter {
+    private static final String TAG = "ConversationAdapter";
 
     private Context mContext;
     private LayoutInflater mInflater;
-
     private List<Conversation> mConversations;
 
     public ConversationAdapter(Context context, List<Conversation> conversationList) {
@@ -70,6 +72,7 @@ public class ConversationAdapter extends BaseAdapter {
     }
 
     public void addConversation(Conversation conversation) {
+        Log.d(TAG, "conversation added");
         mConversations.add(conversation);
         notifyDataSetChanged();
     }
@@ -79,23 +82,29 @@ public class ConversationAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setConversations(List<Conversation> conversations) {
+        Log.d(TAG, "conversation count: " + conversations.size());
+        mConversations = conversations;
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder {
 
         private final Conversation mConversation;
         private final CircleImageView mImageView;
+        private final TextView  mConversationName;
 
         public ViewHolder(View v, Conversation conversation) {
-
             mConversation = conversation;
-
             mImageView = (CircleImageView) v.findViewById(R.id.conversation_icon);
             mImageView.setTag(String.valueOf(conversation.id));
+            mConversationName = (TextView) v.findViewById(R.id.conversation_name);
+            mConversationName.setText(conversation.getName());
         }
 
         public Conversation getConversation() {
             return mConversation;
         }
-
     }
 
 

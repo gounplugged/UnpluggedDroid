@@ -14,4 +14,14 @@
         android:layout_marginBottom="8dp"
         />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Contact Name"
+        android:textColor="@color/conversation_name"
+        android:id="@+id/conversation_name"
+        android:layout_below="@+id/conversation_icon"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
