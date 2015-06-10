@@ -1,18 +1,15 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -25,8 +22,6 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
@@ -48,8 +43,6 @@ public class ChatActivity extends BaseActivity {
 	
 	// Constants
     public static final String EXTRA_MESSAGE = "message";
-
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	// GUI
 	private MessageAdapter mChatArrayAdapter;
@@ -84,6 +77,10 @@ public class ChatActivity extends BaseActivity {
                 } catch (NotFoundInDatabaseException e) {
                     e.printStackTrace();
                 }
+            } else {
+                List<Conversation> conversations = ConversationUtil.getAll(getApplicationContext());
+                if(conversations != null && conversations.size() > 0)
+                    mSelectedConversation = conversations.get(0);
             }
         }
         return mSelectedConversation;
