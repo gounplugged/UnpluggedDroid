@@ -92,7 +92,7 @@ public class MessageInputFragment extends Fragment {
         Conversation lastConvo = ((ChatActivity) getActivity()).getLastSelectedConversation();
         if(lastConvo != null) {
             Contact lastContact = lastConvo.getParticipant();
-            ImageUtil.loadContactImage(getActivity().getApplicationContext(), lastContact, submitButton);
+            if(lastContact != null && lastContact.getImageUri() != null) ImageUtil.loadContactImage(getActivity().getApplicationContext(), lastContact, submitButton);
         }
     }
 

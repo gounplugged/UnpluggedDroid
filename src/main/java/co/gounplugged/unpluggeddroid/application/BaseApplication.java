@@ -2,6 +2,7 @@ package co.gounplugged.unpluggeddroid.application;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -11,6 +12,7 @@ import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.MaskUtil;
 
@@ -52,6 +54,8 @@ public class BaseApplication extends Application {
                 seedKnownMasks();
                 break;
         }
+
+
     }
 
     private void initManagers() {

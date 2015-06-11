@@ -1,7 +1,10 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
@@ -15,6 +18,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import org.openintents.openpgp.IOpenPgpService;
+import org.openintents.openpgp.OpenPgpError;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +42,7 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
@@ -90,6 +103,7 @@ public class ChatActivity extends BaseActivity {
         Profile.setLastConversationId(mSelectedConversation.id);
     }
 
+    private OpenPgpServiceConnection mServiceConnection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +114,25 @@ public class ChatActivity extends BaseActivity {
         getLastSelectedConversation();
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
+
+//        mServiceConnection = new OpenPgpServiceConnection(
+//                this,
+//                "org.sufficientlysecure.keychain",
+//                new OpenPgpServiceConnection.OnBound() {
+//                    @Override
+//                    public void onBound(IOpenPgpService service) {
+//                        Log.d(TAG, "onBound!");
+//                        encrypt();
+//                    }
+//
+//                    @Override
+//                    public void onError(Exception e) {
+//                        Log.e(TAG, "exception when binding!", e);
+//                    }
+//                }
+//        );
+//        mServiceConnection.bindToService();
+
 
     }
 
