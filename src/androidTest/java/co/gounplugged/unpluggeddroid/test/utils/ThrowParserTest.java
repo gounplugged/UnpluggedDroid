@@ -1,4 +1,4 @@
-package co.gounplugged.unpluggeddroid.test.models;
+package co.gounplugged.unpluggeddroid.test.utils;
 
 import android.test.AndroidTestCase;
 

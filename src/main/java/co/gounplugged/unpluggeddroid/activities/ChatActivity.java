@@ -103,7 +103,6 @@ public class ChatActivity extends BaseActivity {
         Profile.setLastConversationId(mSelectedConversation.id);
     }
 
-    private OpenPgpServiceConnection mServiceConnection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,26 +113,6 @@ public class ChatActivity extends BaseActivity {
         getLastSelectedConversation();
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
-
-//        mServiceConnection = new OpenPgpServiceConnection(
-//                this,
-//                "org.sufficientlysecure.keychain",
-//                new OpenPgpServiceConnection.OnBound() {
-//                    @Override
-//                    public void onBound(IOpenPgpService service) {
-//                        Log.d(TAG, "onBound!");
-//                        encrypt();
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception e) {
-//                        Log.e(TAG, "exception when binding!", e);
-//                    }
-//                }
-//        );
-//        mServiceConnection.bindToService();
-
-
     }
 
     @Override
@@ -154,7 +133,6 @@ public class ChatActivity extends BaseActivity {
 
         EventBus.getDefault().removeStickyEvent(Message.class);
         EventBus.getDefault().registerSticky(this);
-
     }
 
     @Override

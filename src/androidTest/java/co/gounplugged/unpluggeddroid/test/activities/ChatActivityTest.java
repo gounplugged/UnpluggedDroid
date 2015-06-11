@@ -18,7 +18,7 @@ public class ChatActivityTest extends ActivityUnitTestCase<ChatActivity> {
         super(ChatActivity.class);
     }
 
-   /* @Override
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         ContextThemeWrapper context = new ContextThemeWrapper(getInstrumentation().getTargetContext(), R.style.AppTheme);
@@ -32,5 +32,5 @@ public class ChatActivityTest extends ActivityUnitTestCase<ChatActivity> {
         ConversationUtil.deleteAll(mChatActivity.getApplicationContext());
 
         assertNotNull(mChatActivity.getLastSelectedConversation());
-    }*/
+    }
 }
