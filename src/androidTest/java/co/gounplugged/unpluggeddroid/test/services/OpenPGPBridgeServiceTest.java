@@ -15,7 +15,8 @@ import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 /**
  * Created by Marvin Arnold on 10/06/15.
  */
-public class OpenPGPBridgeServiceTest extends ServiceTestCase {
+public class OpenPGPBridgeServiceTest extends ServiceTestCase<OpenPGPBridgeService> {
+    private static final String TAG = "PGPBridgeServiceTest";
 
     public OpenPGPBridgeServiceTest() {
         super(OpenPGPBridgeService.class);
@@ -30,40 +31,14 @@ public class OpenPGPBridgeServiceTest extends ServiceTestCase {
         startService(startIntent);
     }
 
-    public void doTestEncrypt() {
-        Intent encryptIntent = new Intent();
-        encryptIntent.setAction(OpenPGPBridgeService.ACTION_ENCRYPT);
-        encryptIntent.putExtra(OpenPGPBridgeService.EXTRA_PLAINTEXT, "cat");
-        encryptIntent.setClass(getContext(), OpenPGPBridgeService.class);
-        startService(encryptIntent);
-    }
+//    public void testEncrypt() {
+//        Intent encryptIntent = new Intent();
+//        encryptIntent.setAction(OpenPGPBridgeService.ACTION_ENCRYPT);
+//        encryptIntent.putExtra(OpenPGPBridgeService.EXTRA_PLAINTEXT, "test");
+//        encryptIntent.putExtra(OpenPGPBridgeService.EXTRA_RECIPIENT, "marvin@gounplugged.co");
+//        encryptIntent.setClass(getContext(), OpenPGPBridgeService.class);
+//        startService(encryptIntent);
+//    }
 
-    public class TestOpenPGPBridgeService extends OpenPGPBridgeService {
-        @Override
-        public void onCreate() {
-            Log.d(TAG, "Created");
-
-            isBound = false;
-
-            mServiceConnection = new OpenPgpServiceConnection(
-                    getApplicationContext(),
-                    "org.sufficientlysecure.keychain",
-                    new OpenPgpServiceConnection.OnBound() {
-                        @Override
-                        public void onBound(IOpenPgpService service) {
-                            isBound = true;
-                            doTestEncrypt();
-                            Log.d(TAG, "onBound!");
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e(TAG, "exception when binding!", e);
-                        }
-                    }
-            );
-            mServiceConnection.bindToService();
-        }
-    }
 
 }

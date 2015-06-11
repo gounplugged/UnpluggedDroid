@@ -26,7 +26,9 @@ public class OpenPGPBridgeService extends Service {
     protected OpenPgpServiceConnection mServiceConnection;
     public static final String ACTION_ENCRYPT = "OpenPGPBridgeService_ACTION_ENCRYPT";
     public static final String EXTRA_PLAINTEXT = "OpenPGPBridgeService_EXTRA_PLAINTEXT";
+    public static final String EXTRA_RECIPIENT = "OpenPGPBridgeService_EXTRA_RECIPIENT";
     protected boolean isBound;
+    private OpenPgpServiceConnection.OnBound onBoundCallback;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -39,24 +41,27 @@ public class OpenPGPBridgeService extends Service {
 
         isBound = false;
 
+        onBoundCallback = new OpenPgpServiceConnection.OnBound() {
+            @Override
+            public void onBound(IOpenPgpService service) {
+                isBound = true;
+                Log.d(TAG, "onBound!");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "exception when binding!", e);
+            }
+        };
+
         mServiceConnection = new OpenPgpServiceConnection(
             getApplicationContext(),
             "org.sufficientlysecure.keychain",
-            new OpenPgpServiceConnection.OnBound() {
-                @Override
-                public void onBound(IOpenPgpService service) {
-                    isBound = true;
-                    Log.d(TAG, "onBound!");
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e(TAG, "exception when binding!", e);
-                }
-            }
+            onBoundCallback
         );
         mServiceConnection.bindToService();
     }
+
 
     @Override
     public void onDestroy() {
@@ -71,21 +76,25 @@ public class OpenPGPBridgeService extends Service {
             intent.getAction() != null &&
             intent.getAction().equals(ACTION_ENCRYPT)) {
 
-            encrypt();
+            encrypt(intent);
         }
         return 0;
     }
 
-    private void encrypt() {
+    private void encrypt(Intent encryptIntent) {
         Log.d(TAG, "Attempt encrypt");
+
+        String recipient = encryptIntent.getStringExtra(EXTRA_RECIPIENT);
+        String plaintext = encryptIntent.getStringExtra(EXTRA_PLAINTEXT);
+
         Intent data = new Intent();
         data.setAction(OpenPgpApi.ACTION_ENCRYPT);
-        data.putExtra(OpenPgpApi.EXTRA_USER_IDS, new String[]{"marvinmarnold@gmail.com"});
+        data.putExtra(OpenPgpApi.EXTRA_USER_IDS, new String[]{recipient});
         data.putExtra(OpenPgpApi.EXTRA_REQUEST_ASCII_ARMOR, true);
 
         InputStream is = null;
         try {
-            is = new ByteArrayInputStream("Hello world!".getBytes("UTF-8"));
+            is = new ByteArrayInputStream(plaintext.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
         }
         ByteArrayOutputStream os = new ByteArrayOutputStream();
