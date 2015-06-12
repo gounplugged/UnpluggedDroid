@@ -32,13 +32,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".services.OpenPGPBridgeService">
+
+        <service
+            android:name=".services.OpenPGPBridgeService"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.OpenPGPBridgeService_ACTION_ENCRYPT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service android:name=".services.EdgenetClientService" />
+
+        <service
+            android:name=".services.EdgenetClientService"
+            android:enabled="true" />
+
         <activity
             android:name=".activities.ChatActivity"
             android:configChanges="orientation|screenSize"

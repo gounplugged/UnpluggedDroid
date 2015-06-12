@@ -1,7 +1,11 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
@@ -14,6 +18,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +36,7 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
@@ -49,6 +57,10 @@ public class ChatActivity extends BaseActivity {
     private InfiniteViewPager mViewPager;
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
+
+    private OpenPGPBridgeService mOpenPGPBridgeService;
+    private ServiceConnection mOpenPGPBridgeConnection;
+    private boolean mIsBoundToOpenPGP;
 
     private Conversation mSelectedConversation;
     private Conversation mClickedConversation;  //TODO refactor global var
@@ -95,6 +107,23 @@ public class ChatActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        mIsBoundToOpenPGP = false;
+        mOpenPGPBridgeConnection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                mIsBoundToOpenPGP = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mIsBoundToOpenPGP = false;
+            }
+        };
+        bindService(new Intent(this, OpenPgpServiceConnection.class),
+                    mOpenPGPBridgeConnection,
+                    Context.BIND_AUTO_CREATE);
+        mIsBoundToOpenPGP = true;
 
         hideActionBar();
 
@@ -287,6 +316,10 @@ public class ChatActivity extends BaseActivity {
         if(mSelectedConversation == null) return true;
         if(mSelectedConversation.equals(newConversation)) return false;
         return true;
+    }
+
+    public OpenPGPBridgeService getOpenPGPBridgeService() {
+        return mOpenPGPBridgeService;
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

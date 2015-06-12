@@ -13,6 +13,7 @@ import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.EdgenetClientService;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.MaskUtil;
 
@@ -57,6 +58,7 @@ public class BaseApplication extends Application {
 
         Log.d(TAG, "APPLICATION PROGRESSED");
         startService(new Intent(this, EdgenetClientService.class));
+        startService(new Intent(this, OpenPGPBridgeService.class));
     }
 
     private void initManagers() {

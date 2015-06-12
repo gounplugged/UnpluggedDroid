@@ -100,11 +100,12 @@ public class MessageInputFragment extends Fragment {
         if (TextUtils.isEmpty(message))
             return;
 
-        Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
+        ChatActivity chatActivity = ((ChatActivity) getActivity());
+        Conversation conversation = chatActivity.getLastSelectedConversation();
         if(conversation != null) {
             Context context = getActivity().getApplicationContext();
             String text = newPostText.getText().toString();
-            BaseApplication.App.ThrowManager.sendMessage(conversation, text);
+            BaseApplication.App.ThrowManager.sendMessage(conversation, text, chatActivity.getOpenPGPBridgeService());
             newPostText.setText("");
         }
     }

@@ -32,4 +32,8 @@ public class Krewe {
         return recipient;
     }
 
+    public String getRecipientNumber() {
+        return recipient.getFullNumber();
+    }
+
 }
