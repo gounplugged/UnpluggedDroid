@@ -105,7 +105,7 @@ public class Profile {
             return null;
         } else {
             try {
-                return PhoneNumberParser.parseCountryCode(phoneNumber);
+                return (phoneNumber == null) ? "" : PhoneNumberParser.parseCountryCode(phoneNumber);
             } catch (InvalidPhoneNumberException e) {
                 //TODO
                 return null;

@@ -1,23 +1,19 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,8 +21,6 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.broadcastReceivers.SmsBroadcastReceiver;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
@@ -48,8 +42,6 @@ public class ChatActivity extends BaseActivity {
 	
 	// Constants
     public static final String EXTRA_MESSAGE = "message";
-
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	// GUI
 	private MessageAdapter mChatArrayAdapter;
@@ -75,7 +67,8 @@ public class ChatActivity extends BaseActivity {
     /*
         Return the last selected conversation. Null if no last conversation.
      */
-    public Conversation getLastSelectedConversation() {
+    public synchronized Conversation getLastSelectedConversation() {
+        if(mSelectedConversation != null) ConversationUtil.refresh(getApplicationContext(), mSelectedConversation);
         if(mSelectedConversation == null) {
             long cid = Profile.getLastConversationId();
             if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
@@ -84,13 +77,18 @@ public class ChatActivity extends BaseActivity {
                 } catch (NotFoundInDatabaseException e) {
                     e.printStackTrace();
                 }
+            } else {
+                List<Conversation> conversations = ConversationUtil.getAll(getApplicationContext());
+                if(conversations != null && conversations.size() > 0)
+                    mSelectedConversation = conversations.get(0);
             }
         }
         return mSelectedConversation;
     }
 
-    private void setLastConversation() {
-        Profile.setLastConversationId(mSelectedConversation.id);
+    public void setLastConversation(Conversation conversation) {
+        Profile.setLastConversationId(conversation.id);
+        mChatArrayAdapter.setConversation(conversation);
     }
 
     @Override
@@ -103,7 +101,6 @@ public class ChatActivity extends BaseActivity {
         getLastSelectedConversation();
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
-
     }
 
     @Override
@@ -124,7 +121,6 @@ public class ChatActivity extends BaseActivity {
 
         EventBus.getDefault().removeStickyEvent(Message.class);
         EventBus.getDefault().registerSticky(this);
-
     }
 
     @Override
@@ -142,7 +138,6 @@ public class ChatActivity extends BaseActivity {
     public void onEventMainThread(Message message) {
         mChatArrayAdapter.addMessage(message);
     }
-
 
     private void loadGui() {
         // Setup navigation-drawer
@@ -213,8 +208,8 @@ public class ChatActivity extends BaseActivity {
                         break;
                     case DragEvent.ACTION_DROP:
                         Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
-                        Collection<Message> messages = new ArrayList<>();
-//                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
+                        // TODO be sure to only remove from conversation container, don't delet convo itself
+                        // update current selected convo
                         break;
                 }
                 return true;
@@ -233,7 +228,6 @@ public class ChatActivity extends BaseActivity {
             }
         });
 
-
         // Chat log //todo extract
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
@@ -251,7 +245,7 @@ public class ChatActivity extends BaseActivity {
 
         mConversationContainer.removeConversation(newConversation);
         mSelectedConversation = newConversation;
-        setLastConversation();
+        setLastConversation(mSelectedConversation);
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
     }
@@ -267,11 +261,9 @@ public class ChatActivity extends BaseActivity {
         mImageViewDropZoneChats.setVisibility(View.GONE);
     }
 
-    //todo refactor
     public MessageAdapter getChatArrayAdapter() {
         return mChatArrayAdapter;
     }
-
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
