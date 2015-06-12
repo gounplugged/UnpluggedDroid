@@ -12,7 +12,7 @@ import co.gounplugged.unpluggeddroid.api.APICaller;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
+import co.gounplugged.unpluggeddroid.services.EdgenetClientService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.MaskUtil;
 
@@ -40,7 +40,7 @@ public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        Log.d(TAG, "APPLICATION STARTED");
         initManagers();
 
         Profile.loadProfile(getApplicationContext());
@@ -55,7 +55,8 @@ public class BaseApplication extends Application {
                 break;
         }
 
-
+        Log.d(TAG, "APPLICATION PROGRESSED");
+        startService(new Intent(this, EdgenetClientService.class));
     }
 
     private void initManagers() {
