@@ -82,6 +82,7 @@ public class ChatActivity extends BaseActivity {
         Return the last selected conversation. Null if no last conversation.
      */
     public Conversation getLastSelectedConversation() {
+        if(mSelectedConversation != null) ConversationUtil.refresh(getApplicationContext(), mSelectedConversation);
         if(mSelectedConversation == null) {
             long cid = Profile.getLastConversationId();
             if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
