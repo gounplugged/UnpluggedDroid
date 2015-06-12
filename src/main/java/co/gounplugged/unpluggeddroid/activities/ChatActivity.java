@@ -1,10 +1,7 @@
 package co.gounplugged.unpluggeddroid.activities;
 
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
@@ -17,16 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-
-import org.openintents.openpgp.IOpenPgpService;
-import org.openintents.openpgp.OpenPgpError;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +29,6 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
@@ -81,7 +67,7 @@ public class ChatActivity extends BaseActivity {
     /*
         Return the last selected conversation. Null if no last conversation.
      */
-    public Conversation getLastSelectedConversation() {
+    public synchronized Conversation getLastSelectedConversation() {
         if(mSelectedConversation != null) ConversationUtil.refresh(getApplicationContext(), mSelectedConversation);
         if(mSelectedConversation == null) {
             long cid = Profile.getLastConversationId();
@@ -100,8 +86,9 @@ public class ChatActivity extends BaseActivity {
         return mSelectedConversation;
     }
 
-    private void setLastConversation() {
-        Profile.setLastConversationId(mSelectedConversation.id);
+    public void setLastConversation(Conversation conversation) {
+        Profile.setLastConversationId(conversation.id);
+        mChatArrayAdapter.setConversation(conversation);
     }
 
     @Override
@@ -221,8 +208,8 @@ public class ChatActivity extends BaseActivity {
                         break;
                     case DragEvent.ACTION_DROP:
                         Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
-                        Collection<Message> messages = new ArrayList<>();
-//                        mChatArrayAdapter.setMessages(new ArrayList<>(messages));
+                        // TODO be sure to only remove from conversation container, don't delet convo itself
+                        // update current selected convo
                         break;
                 }
                 return true;
@@ -241,7 +228,6 @@ public class ChatActivity extends BaseActivity {
             }
         });
 
-
         // Chat log //todo extract
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
@@ -259,7 +245,7 @@ public class ChatActivity extends BaseActivity {
 
         mConversationContainer.removeConversation(newConversation);
         mSelectedConversation = newConversation;
-        setLastConversation();
+        setLastConversation(mSelectedConversation);
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
     }
@@ -275,11 +261,9 @@ public class ChatActivity extends BaseActivity {
         mImageViewDropZoneChats.setVisibility(View.GONE);
     }
 
-    //todo refactor
     public MessageAdapter getChatArrayAdapter() {
         return mChatArrayAdapter;
     }
-
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
