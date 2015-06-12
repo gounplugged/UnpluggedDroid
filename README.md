@@ -28,7 +28,7 @@ only communicate with somebody else with the app installed.
 
 Encryption
 ----------
-Plans for OpenWhisper Systems v2 protocol. 
+OpenPGP open-keychain.
 
 Offline communication
 ---------------------
@@ -46,4 +46,4 @@ TODO: Automated web of trust
 
 Content Management
 ------------------
-TODO: Recipients need your permission to reopen what you've sent after X time.
+TODO: Recipients need your permission to reopen what you've sent after X time. If time allows.
