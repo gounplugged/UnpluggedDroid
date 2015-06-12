@@ -38,7 +38,6 @@ public class ChatActivityTest extends ActivityUnitTestCase<ChatActivity> {
     public void testGetCurrentConversation() {
         Profile.setLastConversationId(Profile.LAST_SELECTED_CONVERSATION_UNSET_ID);
         ConversationUtil.deleteAll(mContext);
-        Log.d("ChatActivitTest", "num convos: " + ConversationUtil.getAll(mContext).size());
 
         assertNull(mChatActivity.getLastSelectedConversation());
 

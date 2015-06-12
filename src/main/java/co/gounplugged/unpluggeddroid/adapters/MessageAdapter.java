@@ -18,7 +18,6 @@ public class MessageAdapter extends BaseAdapter {
     private Context mContext;
     private LayoutInflater mInflater;
     private Conversation mCurrentConversation;
-    private List<Message> mMessages;
 
     public MessageAdapter(Context context, Conversation conversation) {
         this.mContext = context;
@@ -40,22 +39,25 @@ public class MessageAdapter extends BaseAdapter {
      * Refresh the messages from the current conversation.
      */
     public void refreshMessages() {
-        if(mCurrentConversation == null) {
-            this.mMessages = new ArrayList<Message>();
-        } else {
-            this.mMessages = new ArrayList(mCurrentConversation.getMessages());
-        }
         notifyDataSetChanged();
+    }
+
+    private List<Message> getMessages() {
+        if(mCurrentConversation == null) {
+            return new ArrayList<Message>();
+        } else {
+            return new ArrayList(mCurrentConversation.getMessages());
+        }
     }
 
     @Override
     public int getCount() {
-        return mMessages.size();
+        return getMessages().size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mMessages.get(position);
+        return getMessages().get(position);
     }
 
     @Override
@@ -70,7 +72,7 @@ public class MessageAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        Message message = mMessages.get(position);
+        Message message = getMessages().get(position);
         switch (message.getType()) {
             case Message.TYPE_INCOMING:
                 return 0;
@@ -83,7 +85,7 @@ public class MessageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Message message = mMessages.get(position);
+        Message message = getMessages().get(position);
 
         if (convertView == null) {
             if (message.isOutgoing()) {

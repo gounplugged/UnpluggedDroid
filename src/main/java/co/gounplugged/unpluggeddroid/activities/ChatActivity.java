@@ -152,7 +152,6 @@ public class ChatActivity extends BaseActivity {
         mChatArrayAdapter.addMessage(message);
     }
 
-
     private void loadGui() {
         // Setup navigation-drawer
         final String[] menu = getResources().getStringArray(R.array.navigation_menu);
