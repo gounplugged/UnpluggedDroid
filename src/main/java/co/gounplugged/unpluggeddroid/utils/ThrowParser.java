@@ -16,6 +16,7 @@ public class ThrowParser {
     public final static String MASK_SEPARATOR = "zQpQQ";
     public final static String MESSAGE_SEPARATOR = "WIxff";
     public final static String ORIGINATOR_SEPARATOR = "YzLqQ";
+    private final static int MIN_NUM_RELAY_MASKS = 1;
 
     private final static String THROW_REGEX = "(.*" + MESSAGE_SEPARATOR + ")(" +
     PhoneNumberParser.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR + ")";
@@ -32,7 +33,7 @@ public class ThrowParser {
     public static boolean isValidRelayThrow(String partiallyEncryptedContent){
         return partiallyEncryptedContent.matches(
                 "(" + PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR +
-                 ".*");
+                 ").*");
     }
 
     /**
@@ -50,8 +51,10 @@ public class ThrowParser {
                                     String originatorNumber,
                                     Krewe krewe,
                                     OpenPGPBridgeService openPGPBridgeService)
-                                    throws OpenPGPBridgeService.EncryptionUnavailableException{
+                                    throws OpenPGPBridgeService.EncryptionUnavailableException,
+                                    KreweException {
 
+        if(krewe.getMasks().size() < MIN_NUM_RELAY_MASKS) throw new KreweException("Additional Masks required");
         List<Mask> masks = krewe.getMasks();
 
         String recipientThrow = openPGPBridgeService.encrypt(
@@ -91,5 +94,11 @@ public class ThrowParser {
         Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(.*)").matcher(content);
         m.matches();
         return m.group(1);
+    }
+
+    public static class KreweException extends Exception {
+        public KreweException(String message) {
+            super(message);
+        }
     }
 }

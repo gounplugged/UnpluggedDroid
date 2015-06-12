@@ -36,7 +36,8 @@ public class Throw {
             String originatorNumber,
             Krewe krewe,
             OpenPGPBridgeService openPGPBridgeService)
-            throws OpenPGPBridgeService.EncryptionUnavailableException {
+            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            ThrowParser.KreweException {
 
         this.throwTo = krewe.getNextMask();
         this.mOpenPGPBridgeService = openPGPBridgeService;
@@ -68,7 +69,8 @@ public class Throw {
             String message,
             String originatorNumber,
             Krewe krewe)
-            throws OpenPGPBridgeService.EncryptionUnavailableException {
+            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            ThrowParser.KreweException {
 
         return ThrowParser.contentFor(message, originatorNumber, krewe, mOpenPGPBridgeService);
     }

@@ -58,15 +58,15 @@ public class ThrowParserTest extends AndroidTestCase {
     public void testBuildContent() {
         try {
             throwContent = ThrowParser.contentFor(message, originatorNumber, krewe, mTestOpenPGPService);
-        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+        } catch (Exception e) {
             assertTrue(false); return;
         }
         assertEquals(3, krewe.getMasks().size()); // ThrowParser shouldn't mutate krewe
         String content =
                 encryptionPrefix(0) +
-                phoneBase + "1" + ThrowParser.MASK_SEPARATOR +
+                (phoneNo(1) + ThrowParser.MASK_SEPARATOR) +
                 encryptionPrefix(1) +
-                (phoneBase + "2" + ThrowParser.MASK_SEPARATOR) +
+                (phoneNo(2) + ThrowParser.MASK_SEPARATOR) +
                 encryptionPrefix(2) +
                 (krewe.getRecipient().getFullNumber() + ThrowParser.MASK_SEPARATOR) +
                 TestOpenPGPService.mockEncryptionPrefix + krewe.getRecipientNumber() +
@@ -78,18 +78,25 @@ public class ThrowParserTest extends AndroidTestCase {
     public String encryptionPrefix(int maskIndex) {
         return TestOpenPGPService.mockEncryptionPrefix + krewe.getMasks().get(maskIndex).getFullNumber();
     }
-/*
-    public void testRemoveNextMask() {
-        throwContent = ThrowParser.contentFor(message, originatorNumber, krewe, mTestOpenPGPService);
-        assertEquals(
-            TestOpenPGPService.mockEncryptionPrefix + phoneBase + "2" + ThrowParser.MASK_SEPARATOR +
-            TestOpenPGPService.mockEncryptionPrefix + krewe.getRecipientNumber() + ThrowParser.MASK_SEPARATOR +
-            TestOpenPGPService.mockEncryptionPrefix + message + ThrowParser.MESSAGE_SEPARATOR +
-            originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR,
 
-            ThrowParser.removeNextMask(throwContent)
-        );
-    }
+    /*public void testRemoveNextMask() {
+        try {
+            throwContent = ThrowParser.contentFor(message, originatorNumber, krewe, mTestOpenPGPService);
+        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+            assertTrue(false);
+        }
+
+        String content =
+            encryptionPrefix(1) +
+            (phoneBase + "2" + ThrowParser.MASK_SEPARATOR) +
+            encryptionPrefix(2) +
+            (krewe.getRecipient().getFullNumber() + ThrowParser.MASK_SEPARATOR) +
+            TestOpenPGPService.mockEncryptionPrefix + krewe.getRecipientNumber() +
+            (message + ThrowParser.MESSAGE_SEPARATOR +
+            originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR);
+
+        assertEquals(content, ThrowParser.removeNextMask(throwContent));
+    }*/
 
     public void testGetOriginatorNumber() {
         throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
@@ -105,21 +112,37 @@ public class ThrowParserTest extends AndroidTestCase {
 
     public void testIsValidRelay() {
         assertTrue(ThrowParser.isValidRelayThrow(
-                PhoneNumberParser.PHONE_NUMBER_REGEX +
+                phoneNo(6) +
                 ThrowParser.MASK_SEPARATOR +
                 "arstiharistnoirastn"));
+    }
+
+    // i: 0-9
+    private String phoneNo(int i) {
+        return phoneBase + Integer.toString(i);
     }
 
     public void testIsValidThrow() {
         assertTrue(
             ThrowParser.isValidThrow(
-                TestOpenPGPService.mockEncryptionPrefix +
+                TestOpenPGPService.mockEncryptionPrefix + phoneNo(7) +
                 "ignoreWIxff+13016864576YzLqQ"));
     }
 
     public void testMinimumKreweAmount() {
+        List badRoute = new ArrayList<Mask>();
+        krewe = new Krewe(destination, badRoute);
+
+        try {
+            ThrowParser.contentFor(message, originatorNumber, new Krewe(destination, badRoute), mTestOpenPGPService);
+        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+            assertTrue(false);
+        } catch (ThrowParser.KreweException e) {
+            assertTrue(true);
+            return;
+        }
         assertTrue(false);
-    } */
+    }
 
     class TestOpenPGPService extends OpenPGPBridgeService {
         public static final String mockEncryptionPrefix = "encrypted";

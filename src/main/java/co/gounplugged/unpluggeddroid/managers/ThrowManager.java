@@ -16,6 +16,7 @@ import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
@@ -162,6 +163,8 @@ public class ThrowManager {
                 t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber(), openPGPBridgeService);
             } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
                 // TODO recover from failure
+            } catch (ThrowParser.KreweException e) {
+                // TODO make sure krewe is never too short
             }
             phoneNumber = t.getThrowTo().getFullNumber();
             text = t.getEncryptedContent();
