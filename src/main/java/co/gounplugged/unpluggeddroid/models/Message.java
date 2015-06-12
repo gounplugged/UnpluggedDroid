@@ -67,6 +67,8 @@ public class Message {
                 .append("\n")
                 .append("type: " + (mType == 1 ? "incoming" : "outgoing"))
                 .append("\n")
+                .append("conversation: " + mConversation.id)
+                .append("\n")
                 .append("text: " + mText)
                 .append("\n")
                 .append("timestamp: " + mTimeStamp)

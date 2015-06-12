@@ -130,18 +130,19 @@ public class ContactUtil extends DbUtil {
         return contact;
     }
 
-    public static Contact create(Context context, String name, String fullPhoneNumber, String lookupKey) throws InvalidPhoneNumberException {
+    // WARNING DO NOT MAKE ANY CREATE METHODS PUBLIC. SHOULD ONLY BE ACCESSED THROUGH FIRST_OR_CREATE
+    private static Contact create(Context context, String name, String fullPhoneNumber, String lookupKey) throws InvalidPhoneNumberException {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
         Contact c = new Contact(name, fullPhoneNumber, lookupKey);
         contactAccess.create(c);
         return c;
     }
 
-    public static Contact create(Context context, String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
+    private static Contact create(Context context, String name, String fullPhoneNumber) throws InvalidPhoneNumberException {
         return create(context, name, fullPhoneNumber, false);
     }
 
-    public static Contact create(Context context, String name, String fullPhoneNumber, boolean usesSecondLine) throws InvalidPhoneNumberException {
+    private static Contact create(Context context, String name, String fullPhoneNumber, boolean usesSecondLine) throws InvalidPhoneNumberException {
         DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
         Contact c = new Contact(name, fullPhoneNumber, usesSecondLine);
         contactAccess.create(c);

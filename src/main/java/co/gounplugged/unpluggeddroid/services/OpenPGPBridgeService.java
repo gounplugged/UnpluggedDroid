@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Binder;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -24,15 +25,23 @@ import java.io.UnsupportedEncodingException;
 public class OpenPGPBridgeService extends Service {
     protected static final String TAG = "OpenPGPBridgeService";
     protected OpenPgpServiceConnection mServiceConnection;
+    private final IBinder mBinder = new LocalBinder();
     public static final String ACTION_ENCRYPT = "OpenPGPBridgeService_ACTION_ENCRYPT";
     public static final String EXTRA_PLAINTEXT = "OpenPGPBridgeService_EXTRA_PLAINTEXT";
     public static final String EXTRA_RECIPIENT = "OpenPGPBridgeService_EXTRA_RECIPIENT";
     protected boolean isBound;
     private OpenPgpServiceConnection.OnBound onBoundCallback;
 
+    public class LocalBinder extends Binder {
+        public OpenPGPBridgeService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return OpenPGPBridgeService.this;
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override
@@ -65,6 +74,7 @@ public class OpenPGPBridgeService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "destroyed");
         if (mServiceConnection != null) {
             mServiceConnection.unbindFromService();
         }

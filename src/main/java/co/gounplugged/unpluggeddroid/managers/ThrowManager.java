@@ -98,7 +98,7 @@ public class ThrowManager {
             participant = ContactUtil.getContact(mContext, originatingAddress);
         } catch (NotFoundInDatabaseException e) { // New contact
             try {
-                participant = ContactUtil.create(mContext, originatingAddress, originatingAddress);
+                participant = ContactUtil.firstOrCreate(mContext, originatingAddress, originatingAddress);
             } catch (InvalidPhoneNumberException e1) {
                 //TODO should not really be adding a contact, just a new conversation.
                 // Should be able to have conversations not linked to a contact.
@@ -107,6 +107,7 @@ public class ThrowManager {
         }
 
         boolean isSLMessage = MessageUtil.isSLCompatible(text);
+        Log.d(TAG, "Message tagged as SL compatible: " + isSLMessage);
         if(isSLMessage) {
             participant.setUsesSecondLine(mContext, isSLMessage);
             text = MessageUtil.sanitizeSLCompatibilityText(text);

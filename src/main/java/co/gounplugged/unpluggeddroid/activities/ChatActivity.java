@@ -107,23 +107,25 @@ public class ChatActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        Log.d(TAG, "onCreate");
+
         mIsBoundToOpenPGP = false;
         mOpenPGPBridgeConnection = new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
+                OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
+                mOpenPGPBridgeService = binder.getService();
                 mIsBoundToOpenPGP = true;
+                Log.d(TAG, "bound to pgp bridge");
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 mIsBoundToOpenPGP = false;
+                Log.d(TAG, "unbound from pgp bridge");
             }
         };
-        bindService(new Intent(this, OpenPgpServiceConnection.class),
-                    mOpenPGPBridgeConnection,
-                    Context.BIND_AUTO_CREATE);
-        mIsBoundToOpenPGP = true;
 
         hideActionBar();
 
@@ -135,12 +137,24 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        Log.d(TAG, "onStart");
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
+        getApplicationContext().bindService(
+                new Intent(this, OpenPgpServiceConnection.class),
+                mOpenPGPBridgeConnection,
+                Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
+
+        if (mIsBoundToOpenPGP) {
+            unbindService(mOpenPGPBridgeConnection);
+            mIsBoundToOpenPGP = false;
+        }
     }
 
     @Override

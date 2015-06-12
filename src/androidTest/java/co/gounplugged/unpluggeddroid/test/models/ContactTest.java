@@ -25,7 +25,7 @@ public class ContactTest extends AndroidTestCase {
 
     public void testSetUsesSecondLine() {
         try {
-            Contact c = ContactUtil.create(getContext(), "", "+11");
+            Contact c = ContactUtil.firstOrCreate(getContext(), "", "+11");
 
             assertFalse(c.usesSecondLine());
             c.setUsesSecondLine(getContext(), true);
