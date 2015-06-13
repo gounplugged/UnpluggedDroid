@@ -41,6 +41,7 @@ public class OpenPGPBridgeService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "THIS IS THE BIND");
         return mBinder;
     }
 

@@ -18,13 +18,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
@@ -59,8 +54,22 @@ public class ChatActivity extends BaseActivity {
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
-    private ServiceConnection mOpenPGPBridgeConnection;
-    private boolean mIsBoundToOpenPGP;
+    private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
+            mOpenPGPBridgeService = binder.getService();
+            mIsBoundToOpenPGP = true;
+            Log.d(TAG, "bound to pgp bridge");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mIsBoundToOpenPGP = false;
+            Log.d(TAG, "unbound from pgp bridge");
+        }
+    };;
+    private boolean mIsBoundToOpenPGP = false;
 
     private Conversation mSelectedConversation;
     private Conversation mClickedConversation;  //TODO refactor global var
@@ -109,24 +118,6 @@ public class ChatActivity extends BaseActivity {
         setContentView(R.layout.activity_chat);
         Log.d(TAG, "onCreate");
 
-        mIsBoundToOpenPGP = false;
-        mOpenPGPBridgeConnection = new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
-                mOpenPGPBridgeService = binder.getService();
-                mIsBoundToOpenPGP = true;
-                Log.d(TAG, "bound to pgp bridge");
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mIsBoundToOpenPGP = false;
-                Log.d(TAG, "unbound from pgp bridge");
-            }
-        };
-
         hideActionBar();
 
         getLastSelectedConversation();
@@ -139,11 +130,13 @@ public class ChatActivity extends BaseActivity {
         super.onStart();
 
         Log.d(TAG, "onStart");
-        ((BaseApplication) getApplicationContext()).seedKnownMasks();
-        getApplicationContext().bindService(
-                new Intent(this, OpenPgpServiceConnection.class),
+
+        bindService(
+                new Intent(this, OpenPGPBridgeService.class),
                 mOpenPGPBridgeConnection,
                 Context.BIND_AUTO_CREATE);
+
+        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     @Override
