@@ -117,6 +117,7 @@ public class ThrowManager {
         Conversation conversation = null;
         try {
             conversation = ConversationUtil.findOrNew(participant, mContext);
+            Log.d(TAG, "CONVO DOES THIS: " + conversation.isSecondLineComptabile());
         } catch (InvalidConversationException e) {
             // TODO can participant ever be null?
         }
@@ -164,8 +165,10 @@ public class ThrowManager {
                 t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber(), openPGPBridgeService);
             } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
                 // TODO recover from failure
+                return;
             } catch (ThrowParser.KreweException e) {
                 // TODO make sure krewe is never too short
+                return;
             }
             phoneNumber = t.getThrowTo().getFullNumber();
             text = t.getEncryptedContent();

@@ -69,6 +69,8 @@ public class Message {
                 .append("\n")
                 .append("conversation: " + mConversation.id)
                 .append("\n")
+                .append("participant: " + mConversation.getParticipant().id)
+                .append("\n")
                 .append("text: " + mText)
                 .append("\n")
                 .append("timestamp: " + mTimeStamp)

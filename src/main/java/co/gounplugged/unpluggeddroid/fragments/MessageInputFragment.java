@@ -106,6 +106,7 @@ public class MessageInputFragment extends Fragment {
 
         Conversation conversation = chatActivity.getLastSelectedConversation();
         if(conversation != null) {
+            Log.d(TAG, "ADDING MESSAGE TO CONVO: " + conversation.id);
             Context context = getActivity().getApplicationContext();
             String text = newPostText.getText().toString();
             BaseApplication.App.ThrowManager.sendMessage(conversation, text, openPGPBridgeService);
