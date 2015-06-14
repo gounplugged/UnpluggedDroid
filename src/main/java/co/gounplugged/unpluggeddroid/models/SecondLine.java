@@ -2,6 +2,10 @@ package co.gounplugged.unpluggeddroid.models;
 
 import java.util.List;
 
+import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
+import co.gounplugged.unpluggeddroid.utils.ThrowParser;
+
 /**
  *
  */
@@ -12,8 +16,13 @@ public class SecondLine {
         this.selectedKrewe = new Krewe(ultimateRecipient, knownMasks);
     }
 
-    public Throw getThrow(String message, String fromPhone) {
-        return new Throw(message, fromPhone, selectedKrewe);
-    }
+    public Throw getThrow(
+            String message,
+            String fromPhone,
+            OpenPGPBridgeService openPGPBridgeService)
+            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            ThrowParser.KreweException {
 
+        return new Throw(message, fromPhone, selectedKrewe, openPGPBridgeService);
+    }
 }

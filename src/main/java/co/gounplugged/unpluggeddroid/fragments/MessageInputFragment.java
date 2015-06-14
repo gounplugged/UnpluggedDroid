@@ -21,6 +21,7 @@ import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidRecipientException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 
 public class MessageInputFragment extends Fragment {
@@ -97,14 +98,18 @@ public class MessageInputFragment extends Fragment {
     }
 
     private void sendMessage(String message) throws InvalidRecipientException {
-        if (TextUtils.isEmpty(message))
-            return;
+        if (TextUtils.isEmpty(message)) return;
 
-        Conversation conversation = ((ChatActivity) getActivity()).getLastSelectedConversation();
+        ChatActivity chatActivity = ((ChatActivity) getActivity());
+        OpenPGPBridgeService openPGPBridgeService = chatActivity.getOpenPGPBridgeService();
+        if(openPGPBridgeService == null) return;
+
+        Conversation conversation = chatActivity.getLastSelectedConversation();
         if(conversation != null) {
+            Log.d(TAG, "ADDING MESSAGE TO CONVO: " + conversation.id);
             Context context = getActivity().getApplicationContext();
             String text = newPostText.getText().toString();
-            BaseApplication.App.ThrowManager.sendMessage(conversation, text);
+            BaseApplication.App.ThrowManager.sendMessage(conversation, text, openPGPBridgeService);
             newPostText.setText("");
         }
     }

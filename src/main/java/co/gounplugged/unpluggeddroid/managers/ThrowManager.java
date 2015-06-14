@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.util.List;
 
+import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
@@ -15,11 +16,13 @@ import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
+import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.SecondLine;
 import co.gounplugged.unpluggeddroid.models.Throw;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
@@ -45,7 +48,7 @@ public class ThrowManager {
         String receivedText = receivedSMS.getMessageBody().toString();
         Log.d(TAG, "Received text: " + receivedText);
         try {
-            Throw receivedThrow = new Throw(receivedText);
+            Throw receivedThrow = new Throw(receivedText, null);
             processThrow(mContext, receivedThrow);
         }  catch (InvalidThrowException e) {
             processRegularSMS(receivedSMS);
@@ -95,7 +98,7 @@ public class ThrowManager {
             participant = ContactUtil.getContact(mContext, originatingAddress);
         } catch (NotFoundInDatabaseException e) { // New contact
             try {
-                participant = ContactUtil.create(mContext, originatingAddress, originatingAddress);
+                participant = ContactUtil.firstOrCreate(mContext, originatingAddress, originatingAddress);
             } catch (InvalidPhoneNumberException e1) {
                 //TODO should not really be adding a contact, just a new conversation.
                 // Should be able to have conversations not linked to a contact.
@@ -104,6 +107,7 @@ public class ThrowManager {
         }
 
         boolean isSLMessage = MessageUtil.isSLCompatible(text);
+        Log.d(TAG, "Message tagged as SL compatible: " + isSLMessage);
         if(isSLMessage) {
             participant.setUsesSecondLine(mContext, isSLMessage);
             text = MessageUtil.sanitizeSLCompatibilityText(text);
@@ -113,6 +117,7 @@ public class ThrowManager {
         Conversation conversation = null;
         try {
             conversation = ConversationUtil.findOrNew(participant, mContext);
+            Log.d(TAG, "CONVO DOES THIS: " + conversation.isSecondLineComptabile());
         } catch (InvalidConversationException e) {
             // TODO can participant ever be null?
         }
@@ -125,7 +130,7 @@ public class ThrowManager {
      * @param conversation
      * @param text
      */
-    public void sendMessage(Conversation conversation, String text) {
+    public void sendMessage(Conversation conversation, String text, OpenPGPBridgeService openPGPBridgeService) {
         Message message = MessageUtil.create(
                 mContext,
                 conversation,
@@ -135,7 +140,7 @@ public class ThrowManager {
 
         EventBus.getDefault().postSticky(message);
 
-        sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks());
+        sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks(), openPGPBridgeService);
         Log.d(TAG, "Sending message: " + message);
     }
 
@@ -145,7 +150,7 @@ public class ThrowManager {
      * @param message
      * @param knownMasks
      */
-    private void sendSMSOverWire(Message message, List<Mask> knownMasks) {
+    private void sendSMSOverWire(Message message, List<Mask> knownMasks, OpenPGPBridgeService openPGPBridgeService) {
         String phoneNumber;
         String text;
 
@@ -155,7 +160,16 @@ public class ThrowManager {
         if(conversation.isSecondLineComptabile()) {
             SecondLine secondLine = conversation.getAndRefreshSecondLine(knownMasks);
             conversation.setCurrentSecondLine(secondLine);
-            Throw t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber());
+            Throw t = null;
+            try {
+                t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber(), openPGPBridgeService);
+            } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+                // TODO recover from failure
+                return;
+            } catch (ThrowParser.KreweException e) {
+                // TODO make sure krewe is never too short
+                return;
+            }
             phoneNumber = t.getThrowTo().getFullNumber();
             text = t.getEncryptedContent();
         } else { // Regular messages are mutated to indicate they were created with SL

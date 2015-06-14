@@ -13,7 +13,7 @@ import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 public class ConversationUtilTest extends AndroidTestCase {
     public void testDeleteAll() {
         try {
-            ConversationUtil.createConversation(ContactUtil.create(getContext(), "", "+130168645876"), getContext());
+            ConversationUtil.createConversation(ContactUtil.firstOrCreate(getContext(), "", "+130168645876"), getContext());
 
             ConversationUtil.deleteAll(getContext());
             assertEquals(0, ConversationUtil.getAll(getContext()).size());

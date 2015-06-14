@@ -6,6 +6,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
+import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
@@ -16,10 +17,11 @@ public class Throw {
     private final static String TAG = "Throw";
 
     public String getEncryptedContent() {
-        return encryptedContent;
+        return mEncryptedContent;
     }
 
-    private final String encryptedContent;
+    private final String mEncryptedContent;
+    private final OpenPGPBridgeService mOpenPGPBridgeService;
 
     public Mask getThrowTo() {
         return throwTo;
@@ -29,19 +31,28 @@ public class Throw {
     /*
         Use to originate a message
      */
-    public Throw(String message, String originatorNumber, Krewe krewe) {
+    public Throw(
+            String message,
+            String originatorNumber,
+            Krewe krewe,
+            OpenPGPBridgeService openPGPBridgeService)
+            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            ThrowParser.KreweException {
+
         this.throwTo = krewe.getNextMask();
-        this.encryptedContent = encryptedContentFor(message, originatorNumber, krewe);
+        this.mOpenPGPBridgeService = openPGPBridgeService;
+        this.mEncryptedContent = encryptedContentFor(message, originatorNumber, krewe);
     }
 
     /*
         Use when receiving a message from someone else
      */
-    public Throw(String encryptedContent) throws InvalidPhoneNumberException, InvalidThrowException {
+    public Throw(String encryptedContent, OpenPGPBridgeService openPGPBridgeService) throws InvalidPhoneNumberException, InvalidThrowException {
+        this.mOpenPGPBridgeService = openPGPBridgeService;
         if(!ThrowParser.isValidThrow(encryptedContent)) throw new InvalidThrowException("Message is not valid throw");
         encryptedContent = decryptContent(encryptedContent);
         this.throwTo = getNextMask(encryptedContent);
-        this.encryptedContent = peelOffLayer(encryptedContent);
+        this.mEncryptedContent = peelOffLayer(encryptedContent);
     }
 
     /*
@@ -54,8 +65,14 @@ public class Throw {
     /*
         TODO: Add encryption
      */
-    private String encryptedContentFor(String message, String originatorNumber, Krewe krewe) {
-        return ThrowParser.contentFor(message, originatorNumber, krewe);
+    private String encryptedContentFor(
+            String message,
+            String originatorNumber,
+            Krewe krewe)
+            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            ThrowParser.KreweException {
+
+        return ThrowParser.contentFor(message, originatorNumber, krewe, mOpenPGPBridgeService);
     }
 
     private Mask getNextMask(String decryptedContent) throws InvalidPhoneNumberException {
@@ -87,18 +104,18 @@ public class Throw {
             return true;
 
         Throw rhs = (Throw) obj;
-        return encryptedContent.equals(rhs.getEncryptedContent());
+        return mEncryptedContent.equals(rhs.getEncryptedContent());
     }
 
     public Contact getThrowOriginator(Context context)
             throws InvalidPhoneNumberException, PrematureReadException, NotFoundInDatabaseException {
         if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original sender");
-        return ContactUtil.getContact(context, ThrowParser.getOriginatorNumber(encryptedContent));
+        return ContactUtil.getContact(context, ThrowParser.getOriginatorNumber(mEncryptedContent));
     }
 
     public String getDecryptedContent() throws PrematureReadException {
         if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original content");
-        return ThrowParser.getMessage(encryptedContent);
+        return ThrowParser.getMessage(mEncryptedContent);
     }
 }
 

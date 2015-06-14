@@ -93,6 +93,10 @@ public class Contact {
         ContactUtil.update(context, this);
     }
 
+    public void setLookupKey(String lookupKey) {
+        this.mLookupKey = lookupKey;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Contact))
@@ -103,6 +107,4 @@ public class Contact {
 
         return id == rhs.id;
     }
-
-
 }

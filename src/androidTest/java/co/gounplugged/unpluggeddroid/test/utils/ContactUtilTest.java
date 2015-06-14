@@ -14,24 +14,11 @@ import co.gounplugged.unpluggeddroid.utils.ContactUtil;
  */
 public class ContactUtilTest extends AndroidTestCase {
 
-    public void testGetContact() throws InvalidPhoneNumberException {
-        String number = "+13016864576";
-        Contact originalContact = ContactUtil.create(getContext(), "", number);
-
-        try {
-            Contact foundContact = ContactUtil.getContact(getContext(), number);
-            // Can't test for equality of objects because getContact returns the first one it finds
-            assertEquals(originalContact.getFullNumber(), foundContact.getFullNumber());
-        } catch (NotFoundInDatabaseException e) {
-            assertTrue(false);
-        }
-    }
-
     public void testFirstOrCreate() {
         String phoneNumber = "+13016864576";
         ContactUtil.deleteAll(getContext());
         try {
-            Contact c1 = ContactUtil.create(getContext(), "", phoneNumber);
+            Contact c1 = ContactUtil.firstOrCreate(getContext(), "", phoneNumber);
             Contact c2  = ContactUtil.firstOrCreate(getContext(), "", phoneNumber);
 
             assertEquals(1, ContactUtil.getAll(getContext()).size());
@@ -43,7 +30,7 @@ public class ContactUtilTest extends AndroidTestCase {
 
     public void testDeleteAll() {
         try {
-            ContactUtil.create(getContext(), "", "+13016864576");
+            ContactUtil.firstOrCreate(getContext(), "", "+13016864576");
             ContactUtil.deleteAll(getContext());
             assertEquals(0, ContactUtil.getAll(getContext()).size());
         } catch (InvalidPhoneNumberException e) {
@@ -58,7 +45,6 @@ public class ContactUtilTest extends AndroidTestCase {
         String lookupKey = "1";
         String phoneNo = "+13036864576";
 
-        ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
         ContactUtil.refreshContact(getContext(), lookupKey, name, phoneNo);
 
         // Should not create a new contact if existing lookup key
@@ -78,7 +64,5 @@ public class ContactUtilTest extends AndroidTestCase {
         } catch (NotFoundInDatabaseException e) {
             assertTrue(false);
         }
-
-
     }
 }
