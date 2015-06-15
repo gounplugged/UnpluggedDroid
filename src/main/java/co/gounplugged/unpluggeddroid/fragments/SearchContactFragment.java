@@ -16,8 +16,14 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
+import co.gounplugged.unpluggeddroid.events.ConversationEvent;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
+import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
+import de.greenrobot.event.EventBus;
 
 public class SearchContactFragment extends Fragment {
     private final static String TAG = "SearchContactFragment";
@@ -41,7 +47,6 @@ public class SearchContactFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                Log.d(TAG, "auto complete clicked");
                 Contact contact = adapter.getItem(pos);
                 addConversation(contact);
             }
@@ -62,5 +67,25 @@ public class SearchContactFragment extends Fragment {
     private void addConversation(Contact contact) {
         ((ChatActivity)getActivity()).addConversation(contact);
         mContactAutoComplete.setText("");
+
+        Conversation newConversation;
+
+        try {
+            newConversation = ConversationUtil.findByParticipant(contact, getActivity());
+        } catch(NotFoundInDatabaseException e) {
+            try {
+                newConversation = ConversationUtil.createConversation(contact, getActivity());
+            } catch (InvalidConversationException e1) {
+                //TODO let user know something went wrong
+                return;
+            }
+        }
+
+
+        ConversationEvent event = new ConversationEvent(
+                ConversationEvent.ConversationEventType.SWITCHED, newConversation);
+        EventBus.getDefault().postSticky(event);
     }
+
+
 }

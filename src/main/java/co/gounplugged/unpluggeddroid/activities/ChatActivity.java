@@ -18,8 +18,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
@@ -201,7 +203,6 @@ public class ChatActivity extends BaseActivity {
 
         // Input/Search infinite-viewpager
         mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
-
         // It is only possible to achieve wrapping when you have at least 4 pages.
         // This is because of the way the ViewPager creates, destroys, and displays the pages.
         // No fix for the general case has been found.
@@ -213,7 +214,6 @@ public class ChatActivity extends BaseActivity {
 
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
         PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
-
         mViewPager.setAdapter(wrappedAdapter);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -316,6 +316,9 @@ public class ChatActivity extends BaseActivity {
         }
 
        replaceSelectedConversation(newConversation);
+
+        //switch to message-input view
+        mViewPager.setCurrentItem(0, true);
     }
 
     private boolean hasConversationChanged(Conversation newConversation) {
@@ -346,6 +349,12 @@ public class ChatActivity extends BaseActivity {
         @Override
         public int getCount() {
             return mViewPagerFragments.size();
+        }
+
+        //Always return POSITION_NONE from getItemPosition() method. Which means: "Fragment must be always recreated"
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 
