@@ -11,6 +11,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
@@ -42,6 +44,7 @@ import de.greenrobot.event.EventBus;
 
 
 public class ChatActivity extends BaseActivity {
+
 	// Debug
 	private final String TAG = "ChatActivity";
 	
@@ -120,8 +123,6 @@ public class ChatActivity extends BaseActivity {
         setContentView(R.layout.activity_chat);
         Log.d(TAG, "onCreate");
 
-        hideActionBar();
-
         getLastSelectedConversation();
         mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
     	loadGui();
@@ -182,12 +183,12 @@ public class ChatActivity extends BaseActivity {
         final String[] menu = getResources().getStringArray(R.array.navigation_menu);
         ArrayAdapter<String> drawerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menu);
 
-        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         final ListView navList = (ListView) findViewById(R.id.drawer);
         navList.setAdapter(drawerAdapter);
-        navList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        navList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int pos,long id){
+            public void onItemClick(AdapterView<?> parent, View view, final int pos, long id) {
                 switch (pos) {
                     case 0:
                         startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
@@ -200,6 +201,31 @@ public class ChatActivity extends BaseActivity {
             }
         });
 
+
+        // Setup toolbar and ActionBarDrawerToggle
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        final ActionBarDrawerToggle mDrawerToggle  = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                drawerLayout,         /* DrawerLayout object */
+                toolbar,
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+        ) {
+            public void onDrawerClosed(View view) {
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        drawerLayout.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerToggle.syncState();
 
         // Input/Search infinite-viewpager
         mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);

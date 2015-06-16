@@ -8,5 +8,5 @@
     <color name="conversation_name">#5d728c</color>
     <color name="search_hint">#AFAF97</color>
     <color name="chat_timestamp">#b1b7ca</color>
-
+    <color name="transparent">#00000000</color>
 </resources>

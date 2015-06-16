@@ -4,15 +4,15 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity">
 
+    <!--main-->
     <FrameLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <!--main-->
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -88,8 +88,15 @@
 
         </RelativeLayout>
 
+        <android.support.v7.widget.Toolbar
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@color/transparent"
+            android:id="@+id/toolbar"></android.support.v7.widget.Toolbar>
+
     </FrameLayout>
 
+    <!--drawer-->
     <ListView
         android:id="@+id/drawer"
         android:layout_width="240dp"
