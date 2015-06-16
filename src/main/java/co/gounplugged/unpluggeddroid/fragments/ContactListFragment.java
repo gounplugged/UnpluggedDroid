@@ -37,6 +37,8 @@ public class ContactListFragment  extends ListFragment implements AdapterView.On
         final ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
         setListAdapter(adapter);
 
+        //setup listview
+        getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
 
         setListShown(true);

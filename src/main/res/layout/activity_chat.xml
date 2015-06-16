@@ -90,7 +90,6 @@
                     android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_toLeftOf="@+id/conversation_root"
                     android:background="#002200"
                     />
 
