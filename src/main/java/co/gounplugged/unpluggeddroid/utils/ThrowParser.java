@@ -13,6 +13,7 @@ import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
  * Created by pili on 10/04/15.
  */
 public class ThrowParser {
+    public final static String THROW_IDENTIFIER = "qZYfQ";
     public final static String MASK_SEPARATOR = "zQpQQ";
     public final static String MESSAGE_SEPARATOR = "WIxff";
     public final static String ORIGINATOR_SEPARATOR = "YzLqQ";
@@ -21,32 +22,44 @@ public class ThrowParser {
     private final static String THROW_REGEX = "(.*" + MESSAGE_SEPARATOR + ")(" +
     PhoneNumberParser.PHONE_NUMBER_REGEX + ORIGINATOR_SEPARATOR + ")";
 
-    public static String getNextMask(String content) {
-        return content.split(MASK_SEPARATOR)[0];
+    public static String getNextMaskAddress(String partiallyDecryptedContent) {
+        return partiallyDecryptedContent.split(MASK_SEPARATOR)[0];
     }
 
     /**
-     * Is this formatted to be thrown to somebody else?
-     * @param partiallyEncryptedContent
-     * @return
-     */
-    public static boolean isValidRelayThrow(String partiallyEncryptedContent){
-        return partiallyEncryptedContent.matches(
-                "(" + PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR +
-                 ").*");
-    }
-
-    /**
-     * Is this thing received from somebody else valid?
+     * Throws are encrypted and prepended with throw identifier.
      * @param encryptedContent
      * @return
      */
     public static boolean isValidThrow(String encryptedContent){
         return encryptedContent.matches(
+                "^" + THROW_IDENTIFIER + ".*"
+        );
+    }
+
+    /**
+     * If all layers have been decrypted, can read message and originator.
+     * @param partiallyDecryptedContent
+     * @return
+     */
+    public static boolean isFullyDecrypted(String partiallyDecryptedContent){
+        return partiallyDecryptedContent.matches(
                 THROW_REGEX
         );
     }
 
+    /**
+     * Encrypts message and originator number in sucessive layers.
+     * Starting with the ultimate recipient.
+     * Then working backwards to the first Mask in the Krewe.
+     * @param message
+     * @param originatorNumber
+     * @param krewe
+     * @param openPGPBridgeService
+     * @return encrypted String
+     * @throws OpenPGPBridgeService.EncryptionUnavailableException
+     * @throws KreweException
+     */
     public static String contentFor(String message,
                                     String originatorNumber,
                                     Krewe krewe,
@@ -58,12 +71,12 @@ public class ThrowParser {
         List<Mask> masks = krewe.getMasks();
 
         String recipientThrow = openPGPBridgeService.encrypt(
-            message + ThrowParser.MESSAGE_SEPARATOR + originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR,
+            message + MESSAGE_SEPARATOR + originatorNumber + ORIGINATOR_SEPARATOR,
             krewe.getRecipientNumber()
         );
 
         String penultimateThrow = openPGPBridgeService.encrypt(
-           krewe.getRecipientNumber() + ThrowParser.MASK_SEPARATOR + recipientThrow,
+           krewe.getRecipientNumber() + MASK_SEPARATOR + recipientThrow,
            masks.get(masks.size() - 1).getFullNumber()
         );
 
@@ -72,26 +85,31 @@ public class ThrowParser {
         // Don't include first mask in content.
         for(int i = masks.size()-1; i > 0; i--) {
             previousThrow = openPGPBridgeService.encrypt(
-                masks.get(i).getFullNumber() + ThrowParser.MASK_SEPARATOR + previousThrow,
+                masks.get(i).getFullNumber() + MASK_SEPARATOR + previousThrow,
                 masks.get(i-1).getFullNumber()
             );
         }
 
-        return  previousThrow;
+        return  THROW_IDENTIFIER + previousThrow;
     }
 
-    public static String removeNextMask(String content) {
-        return content.replaceFirst(PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
+    /**
+     * Remove the decrypted parts (the mask and separators). Add the Throw identifier
+     * @param partiallyDecryptedContent
+     * @return
+     */
+    public static String contentFor(String partiallyDecryptedContent) {
+        return  partiallyDecryptedContent.replaceFirst(PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
     }
 
-    public static String getOriginatorNumber(String content) {
-        Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(" + PhoneNumberParser.PHONE_NUMBER_REGEX +")(.*)").matcher(content);
+    public static String getOriginatorNumber(String fullyDecryptedContent) {
+        Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(" + PhoneNumberParser.PHONE_NUMBER_REGEX +")(.*)").matcher(fullyDecryptedContent);
         m.matches();
         return m.group(3);
     }
 
-    public static String getMessage(String content) {
-        Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(.*)").matcher(content);
+    public static String getMessage(String fullyDecryptedContent) {
+        Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(.*)").matcher(fullyDecryptedContent);
         m.matches();
         return m.group(1);
     }

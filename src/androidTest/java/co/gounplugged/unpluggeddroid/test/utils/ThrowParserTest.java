@@ -63,6 +63,7 @@ public class ThrowParserTest extends AndroidTestCase {
         }
         assertEquals(3, krewe.getMasks().size()); // ThrowParser shouldn't mutate krewe
         String content =
+                ThrowParser.THROW_IDENTIFIER +
                 encryptionPrefix(0) +
                 (phoneNo(1) + ThrowParser.MASK_SEPARATOR) +
                 encryptionPrefix(1) +
@@ -75,28 +76,57 @@ public class ThrowParserTest extends AndroidTestCase {
         assertEquals(content, throwContent);
     }
 
-    public String encryptionPrefix(int maskIndex) {
-        return TestOpenPGPService.mockEncryptionPrefix + krewe.getMasks().get(maskIndex).getFullNumber();
+    public void testGetNextMaskAddress() {
+        assertEquals(
+                originatorNumber,
+                ThrowParser.getNextMaskAddress(
+                        originatorNumber +
+                        ThrowParser.MASK_SEPARATOR +
+                        "aorsitenaorisent"));
     }
 
-    /*public void testRemoveNextMask() {
+    public void testIsValidThrow() {
+        assertTrue(ThrowParser.isValidThrow(
+                ThrowParser.THROW_IDENTIFIER +
+                        "arstiharistnoirastn"));
+    }
+
+    public void testIsFullyDecrypted() {
+        assertTrue(ThrowParser.isFullyDecrypted(
+                        "art" +
+                        ThrowParser.MESSAGE_SEPARATOR +
+                        originatorNumber +
+                        ThrowParser.ORIGINATOR_SEPARATOR
+        ));
+    }
+
+    public void testContentForNextThrow() {
         try {
             throwContent = ThrowParser.contentFor(message, originatorNumber, krewe, mTestOpenPGPService);
+        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+            assertTrue(false);
+        } catch (ThrowParser.KreweException e) {
+            assertTrue(false);
+        }
+
+        try {
+            throwContent = mTestOpenPGPService.decrypt(throwContent);
         } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
             assertTrue(false);
         }
 
         String content =
-            encryptionPrefix(1) +
-            (phoneBase + "2" + ThrowParser.MASK_SEPARATOR) +
-            encryptionPrefix(2) +
-            (krewe.getRecipient().getFullNumber() + ThrowParser.MASK_SEPARATOR) +
-            TestOpenPGPService.mockEncryptionPrefix + krewe.getRecipientNumber() +
-            (message + ThrowParser.MESSAGE_SEPARATOR +
-            originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR);
+                ThrowParser.THROW_IDENTIFIER +
+                encryptionPrefix(1) +
+                (phoneBase + "2" + ThrowParser.MASK_SEPARATOR) +
+                encryptionPrefix(2) +
+                (krewe.getRecipient().getFullNumber() + ThrowParser.MASK_SEPARATOR) +
+                TestOpenPGPService.mockEncryptionPrefix + krewe.getRecipientNumber() +
+                (message + ThrowParser.MESSAGE_SEPARATOR +
+                originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR);
 
-        assertEquals(content, ThrowParser.removeNextMask(throwContent));
-    }*/
+        assertEquals(content, ThrowParser.contentFor(throwContent));
+    }
 
     public void testGetOriginatorNumber() {
         throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
@@ -110,23 +140,9 @@ public class ThrowParserTest extends AndroidTestCase {
         assertEquals(message, ThrowParser.getMessage(throwContent));
     }
 
-    public void testIsValidRelay() {
-        assertTrue(ThrowParser.isValidRelayThrow(
-                phoneNo(6) +
-                ThrowParser.MASK_SEPARATOR +
-                "arstiharistnoirastn"));
-    }
-
     // i: 0-9
     private String phoneNo(int i) {
         return phoneBase + Integer.toString(i);
-    }
-
-    public void testIsValidThrow() {
-        assertTrue(
-            ThrowParser.isValidThrow(
-                TestOpenPGPService.mockEncryptionPrefix + phoneNo(7) +
-                "ignoreWIxff+13016864576YzLqQ"));
     }
 
     public void testMinimumKreweAmount() {
@@ -151,5 +167,14 @@ public class ThrowParserTest extends AndroidTestCase {
         public String encrypt(String plaintext, String recipientAddress) throws EncryptionUnavailableException {
             return mockEncryptionPrefix + recipientAddress + plaintext;
         }
+
+        @Override
+        public String decrypt(String cipherText) throws EncryptionUnavailableException {
+            return cipherText.replaceFirst(mockEncryptionPrefix + PhoneNumberParser.PHONE_NUMBER_REGEX, "");
+        }
+    }
+
+    public String encryptionPrefix(int maskIndex) {
+        return TestOpenPGPService.mockEncryptionPrefix + krewe.getMasks().get(maskIndex).getFullNumber();
     }
 }

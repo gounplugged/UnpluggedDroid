@@ -31,6 +31,7 @@ public class OpenPGPBridgeService extends Service {
     public static final String EXTRA_RECIPIENT = "OpenPGPBridgeService_EXTRA_RECIPIENT";
     protected boolean isBound;
     private OpenPgpServiceConnection.OnBound onBoundCallback;
+    private OpenPgpApi mAPI;
 
     public class LocalBinder extends Binder {
         public OpenPGPBridgeService getService() {
@@ -55,6 +56,7 @@ public class OpenPGPBridgeService extends Service {
             @Override
             public void onBound(IOpenPgpService service) {
                 isBound = true;
+                mAPI = new OpenPgpApi(OpenPGPBridgeService.this, mServiceConnection.getService());
                 Log.d(TAG, "onBound!");
             }
 
@@ -81,16 +83,29 @@ public class OpenPGPBridgeService extends Service {
         }
     }
 
-    /*@Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (isBound &&
-            intent.getAction() != null &&
-            intent.getAction().equals(ACTION_ENCRYPT)) {
+    public String decrypt(String ciphertext) throws EncryptionUnavailableException {
+        Log.d(TAG, "Attempt encrypt");
+        if(isBound) {
+            Intent data = new Intent();
+            data.setAction(OpenPgpApi.ACTION_DECRYPT_VERIFY);
 
-            encrypt(intent);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            InputStream is = null;
+            try {
+                is = new ByteArrayInputStream(ciphertext.getBytes("UTF-8"));
+
+            } catch (UnsupportedEncodingException e) {
+                // TODO
+            }
+
+            mAPI.executeApi(data, is, os);
+
+
+            return "decrypted";
+        } else {
+            throw new EncryptionUnavailableException("Description service not yet bound");
         }
-        return 0;
-    }*/
+    }
 
     /**
      * Currently throws an exception unless key matching recipientAddress
@@ -116,12 +131,11 @@ public class OpenPGPBridgeService extends Service {
             try {
                 is = new ByteArrayInputStream(plaintext.getBytes("UTF-8"));
             } catch (UnsupportedEncodingException e) {
+                //TODO
             }
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-            OpenPgpApi api = new OpenPgpApi(this, mServiceConnection.getService());
-
-            Intent result = api.executeApi(data, is, os);
+            Intent result = mAPI.executeApi(data, is, os);
 
             switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
                 case OpenPgpApi.RESULT_CODE_SUCCESS: {

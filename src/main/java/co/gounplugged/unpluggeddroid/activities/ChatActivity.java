@@ -23,7 +23,6 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -309,7 +308,7 @@ public class ChatActivity extends BaseActivity {
         } catch(NotFoundInDatabaseException e) {
             try {
                 newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
-            } catch (InvalidConversationException e1) {
+            } catch (Conversation.InvalidConversationException e1) {
                 //TODO let user know something went wrong
                 return;
             }
