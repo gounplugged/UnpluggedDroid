@@ -5,6 +5,7 @@ import android.test.AndroidTestCase;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
@@ -88,7 +89,9 @@ public class ThrowParserTest extends AndroidTestCase {
     public void testIsValidThrow() {
         assertTrue(ThrowParser.isValidThrow(
                 ThrowParser.THROW_IDENTIFIER +
-                        "arstiharistnoirastn"));
+                        "-----BEGIN PGP MESSAGE-----\n" +
+                        "hQIMAwNJDWvmOi2RARAAyyEHJtvp+fUh0QnL45W41vT9TGZ35WItT2UTVrMmlge6" +
+                        "gcNuEjusvDwoXKhB5AEDiTCDzI8Oynw0AYvBPfcuDQL9AU2OW1xpgD8Nh/yXDvAh"));
     }
 
     public void testIsFullyDecrypted() {
@@ -103,7 +106,7 @@ public class ThrowParserTest extends AndroidTestCase {
     public void testContentForNextThrow() {
         try {
             throwContent = ThrowParser.contentFor(message, originatorNumber, krewe, mTestOpenPGPService);
-        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+        } catch (EncryptionUnavailableException e) {
             assertTrue(false);
         } catch (ThrowParser.KreweException e) {
             assertTrue(false);
@@ -111,7 +114,7 @@ public class ThrowParserTest extends AndroidTestCase {
 
         try {
             throwContent = mTestOpenPGPService.decrypt(throwContent);
-        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+        } catch (EncryptionUnavailableException e) {
             assertTrue(false);
         }
 
@@ -151,7 +154,7 @@ public class ThrowParserTest extends AndroidTestCase {
 
         try {
             ThrowParser.contentFor(message, originatorNumber, new Krewe(destination, badRoute), mTestOpenPGPService);
-        } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+        } catch (EncryptionUnavailableException e) {
             assertTrue(false);
         } catch (ThrowParser.KreweException e) {
             assertTrue(true);

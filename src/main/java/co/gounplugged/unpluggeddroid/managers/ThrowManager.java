@@ -46,12 +46,16 @@ public class ThrowManager {
         try {
             Throw receivedThrow = new Throw(concatenatedText, ((BaseApplication) mContext).getOpenPGPBridgeService());
             processThrow(receivedThrow);
+            Log.d(TAG, "processed as throw");
         }  catch (Throw.InvalidThrowException e) {
             processRegularSMS(lastSMSInBundle, concatenatedText);
+            Log.d(TAG, "processed as SMS");
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
+            Log.d(TAG, "process interrupted for invalid phone number");
         } catch (EncryptionUnavailableException e) {
             // TODO first assume regular SMS. If fail, wait for decryption then try again.
+            Log.d(TAG, "processed interuppted because no encryption available");
         }
     }
 
@@ -65,9 +69,11 @@ public class ThrowManager {
             if (receivedThrow.isAtDestination()) {
                 // Throw reached its final destination.
                 processThrowAtDestination(receivedThrow);
+                Log.d(TAG, "processed throw at destination");
             } else if (receivedThrow.isRelay()) {
                 // Just a relay. Throw to next Mask.
                 SMSUtil.sendSms(receivedThrow.getThrowToAddress(), content);
+                Log.d(TAG, "processed throw as relay");
             } else {
                 // Should never be the case.
             }

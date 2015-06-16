@@ -85,7 +85,7 @@ public class OpenPGPBridgeService extends Service {
     }
 
     public String decrypt(String ciphertext) throws EncryptionUnavailableException {
-        Log.d(TAG, "Attempt encrypt");
+        Log.d(TAG, "Attempt decrypt");
         if(isBound) {
             Intent data = new Intent();
             data.setAction(OpenPgpApi.ACTION_DECRYPT_VERIFY);
@@ -99,8 +99,20 @@ public class OpenPGPBridgeService extends Service {
                 // TODO
             }
 
-            mAPI.executeApi(data, is, os);
-            return "decrypted";
+            Intent result = mAPI.executeApi(data, is, os);
+            switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
+                case OpenPgpApi.RESULT_CODE_SUCCESS: {
+                    try {
+                        String plaintext = os.toString("UTF-8");
+                        Log.d(TAG, "output: " + plaintext);
+                        return plaintext;
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e(TAG, "UnsupportedEncodingException", e);
+                        throw new EncryptionUnavailableException("Invalid encoding");
+                    }
+                }
+            }
+            throw new EncryptionUnavailableException("Response was funky");
         } else {
             throw new EncryptionUnavailableException("Description service not yet bound");
         }

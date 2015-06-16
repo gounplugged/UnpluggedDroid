@@ -14,7 +14,7 @@ import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
  * Created by pili on 10/04/15.
  */
 public class ThrowParser {
-    public final static String THROW_IDENTIFIER = "qZYfQ";
+    public final static String THROW_IDENTIFIER = "qZYZqQQQwZZqfQ";
     public final static String MASK_SEPARATOR = "zQpQQ";
     public final static String MESSAGE_SEPARATOR = "WIxff";
     public final static String ORIGINATOR_SEPARATOR = "YzLqQ";
@@ -33,8 +33,9 @@ public class ThrowParser {
      * @return
      */
     public static boolean isValidThrow(String encryptedContent){
-        return encryptedContent.matches(
-                "^" + THROW_IDENTIFIER + ".*"
+        // TODO should look like .matches("^" + THROW_IDENTIFIER + ".*") but, IDK
+        return encryptedContent.contains(
+                THROW_IDENTIFIER
         );
     }
 
