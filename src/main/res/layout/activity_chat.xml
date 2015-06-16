@@ -84,6 +84,7 @@
                     android:layout_toLeftOf="@+id/conversation_root"
                     />
 
+                <!-- todo extract fragment from xml and lazy-load programatically-->
                 <fragment
                     android:id="@+id/contact_list_fragment_container"
                     android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"

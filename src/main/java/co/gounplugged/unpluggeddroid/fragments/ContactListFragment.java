@@ -20,19 +20,26 @@ public class ContactListFragment  extends ListFragment implements AdapterView.On
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
-        return view;
+        // Get super view and add custom layout to it to make sure setListShown and other helpers are accessible
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+        ViewGroup parent = (ViewGroup) inflater.inflate(R.layout.fragment_contact_list, container, false);
+        parent.addView(v, 0);
+        return parent;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        setListShown(false);
+
         List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
         final ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
         setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
+
+        setListShown(true);
 
     }
 
