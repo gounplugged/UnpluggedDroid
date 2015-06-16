@@ -31,7 +31,7 @@
         android:textSize="15sp"
         android:textColor="@color/chat_outgoing_text"
         android:textColorHint="@color/search_hint"
-        android:layout_toLeftOf="@+id/submit_button"
+        android:layout_toLeftOf="@+id/refresh_contacts_button"
         android:imeOptions="actionSearch"
         android:background="#fff"
         android:paddingLeft="8dp"
@@ -44,9 +44,10 @@
         android:layout_width="80dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/refresh"
+        android:src="@drawable/ic_refresh_black_24dp"
         android:background="#fff"
-        android:scaleType="centerCrop"
+        android:scaleType="centerInside"
+        android:layout_centerInParent="true"
         />
 
 </RelativeLayout>
