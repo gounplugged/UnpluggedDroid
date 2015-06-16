@@ -127,7 +127,6 @@ public class SearchContactFragment extends Fragment {
                 toggleProgressBar();
         }
 
-
         private void toggleProgressBar() {
             if (mContactSyncProgressBar.getVisibility() == View.GONE) {
                 mContactSyncProgressBar.setVisibility(View.VISIBLE);
