@@ -8,6 +8,7 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
@@ -43,12 +44,14 @@ public class ThrowManager {
         String receivedText = receivedSMS.getMessageBody().toString();
         Log.d(TAG, "Received text: " + receivedText);
         try {
-            Throw receivedThrow = new Throw(receivedText, null);
+            Throw receivedThrow = new Throw(receivedText, ((BaseApplication) mContext).getOpenPGPBridgeService());
             processThrow(receivedThrow);
         }  catch (Throw.InvalidThrowException e) {
             processRegularSMS(receivedSMS);
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
+        } catch (EncryptionUnavailableException e) {
+            // TODO first assume regular SMS. If fail, wait for decryption then try again.
         }
     }
 
@@ -122,7 +125,10 @@ public class ThrowManager {
         // Find or create conversation with participant
         Conversation conversation = null;
         try {
+            Log.d(TAG, "Participant tagged as SL compatible: " + participant.usesSecondLine());
             conversation = ConversationUtil.findOrNew(participant, mContext);
+            Log.d(TAG, "Conversation tagged as SL compatible: " + conversation.isSecondLineComptabile());
+
         } catch (Conversation.InvalidConversationException e) {
             // TODO can participant ever be null?
         }
@@ -168,7 +174,7 @@ public class ThrowManager {
             Throw t = null;
             try {
                 t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber(), openPGPBridgeService);
-            } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
+            } catch (EncryptionUnavailableException e) {
                 // Encryption unavailable so just send normally
                 phoneNumber = conversation.getParticipant().getFullNumber();
                 message.mutateTextToShowSLCompatibility();

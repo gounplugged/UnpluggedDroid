@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
@@ -57,14 +58,14 @@ public class ThrowParser {
      * @param krewe
      * @param openPGPBridgeService
      * @return encrypted String
-     * @throws OpenPGPBridgeService.EncryptionUnavailableException
+     * @throws EncryptionUnavailableException
      * @throws KreweException
      */
     public static String contentFor(String message,
                                     String originatorNumber,
                                     Krewe krewe,
                                     OpenPGPBridgeService openPGPBridgeService)
-                                    throws OpenPGPBridgeService.EncryptionUnavailableException,
+                                    throws EncryptionUnavailableException,
                                     KreweException {
 
         if(krewe.getMasks().size() < MIN_NUM_RELAY_MASKS) throw new KreweException("Additional Masks required");

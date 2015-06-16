@@ -1,5 +1,15 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import android.content.Intent;
+
+import org.openintents.openpgp.util.OpenPgpApi;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
@@ -55,7 +65,7 @@ public class Throw {
      * @param originatorNumber
      * @param krewe
      * @param openPGPBridgeService
-     * @throws OpenPGPBridgeService.EncryptionUnavailableException
+     * @throws EncryptionUnavailableException
      * @throws ThrowParser.KreweException
      */
     public Throw(
@@ -63,11 +73,12 @@ public class Throw {
             String originatorNumber,
             Krewe krewe,
             OpenPGPBridgeService openPGPBridgeService)
-            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            throws EncryptionUnavailableException,
             ThrowParser.KreweException {
 
-        this.mThrowToAddress = krewe.getNextMask().getFullNumber();
         this.mOpenPGPBridgeService = openPGPBridgeService;
+        assertEncryption();
+        this.mThrowToAddress = krewe.getNextMask().getFullNumber();
         this.mContent = encryptedContentFor(message, originatorNumber, krewe);
         this.mState = STATE_READY_TO_THROW;
     }
@@ -82,12 +93,16 @@ public class Throw {
     public Throw(
             String encryptedContent,
             OpenPGPBridgeService openPGPBridgeService)
-            throws InvalidPhoneNumberException, InvalidThrowException {
+            throws InvalidPhoneNumberException,
+            InvalidThrowException,
+            EncryptionUnavailableException {
+
 
         this.mState = STATE_RECEIVED;
         this.mOpenPGPBridgeService = openPGPBridgeService;
+        assertEncryption();
         if(!ThrowParser.isValidThrow(encryptedContent)) throw new InvalidThrowException("Message is not formatted like a throw");
-        String partiallyDecryptedContent = decryptContent(encryptedContent);
+        String partiallyDecryptedContent = openPGPBridgeService.decrypt(encryptedContent);
 
         if(ThrowParser.isFullyDecrypted(partiallyDecryptedContent)) {
             this.mThrowToAddress = null;
@@ -100,13 +115,8 @@ public class Throw {
         }
     }
 
-    /**
-     *
-     * @param encryptedContent
-     * @return
-     */
-    private String decryptContent(String encryptedContent) {
-        return encryptedContent;
+    private void assertEncryption() throws EncryptionUnavailableException {
+        if(mOpenPGPBridgeService == null) throw new EncryptionUnavailableException("null");
     }
 
     /**
@@ -115,14 +125,14 @@ public class Throw {
      * @param originatorNumber
      * @param krewe
      * @return
-     * @throws OpenPGPBridgeService.EncryptionUnavailableException
+     * @throws EncryptionUnavailableException
      * @throws ThrowParser.KreweException
      */
     private String encryptedContentFor(
             String message,
             String originatorNumber,
             Krewe krewe)
-            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            throws EncryptionUnavailableException,
             ThrowParser.KreweException {
 
         return ThrowParser.contentFor(message, originatorNumber, krewe, mOpenPGPBridgeService);

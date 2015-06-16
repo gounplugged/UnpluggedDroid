@@ -101,7 +101,8 @@ public class MessageInputFragment extends Fragment {
         if (TextUtils.isEmpty(message)) return;
 
         ChatActivity chatActivity = ((ChatActivity) getActivity());
-        OpenPGPBridgeService openPGPBridgeService = chatActivity.getOpenPGPBridgeService();
+        BaseApplication app = (BaseApplication) chatActivity.getApplicationContext();
+        OpenPGPBridgeService openPGPBridgeService = app.getOpenPGPBridgeService();
         if(openPGPBridgeService == null) return;
 
         Conversation conversation = chatActivity.getLastSelectedConversation();

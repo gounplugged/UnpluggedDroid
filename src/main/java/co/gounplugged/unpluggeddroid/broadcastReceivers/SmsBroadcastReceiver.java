@@ -13,6 +13,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "SmsBroadcastReceiver";
     public static final String SMS_BUNDLE = "pdus";
 
+    @Override
     public void onReceive(Context context, Intent intent) {
         Bundle intentExtras = intent.getExtras();
         if (intentExtras != null) {

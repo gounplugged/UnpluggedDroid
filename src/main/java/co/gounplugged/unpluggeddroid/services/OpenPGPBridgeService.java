@@ -19,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
+
 /**
  * Created by Marvin Arnold on 10/06/15.
  */
@@ -42,7 +44,6 @@ public class OpenPGPBridgeService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "THIS IS THE BIND");
         return mBinder;
     }
 
@@ -99,8 +100,6 @@ public class OpenPGPBridgeService extends Service {
             }
 
             mAPI.executeApi(data, is, os);
-
-
             return "decrypted";
         } else {
             throw new EncryptionUnavailableException("Description service not yet bound");
@@ -170,9 +169,5 @@ public class OpenPGPBridgeService extends Service {
         }
     }
 
-    public class EncryptionUnavailableException extends Exception {
-        public EncryptionUnavailableException(String message) {
-            super(message);
-        }
-    }
+
 }
