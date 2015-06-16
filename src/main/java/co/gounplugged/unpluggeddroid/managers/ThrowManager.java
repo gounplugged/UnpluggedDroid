@@ -38,16 +38,16 @@ public class ThrowManager {
 
     /**
      * Process incoming SMS messages as throw or regular sms
-     * @param receivedSMS
+     * @param lastSMSInBundle
+     * @param concatenatedText
      */
-    public void processUnknownSMS(SmsMessage receivedSMS) {
-        String receivedText = receivedSMS.getMessageBody().toString();
-        Log.d(TAG, "Received text: " + receivedText);
+    public void processUnknownSMS(SmsMessage lastSMSInBundle, String concatenatedText) {
+        Log.d(TAG, "Received text: " + concatenatedText);
         try {
-            Throw receivedThrow = new Throw(receivedText, ((BaseApplication) mContext).getOpenPGPBridgeService());
+            Throw receivedThrow = new Throw(concatenatedText, ((BaseApplication) mContext).getOpenPGPBridgeService());
             processThrow(receivedThrow);
         }  catch (Throw.InvalidThrowException e) {
-            processRegularSMS(receivedSMS);
+            processRegularSMS(lastSMSInBundle, concatenatedText);
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
         } catch (EncryptionUnavailableException e) {
@@ -95,11 +95,11 @@ public class ThrowManager {
 
     /**
      * Find or create appropriate conversation for this message.
-     * @param receivedSMS
+     * @param lastSMSInBundle
+     * @param concatenatedText
      */
-    private void processRegularSMS(SmsMessage receivedSMS) {
-        String originatingAddress = receivedSMS.getOriginatingAddress();
-        String text = receivedSMS.getMessageBody();
+    private void processRegularSMS(SmsMessage lastSMSInBundle, String concatenatedText) {
+        String originatingAddress = lastSMSInBundle.getOriginatingAddress();
 
         Contact participant;
         // Find or create Contact based on sender's phone number
@@ -115,11 +115,11 @@ public class ThrowManager {
             }
         }
 
-        boolean isSLMessage = MessageUtil.isSLCompatible(text);
+        boolean isSLMessage = MessageUtil.isSLCompatible(concatenatedText);
         Log.d(TAG, "Message tagged as SL compatible: " + isSLMessage);
         if(isSLMessage) {
             participant.setUsesSecondLine(mContext, isSLMessage);
-            text = MessageUtil.sanitizeSLCompatibilityText(text);
+            concatenatedText = MessageUtil.sanitizeSLCompatibilityText(concatenatedText);
         }
 
         // Find or create conversation with participant
@@ -133,7 +133,7 @@ public class ThrowManager {
             // TODO can participant ever be null?
         }
 
-        addTextToConversation(text, conversation);
+        addTextToConversation(concatenatedText, conversation);
     }
 
     /**
