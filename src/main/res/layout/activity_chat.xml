@@ -63,7 +63,7 @@
 
                 </LinearLayout>
 
-
+                <!--chats and contacts-fragment-->
                 <ListView
                     android:id="@+id/lv_chats"
                     android:layout_width="match_parent"
@@ -84,15 +84,25 @@
                     android:layout_toLeftOf="@+id/conversation_root"
                     />
 
+                <fragment
+                    android:id="@+id/contact_list_fragment_container"
+                    android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toLeftOf="@+id/conversation_root"
+                    android:background="#002200"
+                    />
+
             </RelativeLayout>
 
         </RelativeLayout>
 
         <android.support.v7.widget.Toolbar
-            android:layout_width="52dp"
+            android:layout_width="152dp"
             android:layout_height="52dp"
             android:background="@color/transparent"
-            android:id="@+id/toolbar"></android.support.v7.widget.Toolbar>
+            android:id="@+id/toolbar">
+        </android.support.v7.widget.Toolbar>
 
     </FrameLayout>
 

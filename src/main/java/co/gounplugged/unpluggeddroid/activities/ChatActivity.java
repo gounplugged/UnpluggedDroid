@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -29,6 +31,7 @@ import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
+import co.gounplugged.unpluggeddroid.fragments.ContactListFragment;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.models.Contact;
@@ -249,6 +252,7 @@ public class ChatActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
+                toggleContactList();
             }
 
             @Override
@@ -290,6 +294,9 @@ public class ChatActivity extends BaseActivity {
             }
         });
 
+        // hide contact list fragment that is currently visible on first run
+        toggleContactList();
+
         // Chat log //todo extract
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
@@ -299,6 +306,15 @@ public class ChatActivity extends BaseActivity {
         mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
+    }
+
+    //TODO fragment transactions with animation?
+    private void toggleContactList() {
+        View view = findViewById(R.id.contact_list_fragment_container);
+        if (view.getVisibility() == View.VISIBLE)
+            view.setVisibility(View.GONE);
+        else
+            view.setVisibility(View.VISIBLE);
     }
 
     private void replaceSelectedConversation(Conversation newConversation) {
@@ -311,7 +327,6 @@ public class ChatActivity extends BaseActivity {
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
     }
-
 
     private void showDropZones() {
         mImageViewDropZoneChats.setVisibility(View.VISIBLE);
