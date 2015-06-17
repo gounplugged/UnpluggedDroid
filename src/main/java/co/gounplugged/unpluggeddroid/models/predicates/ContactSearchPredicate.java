@@ -2,11 +2,11 @@ package co.gounplugged.unpluggeddroid.models.predicates;
 
 import co.gounplugged.unpluggeddroid.models.Contact;
 
-public class ContactNamePredicate implements IPredicate<Contact> {
+public class ContactSearchPredicate implements IPredicate<Contact> {
 
     private String mQuery;
 
-    public ContactNamePredicate(String query) {
+    public ContactSearchPredicate(String query) {
         this.mQuery = query;
     }
 

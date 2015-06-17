@@ -21,7 +21,7 @@ import java.util.Set;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Contact;
-import co.gounplugged.unpluggeddroid.models.predicates.ContactNamePredicate;
+import co.gounplugged.unpluggeddroid.models.predicates.ContactSearchPredicate;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import co.gounplugged.unpluggeddroid.utils.Predicate;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -50,13 +50,12 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 
     public void filter(String query) {
         if (query.length() >= 3) {
-            mContacts = (List<Contact>) Predicate.filter(mContacts, new ContactNamePredicate(query));
+            mContacts = (List<Contact>) Predicate.filter(mContacts, new ContactSearchPredicate(query));
             notifyDataSetChanged();
         } else {
             mContacts = new ArrayList<>(mContactsClone);
             notifyDataSetChanged();
         }
-
     }
 
     private void setupSectionIndexer(List<Contact> contacts) {

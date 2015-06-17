@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -61,6 +62,7 @@ public class ChatActivity extends BaseActivity {
     private InfiniteViewPager mViewPager;
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
+    private Toolbar mToolbar;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
@@ -123,7 +125,9 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+//        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chat);
         Log.d(TAG, "onCreate");
 
@@ -213,14 +217,14 @@ public class ChatActivity extends BaseActivity {
         });
 
 
-        // Setup toolbar and ActionBarDrawerToggle
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // Setup mToolbar and ActionBarDrawerToggle
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
         final ActionBarDrawerToggle mDrawerToggle  = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 drawerLayout,         /* DrawerLayout object */
-                toolbar,
+                mToolbar,
                 R.string.drawer_open,  /* "open drawer" description for accessibility */
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
@@ -308,35 +312,16 @@ public class ChatActivity extends BaseActivity {
         // Chat log //todo extract
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
-        mChatListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            int mLastFirstVisibleItem = 0;
-
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (view.getId() == R.id.lv_chats) {
-                    final int currentFirstVisibleItem = mChatListView.getFirstVisiblePosition();
-
-                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
-                        getSupportActionBar().hide();
-                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
-                        getSupportActionBar().show();
-                    }
-
-                    mLastFirstVisibleItem = currentFirstVisibleItem;
-                }
-            }
-        });
 
         //Conversations
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
         mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
+    }
+
+    public Toolbar getToolbar() {
+        return mToolbar;
     }
 
     //TODO fragment transactions with animation?

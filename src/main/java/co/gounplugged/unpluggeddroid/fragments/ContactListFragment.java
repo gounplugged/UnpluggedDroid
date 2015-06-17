@@ -5,9 +5,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
@@ -118,11 +121,17 @@ public class ContactListFragment  extends ListFragment implements AdapterView.On
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                     final int currentFirstVisibleItem = getListView().getFirstVisiblePosition();
 
-                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
-                        ((BaseActivity)getActivity()).getSupportActionBar().hide();
-                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
-                        ((BaseActivity)getActivity()).getSupportActionBar().show();
-                    }
+                        if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                        ((ChatActivity) getActivity()).getSupportActionBar().hide();
+
+//                            Toolbar toolbar = ((ChatActivity) getActivity()).getToolbar();
+//                            toolbar.animate().translationY(-toolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2));
+                        } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                        ((ChatActivity) getActivity()).getSupportActionBar().show();
+//                            Toolbar toolbar = ((ChatActivity) getActivity()).getToolbar();
+//                            toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2));
+                        }
+
 
                     mLastFirstVisibleItem = currentFirstVisibleItem;
                 }

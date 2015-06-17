@@ -24,6 +24,7 @@ dependencies {
     testCompile "org.mockito:mockito-core:1.9.5"
     compile 'org.sufficientlysecure:openpgp-api:7.0'
     compile 'org.zeromq:jeromq:0.3.4'
+    compile "com.android.support:recyclerview-v7:21.0.0"
 }
 
 android {
