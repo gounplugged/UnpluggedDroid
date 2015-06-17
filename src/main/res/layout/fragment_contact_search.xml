@@ -5,20 +5,22 @@
     android:layout_width="match_parent"
     android:orientation="vertical">
 
-    <AutoCompleteTextView
-        android:id="@+id/auto_complete_contacts"
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/et_search_contacts"
         android:layout_height="match_parent"
+        android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
-        android:imeActionLabel=""
+        android:hint="@string/search_hint"
         android:textSize="15sp"
         android:textColor="@color/chat_outgoing_text"
-        android:textColorHint="@color/search_hint"
-        android:layout_toLeftOf="@+id/refresh_button_container"
         android:imeOptions="actionSearch"
+        android:imeActionId="1"
+        android:imeActionLabel="Send"
+        android:layout_toLeftOf="@+id/submit_button"
         android:background="#fff"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp"/>
+        android:paddingRight="8dp"
+        />
 
     <RelativeLayout
         android:id="@+id/refresh_button_container"
@@ -56,9 +58,6 @@
             android:visibility="gone"/>
 
     </RelativeLayout>
-
-
-
 
 </RelativeLayout>
 

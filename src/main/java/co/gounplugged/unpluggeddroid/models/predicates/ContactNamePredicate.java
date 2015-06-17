@@ -13,6 +13,6 @@ public class ContactNamePredicate implements IPredicate<Contact> {
     @Override
     public boolean apply(Contact contact) {
         String name = contact.getName().toLowerCase();
-        return name.startsWith(mQuery.toString());
+        return name.startsWith(mQuery.toLowerCase().toString());
     }
 }

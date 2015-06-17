@@ -181,6 +181,13 @@ public class ChatActivity extends BaseActivity {
         mChatArrayAdapter.addMessage(message);
     }
 
+    public void filterContacts(String query) {
+        ContactListFragment fragment = (ContactListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.contact_list_fragment_container);
+        fragment.filter(query);
+
+    }
+
     private void loadGui() {
         // Setup navigation-drawer
         final String[] menu = getResources().getStringArray(R.array.navigation_menu);

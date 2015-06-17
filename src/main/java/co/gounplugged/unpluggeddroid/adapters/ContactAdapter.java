@@ -28,69 +28,38 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ContactAdapter extends ArrayAdapter<Contact> implements SectionIndexer {
 
-    private static final int TYPE_SECTION_HEADER = 0;
-    private static final int TYPE_LIST_ITEM  = 1;
-    private static final int TYPE_COUNT = 2;
-
     private Context mContext;
     private LayoutInflater mInflater;
     private List<Contact> mContacts;
     private List<Contact> mContactsClone;
-    private List<Contact> mSuggestions;
 
     private HashMap<String, Integer> mapIndex;
     private String[] sections;
 
-    private AlphabetIndexer mAlphabetIndexer;
-
-    private Filter mFilter = new Filter() {
-
-        @Override
-        public CharSequence convertResultToString(Object resultValue) {
-            Contact contact = (Contact) resultValue;
-            return contact.getName();
-        }
-
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            FilterResults filterResults = new FilterResults();
-            if(constraint != null) {
-                mSuggestions.clear();
-                for (Contact contact : mContactsClone) {
-                    if(contact.getName().toLowerCase().startsWith(constraint.toString().toLowerCase())){
-                        mSuggestions.add(contact);
-                    }
-                }
-                filterResults.values = mSuggestions;
-                filterResults.count = mSuggestions.size();
-                return filterResults;
-            } else {
-                return filterResults;
-            }
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            ArrayList<Contact> filteredList = (ArrayList<Contact>) results.values;
-            if(results != null && results.count > 0) {
-                clear();
-                for (Contact c : filteredList) {
-                    add(c);
-                }
-                notifyDataSetChanged();
-            }
-        }
-    };
-
     public ContactAdapter(Context context,  List<Contact> contacts) {
         super(context, R.layout.list_item_contact, contacts);
 
-        //TODO remove test
-        contacts = (List<Contact>) Predicate.filter(contacts, new ContactNamePredicate("tim"));
-
         sortContacts(contacts);
+        setupSectionIndexer(contacts);
 
-        //setup SectionIndexer
+        this.mContext = context;
+        this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.mContacts = contacts;
+        this.mContactsClone = new ArrayList<>(contacts);
+    }
+
+    public void filter(String query) {
+        if (query.length() >= 3) {
+            mContacts = (List<Contact>) Predicate.filter(mContacts, new ContactNamePredicate(query));
+            notifyDataSetChanged();
+        } else {
+            mContacts = new ArrayList<>(mContactsClone);
+            notifyDataSetChanged();
+        }
+
+    }
+
+    private void setupSectionIndexer(List<Contact> contacts) {
         mapIndex = new LinkedHashMap<String, Integer>();
         for (int i = 0; i < contacts.size(); i++) {
             String name = contacts.get(i).getName();
@@ -109,12 +78,6 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 
         sections = new String[sectionList.size()];
         sectionList.toArray(sections);
-
-        this.mContext = context;
-        this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mContacts = contacts;
-        this.mContactsClone = new ArrayList<>(contacts);
-        this.mSuggestions = new ArrayList<>();
     }
 
     private void sortContacts(List<Contact> contacts) {
@@ -123,11 +86,6 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
                 return c1.getName().compareToIgnoreCase(c2.getName());
             }
         });
-    }
-
-    @Override
-    public Filter getFilter() {
-        return mFilter;
     }
 
     @Override
@@ -180,8 +138,4 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
         return 0;
     }
 
-    @Override
-    public int getViewTypeCount() {
-        return TYPE_COUNT;
-    }
 }

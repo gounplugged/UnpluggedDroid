@@ -5,34 +5,24 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
-import java.util.List;
-
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.activities.BaseActivity;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
-import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
-import co.gounplugged.unpluggeddroid.events.ConversationEvent;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.models.Contact;
-import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
-import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
-import de.greenrobot.event.EventBus;
 
 public class SearchContactFragment extends Fragment {
 
     private final static String TAG = "SearchContactFragment";
-    private AutoCompleteTextView mContactAutoComplete;
+    private EditText mContactSearchEditText;
     private ImageButton mRefreshContactsButton;
     private ProgressBar mContactSyncProgressBar;
     private LoadContactsTask mLoadContactsTask;
@@ -42,22 +32,18 @@ public class SearchContactFragment extends Fragment {
         Log.d(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_contact_search, container, false);
 
-        mContactAutoComplete = (AutoCompleteTextView) view.findViewById(R.id.auto_complete_contacts);
-        mContactAutoComplete.setHint(R.string.search_hint);
-
-        List<Contact> cachedContacts = ContactUtil.getCachedContacts(getActivity().getApplicationContext());
-        final ContactAdapter adapter = new ContactAdapter(getActivity().getApplicationContext(), cachedContacts);
-
-        mContactAutoComplete.setAdapter(adapter);
-
-        mContactAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mContactSearchEditText = (EditText) view.findViewById(R.id.et_search_contacts);
+        mContactSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                Contact contact = adapter.getItem(pos);
-                addConversation(contact);
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
+            @Override
+            public void afterTextChanged(Editable s) {
+                ((ChatActivity)getActivity()).filterContacts(s.toString());
+            }
         });
 
         mRefreshContactsButton = (ImageButton) view.findViewById(R.id.refresh_contacts_button);
@@ -84,28 +70,28 @@ public class SearchContactFragment extends Fragment {
         super.onDestroy();
     }
 
-    private void addConversation(Contact contact) {
-        ((ChatActivity)getActivity()).addConversation(contact);
-        mContactAutoComplete.setText("");
-
-        Conversation newConversation;
-
-        try {
-            newConversation = ConversationUtil.findByParticipant(contact, getActivity());
-        } catch(NotFoundInDatabaseException e) {
-            try {
-                newConversation = ConversationUtil.createConversation(contact, getActivity());
-            } catch (InvalidConversationException e1) {
-                //TODO let user know something went wrong
-                return;
-            }
-        }
-
-
-        ConversationEvent event = new ConversationEvent(
-                ConversationEvent.ConversationEventType.SWITCHED, newConversation);
-        EventBus.getDefault().postSticky(event);
-    }
+//    private void addConversation(Contact contact) {
+//        ((ChatActivity)getActivity()).addConversation(contact);
+//        mContactSearchEditText.setText("");
+//
+//        Conversation newConversation;
+//
+//        try {
+//            newConversation = ConversationUtil.findByParticipant(contact, getActivity());
+//        } catch(NotFoundInDatabaseException e) {
+//            try {
+//                newConversation = ConversationUtil.createConversation(contact, getActivity());
+//            } catch (InvalidConversationException e1) {
+//                //TODO let user know something went wrong
+//                return;
+//            }
+//        }
+//
+//
+//        ConversationEvent event = new ConversationEvent(
+//                ConversationEvent.ConversationEventType.SWITCHED, newConversation);
+//        EventBus.getDefault().postSticky(event);
+//    }
 
     private class LoadContactsTask extends AsyncTask<Void, Void, Void> {
         @Override

@@ -1,10 +1,10 @@
 package co.gounplugged.unpluggeddroid.fragments;
 
-import android.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +13,16 @@ import android.widget.AdapterView;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
+import co.gounplugged.unpluggeddroid.events.ConversationEvent;
+import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
+import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
+import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
+import de.greenrobot.event.EventBus;
 
 public class ContactListFragment  extends ListFragment implements AdapterView.OnItemClickListener{
     private final static String TAG = "ContactListFragment";
@@ -45,6 +52,34 @@ public class ContactListFragment  extends ListFragment implements AdapterView.On
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Contact c = mContactAdapter.getItem(position);
+        addConversation(c);
+    }
+
+    private void addConversation(Contact contact) {
+        ((ChatActivity)getActivity()).addConversation(contact);
+//        mContactSearchEditText.setText("");
+
+        Conversation newConversation;
+
+        try {
+            newConversation = ConversationUtil.findByParticipant(contact, getActivity());
+        } catch(NotFoundInDatabaseException e) {
+            try {
+                newConversation = ConversationUtil.createConversation(contact, getActivity());
+            } catch (InvalidConversationException e1) {
+                //TODO let user know something went wrong
+                return;
+            }
+        }
+
+
+        ConversationEvent event = new ConversationEvent(
+                ConversationEvent.ConversationEventType.SWITCHED, newConversation);
+        EventBus.getDefault().postSticky(event);
+    }
+
+    public void filter(String query) {
+        mContactAdapter.filter(query);
     }
 
     private class LoadCachedContacts extends AsyncTask<Void, Void, List<Contact>> {
@@ -58,7 +93,6 @@ public class ContactListFragment  extends ListFragment implements AdapterView.On
         protected List<Contact> doInBackground(Void... params) {
             return ContactUtil.getCachedContacts(getActivity().getApplicationContext());
         }
-
 
         @Override
         protected void onPostExecute(List<Contact> contacts) {
