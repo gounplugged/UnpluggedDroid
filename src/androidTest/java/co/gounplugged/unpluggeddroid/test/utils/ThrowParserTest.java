@@ -2,6 +2,7 @@ package co.gounplugged.unpluggeddroid.test.utils;
 
 import android.test.AndroidTestCase;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
+import co.gounplugged.unpluggeddroid.utils.Base64;
 import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
@@ -64,7 +66,6 @@ public class ThrowParserTest extends AndroidTestCase {
         }
         assertEquals(3, krewe.getMasks().size()); // ThrowParser shouldn't mutate krewe
         String content =
-                ThrowParser.THROW_IDENTIFIER +
                 encryptionPrefix(0) +
                 (phoneNo(1) + ThrowParser.MASK_SEPARATOR) +
                 encryptionPrefix(1) +
@@ -74,7 +75,11 @@ public class ThrowParserTest extends AndroidTestCase {
                 TestOpenPGPService.mockEncryptionPrefix + krewe.getRecipientNumber() +
                 (message + ThrowParser.MESSAGE_SEPARATOR +
                 originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR);
-        assertEquals(content, throwContent);
+        try {
+            assertEquals(ThrowParser.THROW_IDENTIFIER + Base64.encodeBytes(content.getBytes(), Base64.GZIP), throwContent);
+        } catch (IOException e) {
+            assertTrue(false);
+        }
     }
 
     public void testGetNextMaskAddress() {
@@ -114,12 +119,12 @@ public class ThrowParserTest extends AndroidTestCase {
 
         try {
             throwContent = mTestOpenPGPService.decrypt(throwContent);
+            throwContent = ThrowParser.contentFor(throwContent);
         } catch (EncryptionUnavailableException e) {
             assertTrue(false);
         }
 
         String content =
-                ThrowParser.THROW_IDENTIFIER +
                 encryptionPrefix(1) +
                 (phoneBase + "2" + ThrowParser.MASK_SEPARATOR) +
                 encryptionPrefix(2) +
@@ -128,7 +133,11 @@ public class ThrowParserTest extends AndroidTestCase {
                 (message + ThrowParser.MESSAGE_SEPARATOR +
                 originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR);
 
-        assertEquals(content, ThrowParser.contentFor(throwContent));
+        try {
+            assertEquals(ThrowParser.THROW_IDENTIFIER + Base64.encodeBytes(content.getBytes(), Base64.GZIP), throwContent);
+        } catch (IOException e) {
+            assertTrue(false);
+        }
     }
 
     public void testGetOriginatorNumber() {
@@ -145,10 +154,6 @@ public class ThrowParserTest extends AndroidTestCase {
         assertEquals(message, ThrowParser.getMessage(throwContent));
     }
 
-    // i: 0-9
-    private String phoneNo(int i) {
-        return phoneBase + Integer.toString(i);
-    }
 
     public void testMinimumKreweAmount() {
         List badRoute = new ArrayList<Mask>();
@@ -175,11 +180,22 @@ public class ThrowParserTest extends AndroidTestCase {
 
         @Override
         public String decrypt(String cipherText) throws EncryptionUnavailableException {
-            return cipherText.replaceFirst(ThrowParser.THROW_IDENTIFIER + mockEncryptionPrefix + PhoneNumberParser.PHONE_NUMBER_REGEX, "");
+            cipherText = cipherText.replaceFirst(ThrowParser.THROW_IDENTIFIER, "");
+            try {
+                cipherText = new String(Base64.decode(cipherText));
+                return cipherText.replaceFirst(mockEncryptionPrefix + PhoneNumberParser.PHONE_NUMBER_REGEX, "");
+            } catch (IOException e) {
+                throw new EncryptionUnavailableException("problem decoding");
+            }
         }
     }
 
     public String encryptionPrefix(int maskIndex) {
         return TestOpenPGPService.mockEncryptionPrefix + krewe.getMasks().get(maskIndex).getFullNumber();
+    }
+
+    // i: 0-9
+    private String phoneNo(int i) {
+        return phoneBase + Integer.toString(i);
     }
 }

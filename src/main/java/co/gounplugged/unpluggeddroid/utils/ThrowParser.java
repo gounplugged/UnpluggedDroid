@@ -2,6 +2,7 @@ package co.gounplugged.unpluggeddroid.utils;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -94,7 +95,11 @@ public class ThrowParser {
             );
         }
 
-        return  THROW_IDENTIFIER + previousThrow;
+        try {
+            return  THROW_IDENTIFIER + Base64.encodeBytes(previousThrow.getBytes(), Base64.GZIP);
+        } catch (IOException e) {
+            throw new EncryptionUnavailableException("encoding not working");
+        }
     }
 
     /**
@@ -102,8 +107,14 @@ public class ThrowParser {
      * @param partiallyDecryptedContent
      * @return
      */
-    public static String contentFor(String partiallyDecryptedContent) {
-        return  THROW_IDENTIFIER + partiallyDecryptedContent.replaceFirst(PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
+    public static String contentFor(String partiallyDecryptedContent) throws EncryptionUnavailableException{
+        partiallyDecryptedContent = partiallyDecryptedContent.replaceFirst(PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
+        try {
+            return  THROW_IDENTIFIER +
+                    Base64.encodeBytes(partiallyDecryptedContent.getBytes(), Base64.GZIP);
+        } catch (IOException e) {
+            throw new EncryptionUnavailableException("encoding not working");
+        }
     }
 
     public static String getOriginatorNumber(String fullyDecryptedContent) {
