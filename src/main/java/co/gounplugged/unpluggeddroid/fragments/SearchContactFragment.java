@@ -70,29 +70,6 @@ public class SearchContactFragment extends Fragment {
         super.onDestroy();
     }
 
-//    private void addConversation(Contact contact) {
-//        ((ChatActivity)getActivity()).addConversation(contact);
-//        mContactSearchEditText.setText("");
-//
-//        Conversation newConversation;
-//
-//        try {
-//            newConversation = ConversationUtil.findByParticipant(contact, getActivity());
-//        } catch(NotFoundInDatabaseException e) {
-//            try {
-//                newConversation = ConversationUtil.createConversation(contact, getActivity());
-//            } catch (InvalidConversationException e1) {
-//                //TODO let user know something went wrong
-//                return;
-//            }
-//        }
-//
-//
-//        ConversationEvent event = new ConversationEvent(
-//                ConversationEvent.ConversationEventType.SWITCHED, newConversation);
-//        EventBus.getDefault().postSticky(event);
-//    }
-
     private class LoadContactsTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {

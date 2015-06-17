@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -307,6 +308,29 @@ public class ChatActivity extends BaseActivity {
         // Chat log //todo extract
         mChatListView = (ListView) findViewById(R.id.lv_chats);
         mChatListView.setAdapter(mChatArrayAdapter);
+        mChatListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int mLastFirstVisibleItem = 0;
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (view.getId() == R.id.lv_chats) {
+                    final int currentFirstVisibleItem = mChatListView.getFirstVisiblePosition();
+
+                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                        getSupportActionBar().hide();
+                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                        getSupportActionBar().show();
+                    }
+
+                    mLastFirstVisibleItem = currentFirstVisibleItem;
+                }
+            }
+        });
 
         //Conversations
         mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);

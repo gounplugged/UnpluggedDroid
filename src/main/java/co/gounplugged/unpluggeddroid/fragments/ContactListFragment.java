@@ -8,11 +8,13 @@ import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
+import co.gounplugged.unpluggeddroid.activities.BaseActivity;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
@@ -104,6 +106,27 @@ public class ContactListFragment  extends ListFragment implements AdapterView.On
             //setup listview
             getListView().setFastScrollEnabled(true);
             getListView().setOnItemClickListener(ContactListFragment.this);
+            getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
+                int mLastFirstVisibleItem = 0;
+
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    final int currentFirstVisibleItem = getListView().getFirstVisiblePosition();
+
+                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                        ((BaseActivity)getActivity()).getSupportActionBar().hide();
+                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                        ((BaseActivity)getActivity()).getSupportActionBar().show();
+                    }
+
+                    mLastFirstVisibleItem = currentFirstVisibleItem;
+                }
+            });
 
             setListShown(true);
         }
