@@ -6,23 +6,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ContactAdapter extends ArrayAdapter<Contact> {
+public class ContactAdapter extends ArrayAdapter<Contact> implements SectionIndexer {
 
     private Context mContext;
     private LayoutInflater mInflater;
     private List<Contact> mContacts;
     private List<Contact> mContactsClone;
     private List<Contact> mSuggestions;
+
+    private HashMap<String, Integer> mapIndex;
+    private String[] sections;
 
     private Filter mFilter = new Filter() {
 
@@ -65,11 +75,42 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
 
     public ContactAdapter(Context context,  List<Contact> contacts) {
         super(context, R.layout.list_item_contact, contacts);
+
+        sortContacts(contacts);
+
+        //setup SectionIndexer
+        mapIndex = new LinkedHashMap<String, Integer>();
+        for (int i = 0; i < contacts.size(); i++) {
+            String name = contacts.get(i).getName();
+            String ch = name.substring(0, 1);
+            ch = ch.toUpperCase(Locale.US);
+
+            // HashMap will prevent duplicates
+            mapIndex.put(ch, i);
+        }
+
+        Set<String> sectionLetters = mapIndex.keySet();
+
+        // create a list from the set to sort
+        ArrayList<String> sectionList = new ArrayList<String>(sectionLetters);
+        Collections.sort(sectionList);
+
+        sections = new String[sectionList.size()];
+        sectionList.toArray(sections);
+
         this.mContext = context;
         this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.mContacts = contacts;
         this.mContactsClone = new ArrayList<>(contacts);
         this.mSuggestions = new ArrayList<>();
+    }
+
+    private void sortContacts(List<Contact> contacts) {
+        Collections.sort(contacts, new Comparator<Contact>() {
+            public int compare(Contact c1, Contact c2) {
+                return c1.getName().compareToIgnoreCase(c2.getName());
+            }
+        });
     }
 
     @Override
@@ -112,5 +153,18 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
     }
 
 
+    @Override
+    public Object[] getSections() {
+        return sections;
+    }
 
+    @Override
+    public int getPositionForSection(int sectionIndex) {
+        return mapIndex.get(sections[sectionIndex]);
+    }
+
+    @Override
+    public int getSectionForPosition(int position) {
+        return 0;
+    }
 }
