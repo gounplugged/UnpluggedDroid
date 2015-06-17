@@ -2,8 +2,8 @@ package co.gounplugged.unpluggeddroid.test.utils;
 
 import android.test.AndroidTestCase;
 
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 
@@ -17,7 +17,7 @@ public class ConversationUtilTest extends AndroidTestCase {
 
             ConversationUtil.deleteAll(getContext());
             assertEquals(0, ConversationUtil.getAll(getContext()).size());
-        } catch (InvalidConversationException e) {
+        } catch (Conversation.InvalidConversationException e) {
             assertTrue(false);
         } catch (InvalidPhoneNumberException e) {
             assertTrue(false);

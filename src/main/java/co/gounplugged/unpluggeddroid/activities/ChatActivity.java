@@ -23,7 +23,6 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -52,24 +51,6 @@ public class ChatActivity extends BaseActivity {
     private InfiniteViewPager mViewPager;
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
-
-    private OpenPGPBridgeService mOpenPGPBridgeService;
-    private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
-            mOpenPGPBridgeService = binder.getService();
-            mIsBoundToOpenPGP = true;
-            Log.d(TAG, "bound to pgp bridge");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mIsBoundToOpenPGP = false;
-            Log.d(TAG, "unbound from pgp bridge");
-        }
-    };;
-    private boolean mIsBoundToOpenPGP = false;
 
     private Conversation mSelectedConversation;
     private Conversation mClickedConversation;  //TODO refactor global var
@@ -131,11 +112,6 @@ public class ChatActivity extends BaseActivity {
 
         Log.d(TAG, "onStart");
 
-        bindService(
-                new Intent(this, OpenPGPBridgeService.class),
-                mOpenPGPBridgeConnection,
-                Context.BIND_AUTO_CREATE);
-
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
@@ -144,10 +120,6 @@ public class ChatActivity extends BaseActivity {
         super.onStop();
         Log.d(TAG, "onStop");
 
-        if (mIsBoundToOpenPGP) {
-            unbindService(mOpenPGPBridgeConnection);
-            mIsBoundToOpenPGP = false;
-        }
     }
 
     @Override
@@ -309,7 +281,7 @@ public class ChatActivity extends BaseActivity {
         } catch(NotFoundInDatabaseException e) {
             try {
                 newConversation = ConversationUtil.createConversation(contact, getApplicationContext());
-            } catch (InvalidConversationException e1) {
+            } catch (Conversation.InvalidConversationException e1) {
                 //TODO let user know something went wrong
                 return;
             }
@@ -323,10 +295,6 @@ public class ChatActivity extends BaseActivity {
         if(mSelectedConversation == null) return true;
         if(mSelectedConversation.equals(newConversation)) return false;
         return true;
-    }
-
-    public OpenPGPBridgeService getOpenPGPBridgeService() {
-        return mOpenPGPBridgeService;
     }
 
     private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {

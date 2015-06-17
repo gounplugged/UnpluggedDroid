@@ -1,23 +1,11 @@
 package co.gounplugged.unpluggeddroid.test.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.test.ActivityUnitTestCase;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
-
-import java.util.Date;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.models.Message;
-import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.utils.ContactUtil;
-import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
-import co.gounplugged.unpluggeddroid.utils.MessageUtil;
 
 /**
  * Created by Marvin Arnold on 8/06/15.

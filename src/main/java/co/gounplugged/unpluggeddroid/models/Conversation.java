@@ -7,7 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Collection;
 import java.util.List;
 
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
+import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
@@ -33,7 +33,7 @@ public class Conversation {
         this.mParticipant = null;
     }
 
-    public Conversation(Contact participant) throws InvalidConversationException{
+    public Conversation(Contact participant) throws InvalidConversationException {
         if(participant == null) throw new InvalidConversationException("Conversations must always have at least one participant");
         this.mParticipant = participant;
     }
@@ -92,5 +92,11 @@ public class Conversation {
 
     public String getName() {
         return (getParticipant() == null) ? "" : getParticipant().getName();
+    }
+
+    public class InvalidConversationException extends Exception {
+        public InvalidConversationException(String message) {
+            super(message);
+        }
     }
 }

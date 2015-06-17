@@ -9,6 +9,7 @@
     <string name="phone_number_activity_profile">Whats your phone number?</string>
     <string name="submit_phone_number_activity_profile">Save</string>
     <string name="sms_plan_activity_profile">What kind of plan do you have for SMS?</string>
+    <string name="password_title_activity_profile">PGP password</string>
     <string name="user_sms_plan">User SMS plan</string>
     <string name="search_hint">Search contacts</string>
     <string name="new_post_text_hint">Send a message to</string>
