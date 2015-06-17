@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AlphabetIndexer;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.SectionIndexer;
@@ -20,10 +21,16 @@ import java.util.Set;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.models.Contact;
+import co.gounplugged.unpluggeddroid.models.predicates.ContactNamePredicate;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
+import co.gounplugged.unpluggeddroid.utils.Predicate;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ContactAdapter extends ArrayAdapter<Contact> implements SectionIndexer {
+
+    private static final int TYPE_SECTION_HEADER = 0;
+    private static final int TYPE_LIST_ITEM  = 1;
+    private static final int TYPE_COUNT = 2;
 
     private Context mContext;
     private LayoutInflater mInflater;
@@ -33,6 +40,8 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 
     private HashMap<String, Integer> mapIndex;
     private String[] sections;
+
+    private AlphabetIndexer mAlphabetIndexer;
 
     private Filter mFilter = new Filter() {
 
@@ -75,6 +84,9 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 
     public ContactAdapter(Context context,  List<Contact> contacts) {
         super(context, R.layout.list_item_contact, contacts);
+
+        //TODO remove test
+        contacts = (List<Contact>) Predicate.filter(contacts, new ContactNamePredicate("tim"));
 
         sortContacts(contacts);
 
@@ -166,5 +178,10 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
     @Override
     public int getSectionForPosition(int position) {
         return 0;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return TYPE_COUNT;
     }
 }
