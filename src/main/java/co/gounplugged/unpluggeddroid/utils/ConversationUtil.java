@@ -1,10 +1,7 @@
 package co.gounplugged.unpluggeddroid.utils;
 
 import android.content.Context;
-import android.util.Log;
-
 import java.util.List;
-
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;

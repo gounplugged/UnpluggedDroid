@@ -1,14 +1,5 @@
 package co.gounplugged.unpluggeddroid.models;
 
-import android.content.Intent;
-
-import org.openintents.openpgp.util.OpenPgpApi;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;

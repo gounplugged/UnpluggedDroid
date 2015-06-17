@@ -5,9 +5,6 @@ import android.content.Context;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
-import co.gounplugged.unpluggeddroid.models.Contact;
-import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.models.Message;
 
 /**
  * Created by Marvin Arnold on 26/05/15.

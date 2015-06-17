@@ -7,8 +7,6 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Collection;
 import java.util.List;
 
-import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
-
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
     private static final String TAG = "Conversation";

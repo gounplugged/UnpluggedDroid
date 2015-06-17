@@ -3,10 +3,8 @@ package co.gounplugged.unpluggeddroid.services;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Binder;
 import android.os.IBinder;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import org.openintents.openpgp.IOpenPgpService;
@@ -33,9 +31,6 @@ public class OpenPGPBridgeService extends Service {
     protected static final String TAG = "OpenPGPBridgeService";
     protected OpenPgpServiceConnection mServiceConnection;
     private final IBinder mBinder = new LocalBinder();
-    public static final String ACTION_ENCRYPT = "OpenPGPBridgeService_ACTION_ENCRYPT";
-    public static final String EXTRA_PLAINTEXT = "OpenPGPBridgeService_EXTRA_PLAINTEXT";
-    public static final String EXTRA_RECIPIENT = "OpenPGPBridgeService_EXTRA_RECIPIENT";
     protected boolean isBound;
     private OpenPgpServiceConnection.OnBound onBoundCallback;
     private OpenPgpApi mAPI;

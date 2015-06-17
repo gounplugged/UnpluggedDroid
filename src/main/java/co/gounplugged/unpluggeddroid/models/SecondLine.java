@@ -1,8 +1,6 @@
 package co.gounplugged.unpluggeddroid.models;
 
 import java.util.List;
-
-import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
