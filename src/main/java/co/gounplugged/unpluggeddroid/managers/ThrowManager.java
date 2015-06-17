@@ -87,7 +87,7 @@ public class ThrowManager {
             String originatorAddress = throwAtDestination.getOriginatorAddress();
             Contact originator = ContactUtil.firstOrCreate(mContext, originatorAddress, originatorAddress);
             Conversation conversation = ConversationUtil.findOrNew(originator, mContext);
-            String receivedText = ThrowParser.getMessage(throwAtDestination.getContent());
+            String receivedText = throwAtDestination.getContent();
             addTextToConversation(receivedText, conversation);
         } catch (Throw.InvalidStateException e) {
             // Should never be here
@@ -147,18 +147,26 @@ public class ThrowManager {
      * @param conversation
      * @param text
      */
-    public void sendMessage(Conversation conversation, String text, OpenPGPBridgeService openPGPBridgeService) {
-        Message message = MessageUtil.create(
-                mContext,
-                conversation,
-                text,
-                Message.TYPE_OUTGOING,
-                System.currentTimeMillis());
+    public void sendMessage(final Conversation conversation, final String text, final OpenPGPBridgeService openPGPBridgeService) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Message message = MessageUtil.create(
+                        mContext,
+                        conversation,
+                        text,
+                        Message.TYPE_OUTGOING,
+                        System.currentTimeMillis());
 
-        EventBus.getDefault().postSticky(message);
+                Log.d(TAG, "sendMessage message uses SL: " + message.getConversation().isSecondLineComptabile() +
+                        " conversation uses SL: " + conversation.isSecondLineComptabile());
 
-        sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks(), openPGPBridgeService);
-        Log.d(TAG, "Sending message: " + message);
+                EventBus.getDefault().postSticky(message);
+
+                sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks(), openPGPBridgeService);
+                Log.d(TAG, "Sending message: " + message);
+            }
+        }).run();
     }
 
 

@@ -135,6 +135,8 @@ public class ThrowParserTest extends AndroidTestCase {
         throwContent = message + ThrowParser.MESSAGE_SEPARATOR +
                 originatorNumber + ThrowParser.ORIGINATOR_SEPARATOR;
         assertEquals(originatorNumber, ThrowParser.getOriginatorNumber(throwContent));
+
+        assertEquals("+13016864576", ThrowParser.getOriginatorNumber("ghhWIxff+13016864576YzLqQ"));
     }
 
     public void testGetMessage() {
@@ -173,7 +175,7 @@ public class ThrowParserTest extends AndroidTestCase {
 
         @Override
         public String decrypt(String cipherText) throws EncryptionUnavailableException {
-            return cipherText.replaceFirst(mockEncryptionPrefix + PhoneNumberParser.PHONE_NUMBER_REGEX, "");
+            return cipherText.replaceFirst(ThrowParser.THROW_IDENTIFIER + mockEncryptionPrefix + PhoneNumberParser.PHONE_NUMBER_REGEX, "");
         }
     }
 

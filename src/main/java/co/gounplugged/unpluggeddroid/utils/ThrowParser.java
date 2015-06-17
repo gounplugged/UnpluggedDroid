@@ -1,5 +1,7 @@
 package co.gounplugged.unpluggeddroid.utils;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -101,10 +103,11 @@ public class ThrowParser {
      * @return
      */
     public static String contentFor(String partiallyDecryptedContent) {
-        return  partiallyDecryptedContent.replaceFirst(PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
+        return  THROW_IDENTIFIER + partiallyDecryptedContent.replaceFirst(PhoneNumberParser.PHONE_NUMBER_REGEX + MASK_SEPARATOR, "");
     }
 
     public static String getOriginatorNumber(String fullyDecryptedContent) {
+        Log.d("ThrowParser", "orignator number from: " + fullyDecryptedContent);
         Matcher m = Pattern.compile("(.*)(" + MESSAGE_SEPARATOR +")(" + PhoneNumberParser.PHONE_NUMBER_REGEX +")(.*)").matcher(fullyDecryptedContent);
         m.matches();
         return m.group(3);

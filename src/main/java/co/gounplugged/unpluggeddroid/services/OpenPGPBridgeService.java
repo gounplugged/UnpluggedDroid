@@ -19,7 +19,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import co.gounplugged.unpluggeddroid.activities.OpenPGPUserInteractionActivity;
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
+import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
 /**
  * Created by Marvin Arnold on 10/06/15.
@@ -58,7 +61,8 @@ public class OpenPGPBridgeService extends Service {
             public void onBound(IOpenPgpService service) {
                 isBound = true;
                 mAPI = new OpenPgpApi(OpenPGPBridgeService.this, mServiceConnection.getService());
-                Log.d(TAG, "onBound!");
+                Log.d(TAG, "onBound! to OpenPGPBridgeService");
+
             }
 
             @Override
@@ -69,7 +73,7 @@ public class OpenPGPBridgeService extends Service {
 
         mServiceConnection = new OpenPgpServiceConnection(
             getApplicationContext(),
-            "org.sufficientlysecure.keychain",
+            "org.sufficientlysecure.keychain.debug",
             onBoundCallback
         );
         mServiceConnection.bindToService();
@@ -86,33 +90,23 @@ public class OpenPGPBridgeService extends Service {
 
     public String decrypt(String ciphertext) throws EncryptionUnavailableException {
         Log.d(TAG, "Attempt decrypt");
+        ciphertext = ciphertext.replaceFirst(ThrowParser.THROW_IDENTIFIER, "");
+        Log.d(TAG, "CIPHERTEXT: " + ciphertext);
         if(isBound) {
             Intent data = new Intent();
             data.setAction(OpenPgpApi.ACTION_DECRYPT_VERIFY);
+            data.putExtra(OpenPgpApi.EXTRA_PASSPHRASE, Profile.getPassword().toCharArray());
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             InputStream is = null;
             try {
                 is = new ByteArrayInputStream(ciphertext.getBytes("UTF-8"));
-
+                Intent result = mAPI.executeApi(data, is, os);
+                Log.d(TAG, "Decryption result received");
+                return interpretResult(result, os);
             } catch (UnsupportedEncodingException e) {
-                // TODO
+                throw new EncryptionUnavailableException("unsupported encoding");
             }
-
-            Intent result = mAPI.executeApi(data, is, os);
-            switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
-                case OpenPgpApi.RESULT_CODE_SUCCESS: {
-                    try {
-                        String plaintext = os.toString("UTF-8");
-                        Log.d(TAG, "output: " + plaintext);
-                        return plaintext;
-                    } catch (UnsupportedEncodingException e) {
-                        Log.e(TAG, "UnsupportedEncodingException", e);
-                        throw new EncryptionUnavailableException("Invalid encoding");
-                    }
-                }
-            }
-            throw new EncryptionUnavailableException("Response was funky");
         } else {
             throw new EncryptionUnavailableException("Description service not yet bound");
         }
@@ -147,39 +141,63 @@ public class OpenPGPBridgeService extends Service {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 
             Intent result = mAPI.executeApi(data, is, os);
-
-            switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
-                case OpenPgpApi.RESULT_CODE_SUCCESS: {
-                    try {
-                        String encrypted = os.toString("UTF-8");
-                        Log.d(TAG, "output: " + encrypted);
-                        return encrypted;
-                    } catch (UnsupportedEncodingException e) {
-                        Log.e(TAG, "UnsupportedEncodingException", e);
-                        throw new EncryptionUnavailableException("Invalid encoding");
-                    }
-                }
-                case OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED: {
-                    Log.d(TAG, "Action required ");
-    //                PendingIntent pi = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
-    //                try {
-    ////                    startIntentSenderForResult(pi.getIntentSender(), 42, null, 0, 0, 0);
-    //                } catch (IntentSender.SendIntentException e) {
-    //                    Log.e(TAG, "SendIntentException", e);
-    //
-    //                }
-                    throw new EncryptionUnavailableException("User interaction required");
-                }
-                case OpenPgpApi.RESULT_CODE_ERROR: {
-                    OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
-                    throw new EncryptionUnavailableException("Encryption error: " + error.getMessage());
-                }
-            }
-            throw new EncryptionUnavailableException("Unknown response from encryption service.");
+            return interpretResult(result, os);
         } else {
             throw new EncryptionUnavailableException("Encryption service not yet bound");
         }
     }
 
+    private String interpretResult(Intent result, ByteArrayOutputStream os) throws EncryptionUnavailableException {
+        switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
+            case OpenPgpApi.RESULT_CODE_SUCCESS: {
+                try {
+                    String encrypted = os.toString("UTF-8");
+                    Log.d(TAG, "output: " + encrypted);
+                    return encrypted;
+                } catch (UnsupportedEncodingException e) {
+                    Log.e(TAG, "UnsupportedEncodingException", e);
+                    throw new EncryptionUnavailableException("Invalid encoding");
+                }
+            }
+            case OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED: {
+                PendingIntent pi = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
+                Log.d(TAG, "Action required " + pi.getCreatorPackage() + " sender " + pi.getIntentSender().toString());
 
+                Intent localUserInteractionIntent = new Intent(this, OpenPGPUserInteractionActivity.class);
+                localUserInteractionIntent.putExtra("api_intent", pi);
+                localUserInteractionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(localUserInteractionIntent);
+
+                throw new EncryptionUnavailableException("User interaction required");
+            }
+            case OpenPgpApi.RESULT_CODE_ERROR: {
+                OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
+                Log.d(TAG, "RESULT_CODE_ERROR: " + error.getMessage());
+                throw new EncryptionUnavailableException("Encryption error: " + error.getMessage());
+            }
+            default:
+                Log.d(TAG, "Something strange");
+                throw new EncryptionUnavailableException("Unknown response from encryption service.");
+        }
+    }
+
+    /*String testDecrypt = "-----BEGIN PGP MESSAGE-----\n" +
+            "Version: GnuPG v2\n" +
+            "\n" +
+            "hQIMAwNJDWvmOi2RARAA2/yL/E2xKAxMRjBF1EYaGJXmiQ1FCg9b5XU97CueuKHh\n" +
+            "OUuDHocwcBzzckux77l3F6JEQFb1hBWze3cPepOp3yVcXbITTn43qnhZKTPL204w\n" +
+            "DOE4Nzgr8MbbL538X/zmNwXoKcJjQ0neqyMF7SzNE3pJ21hJSju4UY4PB9VxGQbn\n" +
+            "KSk7IsF02VFGA7jeja22Ys39aPfdSZiUP37nh2ZVZZwD5wLR9SxG8wUs2WvxPIGQ\n" +
+            "rrK9M023xcQ2HB74SyQY4wRK1Nu9eDTeMhJD4NlSYpGuVp9R5Q24kjFpcWTno/h5\n" +
+            "EmjkJqrMageFWLFWL4kIK+E1bYA0ssYKFAO32EPPUws2y9jG7stjLIUbn7Tti96t\n" +
+            "fJtFe7KjBIyq7aqGGlJexDrJL1PB3LjqU+nF2CKhdxuJjcHdSoJKJTzGh+KxgmRu\n" +
+            "ZvhBH+tTM6nabPAreCrqQO0BEdAoYJuvOhMNuPEeIVR6BZRoklEd62Bejnet7ncp\n" +
+            "wxOPt4W/9NJ/0KUPt+5TvOZqObPcU7B/BHKUOg+iUuFrQXn3EsaBeq7ThDfUFHue\n" +
+            "vPeFoHLRPGYBjw5vyHeEyStrCNQHh10jKxtVgvBhh4sW6CSSVc2kR/O0QVwZWXXE\n" +
+            "uoa1nNKCr/S/rpbHBI+afp1l+xxE9Qr9dfR1aiO0EHp6hrih9KonfDlyFhxT2arS\n" +
+            "ZQEjNw0SG1d9lOpbFm6WCQFOyKkeEYHp5i4hwRrkTPrBu8YH/3LrN+lagRlHYAm5\n" +
+            "H1ttXC6gL286PgWUrm5CHWYQFgFUY68cnHjhhQYzKi9+Q8ArDlP0856TTP2JGnHG\n" +
+            "nEbSRMj8\n" +
+            "=6E4m\n" +
+            "-----END PGP MESSAGE-----";*/
 }

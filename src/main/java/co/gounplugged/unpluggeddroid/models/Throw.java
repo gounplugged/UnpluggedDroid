@@ -25,7 +25,7 @@ public class Throw {
     private final static int STATE_AT_DESTINATION = 3;
     private int mState = STATE_UNINITIALIZED;
 
-    private final String mThrowToAddress;
+    private final String mThrowToAddress; // originator address when arrives
     private final String mContent;
     private final OpenPGPBridgeService mOpenPGPBridgeService;
 
@@ -105,7 +105,7 @@ public class Throw {
         String partiallyDecryptedContent = openPGPBridgeService.decrypt(encryptedContent);
 
         if(ThrowParser.isFullyDecrypted(partiallyDecryptedContent)) {
-            this.mThrowToAddress = null;
+            this.mThrowToAddress = ThrowParser.getOriginatorNumber(partiallyDecryptedContent);
             this.mContent = ThrowParser.getMessage(partiallyDecryptedContent);
             this.mState = STATE_AT_DESTINATION;
         } else {
@@ -139,7 +139,7 @@ public class Throw {
     }
 
     public String getOriginatorAddress() throws InvalidStateException {
-        if(mState == STATE_AT_DESTINATION) return ThrowParser.getOriginatorNumber(mContent);
+        if(mState == STATE_AT_DESTINATION) return this.mThrowToAddress;
         throw new InvalidStateException("Throw is not at its destination. Unable to read originating address");
     }
 
