@@ -43,15 +43,6 @@ public class ContactListFragment  extends Fragment implements AdapterView.OnItem
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Get super view and add custom layout to it to make sure setListShown and other helpers are accessible
-//        View v = super.onCreateView(inflater, container, savedInstanceState);
-//        ViewGroup parent = (ViewGroup) inflater.inflate(R.layout.fragment_contact_list, container, false);
-//        parent.addView(v, 0);
-//        return parent;
-
-//        RecyclerView rv = (RecyclerView) inflater.inflate(
-//                R.layout.fragment_contact_list, container, false);
-
         RelativeLayout view = (RelativeLayout) inflater.inflate(
                 R.layout.fragment_contact_list, container, false);
 
