@@ -19,7 +19,7 @@ public class SettingsActivity extends BaseActivity {
         ((BaseApplication) getApplicationContext()).loadContacts();
         setContentView(R.layout.activity_settings);
 
-        displayHomeAsUp();
+//        displayHomeAsUp();
 
         TextView profileOption = (TextView) findViewById(R.id.text_profile_settings_activity);
         profileOption.setOnClickListener(new View.OnClickListener() {

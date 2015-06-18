@@ -1,5 +1,4 @@
 <resources>
-
     <color name="window_background">#2d313d</color>
     <color name="chat_background">#dee1ec</color>
     <color name="chat_incoming_text">#5d728c</color>

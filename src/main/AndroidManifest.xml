@@ -23,7 +23,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/Theme.Unplugged" >
         <activity
             android:name=".activities.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" >
@@ -43,8 +43,7 @@
 
         <activity
             android:name=".activities.ChatActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:configChanges="orientation|screenSize" >
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
                 <data android:scheme="sms" />
@@ -56,7 +55,6 @@
         <activity
             android:name=".activities.ProfileActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme"
             android:parentActivityName=".activities.ChatActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data

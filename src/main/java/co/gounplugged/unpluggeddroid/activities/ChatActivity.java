@@ -6,17 +6,21 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AbsListView;
@@ -59,10 +63,11 @@ public class ChatActivity extends BaseActivity {
 	// GUI
 	private MessageAdapter mChatArrayAdapter;
 	private ListView mChatListView;
-    private InfiniteViewPager mViewPager;
+    private ViewPager mViewPager;
     private ConversationContainer mConversationContainer;
     private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
     private Toolbar mToolbar;
+    private DrawerLayout mDrawerLayout;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
@@ -125,10 +130,9 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_chat_new);
         Log.d(TAG, "onCreate");
 
         getLastSelectedConversation();
@@ -182,6 +186,17 @@ public class ChatActivity extends BaseActivity {
     	super.onDestroy();
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void onEventMainThread(Message message) {
         mChatArrayAdapter.addMessage(message);
     }
@@ -194,68 +209,83 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void loadGui() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        final ActionBar ab = getSupportActionBar();
+        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+        ab.setDisplayHomeAsUpEnabled(true);
+
+
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            setupDrawerContent(navigationView);
+        }
+
         // Setup navigation-drawer
-        final String[] menu = getResources().getStringArray(R.array.navigation_menu);
-        ArrayAdapter<String> drawerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menu);
+//        final String[] menu = getResources().getStringArray(R.array.navigation_menu);
+//        ArrayAdapter<String> drawerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menu);
 
-        final DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        final ListView navList = (ListView) findViewById(R.id.drawer);
-        navList.setAdapter(drawerAdapter);
-        navList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int pos, long id) {
-                switch (pos) {
-                    case 0:
-                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                        return;
-                    case 1:
-                        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                        return;
 
-                }
-            }
-        });
+//        final ListView navList = (ListView) findViewById(R.id.drawer);
+//        navList.setAdapter(drawerAdapter);
+//        navList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, final int pos, long id) {
+//                switch (pos) {
+//                    case 0:
+//                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+//                        return;
+//                    case 1:
+//                        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+//                        return;
+//
+//                }
+//            }
+//        });
 
 
         // Setup mToolbar and ActionBarDrawerToggle
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(mToolbar);
+//
+//        final ActionBarDrawerToggle mDrawerToggle  = new ActionBarDrawerToggle(
+//                this,                  /* host Activity */
+//                drawerLayout,         /* DrawerLayout object */
+//                mToolbar,
+//                R.string.drawer_open,  /* "open drawer" description for accessibility */
+//                R.string.drawer_close  /* "close drawer" description for accessibility */
+//        ) {
+//            public void onDrawerClosed(View view) {
+//                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+//            }
+//
+//            public void onDrawerOpened(View drawerView) {
+//                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+//            }
+//        };
+//        drawerLayout.setDrawerListener(mDrawerToggle);
+//        getSupportActionBar().setTitle("");
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
+//        mDrawerToggle.syncState();
 
-        final ActionBarDrawerToggle mDrawerToggle  = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                drawerLayout,         /* DrawerLayout object */
-                mToolbar,
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        ) {
-            public void onDrawerClosed(View view) {
-                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-        drawerLayout.setDrawerListener(mDrawerToggle);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        mDrawerToggle.syncState();
 
         // Input/Search infinite-viewpager
-        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
         // It is only possible to achieve wrapping when you have at least 4 pages.
         // This is because of the way the ViewPager creates, destroys, and displays the pages.
         // No fix for the general case has been found.
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
+//        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
+//        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
 
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
-        PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
-        mViewPager.setAdapter(wrappedAdapter);
+//        PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
+        mViewPager.setAdapter(adapter);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -318,6 +348,18 @@ public class ChatActivity extends BaseActivity {
         mConversationContainer.setConversationsAllBut(mSelectedConversation);
 
         mChatArrayAdapter.setConversation(mSelectedConversation);
+    }
+
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        return true;
+                    }
+                });
     }
 
     public Toolbar getToolbar() {

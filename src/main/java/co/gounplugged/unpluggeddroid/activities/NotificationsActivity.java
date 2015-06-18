@@ -18,7 +18,7 @@ public class NotificationsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
 
-        displayHomeAsUp();
+//        displayHomeAsUp();
 
         TextView profileOption = (TextView) findViewById(R.id.button_save_notifications_activity);
         profileOption.setOnClickListener(new View.OnClickListener() {

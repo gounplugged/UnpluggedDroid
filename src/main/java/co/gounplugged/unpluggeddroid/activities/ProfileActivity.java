@@ -31,7 +31,7 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        displayHomeAsUp();
+//        displayHomeAsUp();
 
         setupPhoneNumber();
         setupSmsPlan();

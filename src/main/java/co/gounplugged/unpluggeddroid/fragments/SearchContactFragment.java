@@ -65,7 +65,7 @@ public class SearchContactFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        if (mLoadContactsTask.getStatus() == AsyncTask.Status.RUNNING)
+        if (mLoadContactsTask != null && mLoadContactsTask.getStatus() == AsyncTask.Status.RUNNING)
             mLoadContactsTask.cancel(true);
         super.onDestroy();
     }
