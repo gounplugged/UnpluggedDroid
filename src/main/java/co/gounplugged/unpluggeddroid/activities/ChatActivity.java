@@ -39,6 +39,7 @@ import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.ContactListFragment;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
+import co.gounplugged.unpluggeddroid.fragments.MessageListFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -279,8 +280,7 @@ public class ChatActivity extends BaseActivity {
         // No fix for the general case has been found.
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), ContactListFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
+        fragments.add(Fragment.instantiate(getApplicationContext(), MessageListFragment.class.getName(), getIntent().getExtras()));
 //        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
 //        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
 

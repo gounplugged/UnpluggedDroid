@@ -48,120 +48,76 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent" >
 
-        <EditText
-            android:id="@+id/et_search_contacts"
+        <RelativeLayout
+            android:id="@+id/container_input"
             android:layout_height="80dp"
             android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"
-            android:hint="@string/search_hint"
-            android:textSize="15sp"
-            android:textColor="@color/chat_outgoing_text"
-            android:imeOptions="actionSearch"
-            android:imeActionId="1"
-            android:imeActionLabel="Send"
-            android:background="#fff"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            />
+            android:layout_alignParentBottom="true"  >
+
+            <EditText
+                android:id="@+id/et_search_contacts"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_alignParentBottom="true"
+                android:hint="@string/search_hint"
+                android:textSize="15sp"
+                android:textColor="@color/chat_outgoing_text"
+                android:imeOptions="actionSearch"
+                android:imeActionId="1"
+                android:imeActionLabel="Send"
+                android:layout_toLeftOf="@+id/submit_button"
+                android:background="#fff"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp" />
+
+            <RelativeLayout
+                android:id="@+id/refresh_button_container"
+                android:layout_height="80dp"
+                android:layout_width="80dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:background="#fff">
+
+                <!--http://stackoverflow.com/questions/26686250/material-effect-on-button-with-background-color-->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#fff">
+
+                    <ImageButton
+                        android:id="@+id/refresh_contacts_button"
+                        android:layout_height="80dp"
+                        android:layout_width="80dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerInParent="true"
+                        android:layout_alignParentBottom="true"
+                        android:src="@drawable/ic_refresh_black_24dp"
+                        android:scaleType="centerInside"
+                        android:background="?android:attr/selectableItemBackground" />
+
+                </FrameLayout>
+
+                <ProgressBar
+                    android:id="@+id/progress_contacts_sync"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:indeterminate="true"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/et_search_contacts"/>
+            android:layout_above="@+id/container_input"/>
 
     </RelativeLayout>
 
-
-
-
-
-    <!--<RelativeLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@color/chat_background"-->
-        <!-->-->
-
-        <!--<View-->
-            <!--android:id="@+id/separator"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:background="@android:color/darker_gray"-->
-            <!--android:layout_above="@+id/viewpager"/>-->
-
-        <!--<android.support.v4.view.ViewPager-->
-            <!--android:id="@+id/viewpager"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="80dp"-->
-            <!--android:layout_weight="1"-->
-            <!--android:layout_alignParentBottom="true"/>-->
-
-        <!--<ImageView-->
-            <!--android:id="@+id/iv_drop_zone_delete"-->
-            <!--android:src="@drawable/drop_zone_red"-->
-            <!--android:visibility="gone"-->
-            <!--android:layout_width="80dp"-->
-            <!--android:layout_height="80dp"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--/>-->
-
-
-        <!--<RelativeLayout-->
-            <!--android:id="@+id/top_container"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_above="@+id/separator"-->
-            <!-->-->
-
-            <!--<LinearLayout-->
-                <!--android:layout_width="80dp"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:id="@+id/conversation_root"-->
-                <!--android:layout_alignParentRight="true" >-->
-
-                <!--<co.gounplugged.unpluggeddroid.widgets.ConversationContainer-->
-                    <!--android:id="@+id/conversation_container"-->
-                    <!--android:layout_width="80dp"-->
-                    <!--android:layout_height="match_parent"/>-->
-
-            <!--</LinearLayout>-->
-
-            <!--&lt;!&ndash;chats and contacts-fragment&ndash;&gt;-->
-            <!--<ListView-->
-                <!--android:id="@+id/lv_chats"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:dividerHeight="0dp"-->
-                <!--android:divider="@drawable/transparent_divider"-->
-                <!--android:stackFromBottom="true"-->
-                <!--android:transcriptMode="alwaysScroll"-->
-                <!--android:layout_toLeftOf="@+id/conversation_root"-->
-                <!--/>-->
-
-            <!--<ImageView-->
-                <!--android:id="@+id/iv_drop_zone_chats"-->
-                <!--android:src="@drawable/drop_zone"-->
-                <!--android:visibility="gone"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_toLeftOf="@+id/conversation_root"-->
-                <!--/>-->
-
-            <!--&lt;!&ndash; todo extract fragment from xml and lazy-load programatically&ndash;&gt;-->
-            <!--<fragment-->
-                <!--android:id="@+id/contact_list_fragment_container"-->
-                <!--android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:background="#002200"-->
-                <!--/>-->
-
-        <!--</RelativeLayout>-->
-
-    <!--</RelativeLayout>-->
 
 </android.support.design.widget.CoordinatorLayout>
