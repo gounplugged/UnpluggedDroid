@@ -45,10 +45,39 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        >
+
+        <EditText
+            android:id="@+id/et_search_contacts"
+            android:layout_height="80dp"
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:hint="@string/search_hint"
+            android:textSize="15sp"
+            android:textColor="@color/chat_outgoing_text"
+            android:imeOptions="actionSearch"
+            android:imeActionId="1"
+            android:imeActionLabel="Send"
+            android:background="#fff"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/et_search_contacts"/>
+
+    </RelativeLayout>
+
+
+
+
 
     <!--<RelativeLayout-->
         <!--android:layout_width="match_parent"-->
