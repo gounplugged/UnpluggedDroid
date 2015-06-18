@@ -168,7 +168,7 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected synchronized void onResume() {
     	super.onResume();
-        mConversationContainer.setConversationListener(conversationListener);
+//        mConversationContainer.setConversationListener(conversationListener);
 
         EventBus.getDefault().removeStickyEvent(Message.class);
         EventBus.getDefault().registerSticky(this);
@@ -177,7 +177,7 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mConversationContainer.removeConversationListener(conversationListener);
+//        mConversationContainer.removeConversationListener(conversationListener);
         EventBus.getDefault().unregister(this);
     }
 
@@ -278,6 +278,7 @@ public class ChatActivity extends BaseActivity {
         // This is because of the way the ViewPager creates, destroys, and displays the pages.
         // No fix for the general case has been found.
         List<Fragment> fragments = new ArrayList<>();
+        fragments.add(Fragment.instantiate(getApplicationContext(), ContactListFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
 //        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
@@ -294,7 +295,7 @@ public class ChatActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
-                toggleContactList();
+//                toggleContactList();
             }
 
             @Override
@@ -302,52 +303,52 @@ public class ChatActivity extends BaseActivity {
         });
 
         //drop zone views & animations
-        mImageViewDropZoneDelete = (ImageView) findViewById(R.id.iv_drop_zone_delete);
-        mImageViewDropZoneChats = (ImageView) findViewById(R.id.iv_drop_zone_chats);
-
-        //Check for drop-events on drop-zones
-        mImageViewDropZoneDelete.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                switch (event.getAction()) {
-                    //should always be called
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        hideDropZones();
-                        break;
-                    case DragEvent.ACTION_DROP:
-                        Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
-                        // TODO be sure to only remove from conversation container, don't delet convo itself
-                        // update current selected convo
-                        break;
-                }
-                return true;
-            }
-        });
-        mImageViewDropZoneChats.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                switch (event.getAction()) {
-                    case DragEvent.ACTION_DROP:
-                        Log.i(TAG, "Conversation dropped on mChatListView.");
-                        replaceSelectedConversation(mClickedConversation);
-                        break;
-                }
-                return true;
-            }
-        });
-
-        // hide contact list fragment that is currently visible on first run
-        toggleContactList();
-
-        // Chat log //todo extract
-        mChatListView = (ListView) findViewById(R.id.lv_chats);
-        mChatListView.setAdapter(mChatArrayAdapter);
-
-        //Conversations
-        mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
-        mConversationContainer.setConversationsAllBut(mSelectedConversation);
-
-        mChatArrayAdapter.setConversation(mSelectedConversation);
+//        mImageViewDropZoneDelete = (ImageView) findViewById(R.id.iv_drop_zone_delete);
+//        mImageViewDropZoneChats = (ImageView) findViewById(R.id.iv_drop_zone_chats);
+//
+//        //Check for drop-events on drop-zones
+//        mImageViewDropZoneDelete.setOnDragListener(new View.OnDragListener() {
+//            @Override
+//            public boolean onDrag(View v, DragEvent event) {
+//                switch (event.getAction()) {
+//                    //should always be called
+//                    case DragEvent.ACTION_DRAG_ENDED:
+//                        hideDropZones();
+//                        break;
+//                    case DragEvent.ACTION_DROP:
+//                        Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
+//                        // TODO be sure to only remove from conversation container, don't delet convo itself
+//                        // update current selected convo
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
+//        mImageViewDropZoneChats.setOnDragListener(new View.OnDragListener() {
+//            @Override
+//            public boolean onDrag(View v, DragEvent event) {
+//                switch (event.getAction()) {
+//                    case DragEvent.ACTION_DROP:
+//                        Log.i(TAG, "Conversation dropped on mChatListView.");
+//                        replaceSelectedConversation(mClickedConversation);
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
+//
+//        // hide contact list fragment that is currently visible on first run
+//        toggleContactList();
+//
+//        // Chat log //todo extract
+//        mChatListView = (ListView) findViewById(R.id.lv_chats);
+//        mChatListView.setAdapter(mChatArrayAdapter);
+//
+//        //Conversations
+//        mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
+//        mConversationContainer.setConversationsAllBut(mSelectedConversation);
+//
+//        mChatArrayAdapter.setConversation(mSelectedConversation);
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -431,7 +432,7 @@ public class ChatActivity extends BaseActivity {
         return mOpenPGPBridgeService;
     }
 
-    private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+    static class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
 
         private final List<Fragment> mViewPagerFragments;
 

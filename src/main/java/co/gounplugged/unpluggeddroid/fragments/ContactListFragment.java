@@ -23,6 +23,7 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.BaseActivity;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
+import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.adapters.ConversationRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
@@ -54,10 +55,8 @@ public class ContactListFragment  extends Fragment implements AdapterView.OnItem
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
-        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getActivity(), Conversation.class);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        recyclerView.setAdapter(new ConversationRecyclerViewAdapter(getActivity(), conversationAccess.getAll()));
+        recyclerView.setAdapter(new ContactRecyclerViewAdapter(getActivity(), ContactUtil.getCachedContacts(getActivity().getApplicationContext())));
     }
 
 

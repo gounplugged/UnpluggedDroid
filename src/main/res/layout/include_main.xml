@@ -37,97 +37,95 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <!--<android.support.v4.view.ViewPager-->
-        <!--android:id="@+id/viewpager"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
-
-    <RelativeLayout
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/chat_background"
-        >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <View
-            android:id="@+id/separator"
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_above="@+id/viewpager"/>
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/chat_background"-->
+        <!-->-->
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewpager"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:layout_alignParentBottom="true"/>
+        <!--<View-->
+            <!--android:id="@+id/separator"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@android:color/darker_gray"-->
+            <!--android:layout_above="@+id/viewpager"/>-->
 
-        <ImageView
-            android:id="@+id/iv_drop_zone_delete"
-            android:src="@drawable/drop_zone_red"
-            android:visibility="gone"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            />
+        <!--<android.support.v4.view.ViewPager-->
+            <!--android:id="@+id/viewpager"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="80dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_alignParentBottom="true"/>-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/iv_drop_zone_delete"-->
+            <!--android:src="@drawable/drop_zone_red"-->
+            <!--android:visibility="gone"-->
+            <!--android:layout_width="80dp"-->
+            <!--android:layout_height="80dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--/>-->
 
 
-        <RelativeLayout
-            android:id="@+id/top_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/separator"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/top_container"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_above="@+id/separator"-->
+            <!-->-->
 
-            <LinearLayout
-                android:layout_width="80dp"
-                android:layout_height="match_parent"
-                android:id="@+id/conversation_root"
-                android:layout_alignParentRight="true" >
+            <!--<LinearLayout-->
+                <!--android:layout_width="80dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:id="@+id/conversation_root"-->
+                <!--android:layout_alignParentRight="true" >-->
 
-                <co.gounplugged.unpluggeddroid.widgets.ConversationContainer
-                    android:id="@+id/conversation_container"
-                    android:layout_width="80dp"
-                    android:layout_height="match_parent"/>
+                <!--<co.gounplugged.unpluggeddroid.widgets.ConversationContainer-->
+                    <!--android:id="@+id/conversation_container"-->
+                    <!--android:layout_width="80dp"-->
+                    <!--android:layout_height="match_parent"/>-->
 
-            </LinearLayout>
+            <!--</LinearLayout>-->
 
-            <!--chats and contacts-fragment-->
-            <ListView
-                android:id="@+id/lv_chats"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:dividerHeight="0dp"
-                android:divider="@drawable/transparent_divider"
-                android:stackFromBottom="true"
-                android:transcriptMode="alwaysScroll"
-                android:layout_toLeftOf="@+id/conversation_root"
-                />
+            <!--&lt;!&ndash;chats and contacts-fragment&ndash;&gt;-->
+            <!--<ListView-->
+                <!--android:id="@+id/lv_chats"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:dividerHeight="0dp"-->
+                <!--android:divider="@drawable/transparent_divider"-->
+                <!--android:stackFromBottom="true"-->
+                <!--android:transcriptMode="alwaysScroll"-->
+                <!--android:layout_toLeftOf="@+id/conversation_root"-->
+                <!--/>-->
 
-            <ImageView
-                android:id="@+id/iv_drop_zone_chats"
-                android:src="@drawable/drop_zone"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_toLeftOf="@+id/conversation_root"
-                />
+            <!--<ImageView-->
+                <!--android:id="@+id/iv_drop_zone_chats"-->
+                <!--android:src="@drawable/drop_zone"-->
+                <!--android:visibility="gone"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_toLeftOf="@+id/conversation_root"-->
+                <!--/>-->
 
-            <!-- todo extract fragment from xml and lazy-load programatically-->
-            <fragment
-                android:id="@+id/contact_list_fragment_container"
-                android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#002200"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                />
+            <!--&lt;!&ndash; todo extract fragment from xml and lazy-load programatically&ndash;&gt;-->
+            <!--<fragment-->
+                <!--android:id="@+id/contact_list_fragment_container"-->
+                <!--android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="#002200"-->
+                <!--/>-->
 
-        </RelativeLayout>
+        <!--</RelativeLayout>-->
 
-    </RelativeLayout>
+    <!--</RelativeLayout>-->
 
 </android.support.design.widget.CoordinatorLayout>
