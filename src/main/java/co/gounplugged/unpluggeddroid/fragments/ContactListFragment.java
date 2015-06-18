@@ -16,6 +16,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.RelativeLayout;
 
 import java.util.List;
 
@@ -48,10 +49,15 @@ public class ContactListFragment  extends Fragment implements AdapterView.OnItem
 //        parent.addView(v, 0);
 //        return parent;
 
-        RecyclerView rv = (RecyclerView) inflater.inflate(
+//        RecyclerView rv = (RecyclerView) inflater.inflate(
+//                R.layout.fragment_contact_list, container, false);
+
+        RelativeLayout view = (RelativeLayout) inflater.inflate(
                 R.layout.fragment_contact_list, container, false);
+
+        RecyclerView rv = (RecyclerView) view.findViewById(R.id.recyclerview);
         setupRecyclerView(rv);
-        return rv;
+        return view;
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
