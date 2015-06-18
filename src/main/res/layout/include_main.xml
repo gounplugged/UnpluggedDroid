@@ -35,6 +35,14 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_scrollFlags="scroll|enterAlways" />
 
+        <!--http://stackoverflow.com/questions/30895579/coordinatorlayout-toolbar-invisible-on-enter-until-full-height-->
+        <View
+            android:id="@+id/appbar_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@android:color/transparent"
+            android:visibility="invisible"/>
+
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
