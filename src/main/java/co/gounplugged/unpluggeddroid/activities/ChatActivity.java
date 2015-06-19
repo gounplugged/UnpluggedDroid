@@ -9,23 +9,14 @@ import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -38,9 +29,7 @@ import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.ContactListFragment;
-import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
-import co.gounplugged.unpluggeddroid.fragments.MessageListFragment;
-import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
+import co.gounplugged.unpluggeddroid.fragments.MessagesContainerFragment;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
@@ -48,8 +37,6 @@ import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
-import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
-import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
 import de.greenrobot.event.EventBus;
 
 
@@ -280,7 +267,7 @@ public class ChatActivity extends BaseActivity {
         // No fix for the general case has been found.
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), ContactListFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), MessageListFragment.class.getName(), getIntent().getExtras()));
+        fragments.add(Fragment.instantiate(getApplicationContext(), MessagesContainerFragment.class.getName(), getIntent().getExtras()));
 //        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
 //        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
 
