@@ -46,78 +46,13 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <RelativeLayout
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"/>
 
-        <RelativeLayout
-            android:id="@+id/container_input"
-            android:layout_height="80dp"
-            android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"  >
-
-            <EditText
-                android:id="@+id/et_search_contacts"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:layout_alignParentBottom="true"
-                android:hint="@string/search_hint"
-                android:textSize="15sp"
-                android:textColor="@color/chat_outgoing_text"
-                android:imeOptions="actionSearch"
-                android:imeActionId="1"
-                android:imeActionLabel="Send"
-                android:layout_toLeftOf="@+id/submit_button"
-                android:background="#fff"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
-
-            <RelativeLayout
-                android:id="@+id/refresh_button_container"
-                android:layout_height="80dp"
-                android:layout_width="80dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerInParent="true"
-                android:background="#fff">
-
-                <!--http://stackoverflow.com/questions/26686250/material-effect-on-button-with-background-color-->
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#fff">
-
-                    <ImageButton
-                        android:id="@+id/refresh_contacts_button"
-                        android:layout_height="80dp"
-                        android:layout_width="80dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerInParent="true"
-                        android:layout_alignParentBottom="true"
-                        android:src="@drawable/ic_refresh_black_24dp"
-                        android:scaleType="centerInside"
-                        android:background="?android:attr/selectableItemBackground" />
-
-                </FrameLayout>
-
-                <ProgressBar
-                    android:id="@+id/progress_contacts_sync"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:indeterminate="true"
-                    android:layout_centerInParent="true"
-                    android:visibility="gone"/>
-
-            </RelativeLayout>
-
-        </RelativeLayout>
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewpager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/container_input"/>
-
-    </RelativeLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

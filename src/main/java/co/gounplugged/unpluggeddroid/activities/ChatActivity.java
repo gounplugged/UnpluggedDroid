@@ -15,8 +15,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
+import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -26,6 +30,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.ContactListFragment;
@@ -36,6 +41,7 @@ import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
+import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import de.greenrobot.event.EventBus;
 
@@ -348,7 +354,39 @@ public class ChatActivity extends BaseActivity {
                         return true;
                     }
                 });
+
+        //Add conversations in submenu
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+        List<Conversation> mConversations = conversationAccess.getAll();
+
+        Menu menu = navigationView.getMenu();
+        SubMenu subMenu = menu.addSubMenu("Recent conversations");
+
+        int i=0;
+        for (Conversation conversation : mConversations) {
+            subMenu.add(Menu.NONE, Menu.NONE, i, conversation.getName());
+            MenuItem item  = subMenu.getItem(i);
+            item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
+            i++;
+        }
+        notifyNavigationMenuChanged(navigationView);
+
+
     }
+
+    private void notifyNavigationMenuChanged(NavigationView navigationView) {
+        //http://stackoverflow.com/questions/30609408/how-to-add-submenu-items-to-navigationview-programmatically-instead-of-menu-xml
+        for (int i = 0, count = navigationView.getChildCount(); i < count; i++) {
+            final View child = navigationView.getChildAt(i);
+            if (child != null && child instanceof ListView) {
+                final ListView menuView = (ListView) child;
+                final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
+                final BaseAdapter wrapped = (BaseAdapter) adapter.getWrappedAdapter();
+                wrapped.notifyDataSetChanged();
+            }
+        }
+    }
+
 
     public Toolbar getToolbar() {
         return mToolbar;
