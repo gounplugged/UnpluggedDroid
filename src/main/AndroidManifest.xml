@@ -79,6 +79,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ChatActivity" />
         </activity>
+        <activity
+            android:name=".activities.PreferencesActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".activities.ChatActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatActivity" />
+        </activity>
         <service android:name=".services.QuickResponseService"
             android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
             android:exported="true" >

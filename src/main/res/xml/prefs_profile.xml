@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="@string/pref_key_profile_phone_number"
+        android:title="@string/pref_title_profile_phone_number" />
+
+    <!--<Preference android:layout="@layout/activity_preferences" />-->
+
+
+
+</PreferenceScreen>

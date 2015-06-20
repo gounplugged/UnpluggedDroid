@@ -276,7 +276,7 @@ public class ChatActivity extends BaseActivity {
 
                         switch (menuItem.getItemId()) {
                             case R.id.nav_settings:
-                                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                                startActivity(new Intent(getApplicationContext(), PreferencesActivity.class));
                                 mDrawerLayout.closeDrawers();
                                 return true;
                             case R.id.nav_profile:

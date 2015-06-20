@@ -20,9 +20,9 @@
             android:id="@+id/nav_home"
             android:title="Home"
             android:checked="true"/>
-        <!--<item-->
-            <!--android:id="@+id/nav_settings"-->
-            <!--android:title="Settings" />-->
+        <item
+            android:id="@+id/nav_settings"
+            android:title="Settings" />
         <item
             android:id="@+id/nav_profile"
             android:title="Profile" />
