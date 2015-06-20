@@ -44,10 +44,12 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.models.predicates.ConversationIdPredicate;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
+import co.gounplugged.unpluggeddroid.utils.Predicate;
 import de.greenrobot.event.EventBus;
 
 
@@ -58,6 +60,8 @@ public class ChatActivity extends BaseActivity {
 
     // Constants
     public static final String EXTRA_MESSAGE = "message";
+
+    public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
     public static final int VIEWPAGE_MESSAGE_INPUT = 0;
     public static final int VIEWPAGE_SEARCH_CONTACT = 1;
 
@@ -290,6 +294,15 @@ public class ChatActivity extends BaseActivity {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         menuItem.setChecked(true);
+                        Intent intent = menuItem.getIntent();
+                        if (intent != null) {
+                            long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
+                            mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
+                            mConversations.remove(mSelectedConversation);
+                            mConversations.add(mSelectedConversation);
+                            Profile.setLastConversationId(mSelectedConversation.id);
+                            updateActivityViews();
+                        }
                         mDrawerLayout.closeDrawers();
                         return true;
                     }
@@ -307,10 +320,23 @@ public class ChatActivity extends BaseActivity {
 
     }
 
+    private void rebuildSubMenu() {
+//        Menu menu = mNavigationView.getMenu();
+//        mConversationSubMenu = menu.remo
+//
+//        for (Conversation conversation : mConversations) {
+//            addConversationToSubMenu(conversation);
+//        }
+//        notifyNavigationMenuChanged();
+    }
+
     private void addConversationToSubMenu(Conversation conversation) {
         mConversationSubMenu.add(Menu.NONE, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
         MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
         item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
+        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+        intent.putExtra(EXTRA_CONVERSATION_ID, conversation.id);
+        item.setIntent(intent);
     }
 
     private void notifyNavigationMenuChanged() {
@@ -365,14 +391,18 @@ public class ChatActivity extends BaseActivity {
         Profile.setLastConversationId(mSelectedConversation.id);
 
         //update ui with new convo
-        mMessageRecyclerViewAdapter.setConversation(newConversation);
-        toggleRecyclerView(VIEWPAGE_MESSAGE_INPUT);
-        getSupportActionBar().setTitle(contact.getName());
-        mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
-        mMessageInputFragment.updateView();
-        addConversationToSubMenu(getLastSelectedConversation());
-        notifyNavigationMenuChanged();
+        updateActivityViews();
 
+    }
+
+    private void updateActivityViews() {
+        mMessageRecyclerViewAdapter.setConversation(mSelectedConversation);
+        toggleRecyclerView(VIEWPAGE_MESSAGE_INPUT);
+        mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
+        getSupportActionBar().setTitle(mSelectedConversation.getParticipant().getName());
+        mMessageInputFragment.updateViews();
+        addConversationToSubMenu(mSelectedConversation);
+        notifyNavigationMenuChanged();
     }
 
 //    private boolean hasConversationChanged(Conversation newConversation) {

@@ -52,19 +52,21 @@ public class MessageInputFragment extends Fragment {
     }
 
     public void onEventMainThread(ConversationEvent event) {
-        switch (event.getType()) {
-            case SELECTED:
-                break;
-            case SWITCHED:
-                setSubmitButtonImage(event.getConversation());
-                setHint(event.getConversation());
-                break;
-        }
+//        switch (event.getType()) {
+//            case SELECTED:
+//                break;
+//            case SWITCHED:
+//                setSubmitButtonImage(event.getConversation());
+//                setHint(event.getConversation());
+//                break;
+//        }
 
     }
 
-    public void updateView() {
-        setHint(getLastConversation());
+    public void updateViews() {
+        final Conversation lastConversation = getLastConversation();
+        setHint(lastConversation);
+        setSubmitButtonImage(lastConversation);
     }
 
 
