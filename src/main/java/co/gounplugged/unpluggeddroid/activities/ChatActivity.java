@@ -26,9 +26,7 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.viewpagerindicator.LinePageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
-import com.viewpagerindicator.UnderlinePageIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +34,13 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.adapters.MessageRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.ContactListFragment;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
-import co.gounplugged.unpluggeddroid.fragments.MessagesContainerFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -63,6 +61,9 @@ public class ChatActivity extends BaseActivity {
 
     // Constants
     public static final String EXTRA_MESSAGE = "message";
+    public static final int VIEWPAGE_MESSAGE_INPUT = 0;
+    public static final int VIEWPAGE_SEARCH_CONTACT = 1;
+
 
     // GUI
     private MessageAdapter mChatArrayAdapter;
@@ -105,6 +106,10 @@ public class ChatActivity extends BaseActivity {
             showDropZones();
         }
     };
+
+
+    private MessageRecyclerViewAdapter mMessageRecyclerViewAdapter;
+    private ContactRecyclerViewAdapter mContactRecyclerViewAdapter;
 
     /*
         Return the last selected conversation. Null if no last conversation.
@@ -208,9 +213,11 @@ public class ChatActivity extends BaseActivity {
     }
 
     public void filterContacts(String query) {
-        ContactListFragment fragment = (ContactListFragment)
-                getSupportFragmentManager().findFragmentById(R.id.contact_list_fragment_container);
-        fragment.filter(query);
+//        ContactListFragment fragment = (ContactListFragment)
+//                getSupportFragmentManager().findFragmentById(R.id.contact_list_fragment_container);
+//        fragment.filter(query);
+
+        mContactRecyclerViewAdapter.filter(query);
 
     }
 
@@ -229,44 +236,16 @@ public class ChatActivity extends BaseActivity {
             setupDrawerContent(navigationView);
         }
 
-        // Setup mToolbar and ActionBarDrawerToggle
-//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(mToolbar);
-//
-//        final ActionBarDrawerToggle mDrawerToggle  = new ActionBarDrawerToggle(
-//                this,                  /* host Activity */
-//                drawerLayout,         /* DrawerLayout object */
-//                mToolbar,
-//                R.string.drawer_open,  /* "open drawer" description for accessibility */
-//                R.string.drawer_close  /* "close drawer" description for accessibility */
-//        ) {
-//            public void onDrawerClosed(View view) {
-//                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-//            }
-//
-//            public void onDrawerOpened(View drawerView) {
-//                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-//            }
-//        };
-//        drawerLayout.setDrawerListener(mDrawerToggle);
-//        getSupportActionBar().setTitle("");
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setHomeButtonEnabled(true);
-//        mDrawerToggle.syncState();
-
-
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         List<Fragment> fragments = new ArrayList<>();
-//        fragments.add(Fragment.instantiate(getApplicationContext(), ContactListFragment.class.getName(), getIntent().getExtras()));
-//        fragments.add(Fragment.instantiate(getApplicationContext(), MessagesContainerFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
         //add conversations?
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
 
-//        TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
-//        titleIndicator.setViewPager(mViewPager);
+        TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
+        titleIndicator.setViewPager(mViewPager);
 
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -278,6 +257,7 @@ public class ChatActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
 //                toggleContactList();
+                toggleRecyclerView(position);
             }
 
             @Override
@@ -285,24 +265,11 @@ public class ChatActivity extends BaseActivity {
             }
         });
 
-
-//        // hide contact list fragment that is currently visible on first run
-//        toggleContactList();
-//
-//        // Chat log //todo extract
-//        mChatListView = (ListView) findViewById(R.id.lv_chats);
-//        mChatListView.setAdapter(mChatArrayAdapter);
-//
-//        //Conversations
-//        mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
-//        mConversationContainer.setConversationsAllBut(mSelectedConversation);
-//
-//        mChatArrayAdapter.setConversation(mSelectedConversation);
-
-
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        recyclerView.setAdapter(new ContactRecyclerViewAdapter(this, ContactUtil.getCachedContacts(getApplicationContext())));
+        mMessageRecyclerViewAdapter = new MessageRecyclerViewAdapter(this, mSelectedConversation);
+        mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(this, ContactUtil.getCachedContacts(getApplicationContext()));
+        recyclerView.setAdapter(mMessageRecyclerViewAdapter);
     }
 
 
@@ -354,13 +321,18 @@ public class ChatActivity extends BaseActivity {
         return mToolbar;
     }
 
-    //TODO fragment transactions with animation?
-    private void toggleContactList() {
-        View view = findViewById(R.id.contact_list_fragment_container);
-        if (view.getVisibility() == View.VISIBLE)
-            view.setVisibility(View.GONE);
-        else
-            view.setVisibility(View.VISIBLE);
+    private void toggleRecyclerView(int position) {
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+        switch (position) {
+            case VIEWPAGE_MESSAGE_INPUT:
+                recyclerView.setAdapter(mMessageRecyclerViewAdapter);
+                break;
+            case VIEWPAGE_SEARCH_CONTACT:
+                recyclerView.setAdapter(mContactRecyclerViewAdapter);
+                break;
+        }
+
     }
 
     private void replaceSelectedConversation(Conversation newConversation) {

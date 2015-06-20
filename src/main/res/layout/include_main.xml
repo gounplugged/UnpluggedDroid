@@ -56,7 +56,7 @@
             android:id="@+id/recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/viewpager"
+            android:layout_above="@+id/titles"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         <android.support.v4.view.ViewPager
@@ -65,11 +65,12 @@
             android:layout_height="80dp"
             android:layout_alignParentBottom="true"/>
 
-        <!--<com.viewpagerindicator.TitlePageIndicator-->
-        <!--android:id="@+id/titles"-->
-        <!--android:layout_height="32dp"-->
-        <!--android:layout_width="match_parent"-->
-        <!--/>-->
+        <com.viewpagerindicator.TitlePageIndicator
+            android:id="@+id/titles"
+            android:layout_height="32dp"
+            android:layout_width="match_parent"
+            android:layout_above="@+id/viewpager"
+            />
 
 
     </RelativeLayout>
