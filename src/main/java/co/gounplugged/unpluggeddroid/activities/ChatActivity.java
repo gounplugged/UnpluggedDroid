@@ -24,6 +24,8 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.viewpagerindicator.TitlePageIndicator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -266,20 +268,17 @@ public class ChatActivity extends BaseActivity {
 //        mDrawerToggle.syncState();
 
 
-        // Input/Search infinite-viewpager
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
-        // It is only possible to achieve wrapping when you have at least 4 pages.
-        // This is because of the way the ViewPager creates, destroys, and displays the pages.
-        // No fix for the general case has been found.
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(Fragment.instantiate(getApplicationContext(), ContactListFragment.class.getName(), getIntent().getExtras()));
         fragments.add(Fragment.instantiate(getApplicationContext(), MessagesContainerFragment.class.getName(), getIntent().getExtras()));
-//        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
-//        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
-
+        //add conversations?
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
-//        PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
         mViewPager.setAdapter(adapter);
+
+        TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);
+        titleIndicator.setViewPager(mViewPager);
+
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

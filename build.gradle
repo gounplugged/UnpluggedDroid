@@ -9,6 +9,7 @@ buildscript {
 apply plugin: 'android'
 
 repositories {
+    maven { url "http://dl.bintray.com/populov/maven" }
     mavenCentral()
     jcenter()
 }
@@ -26,6 +27,7 @@ dependencies {
     compile 'org.zeromq:jeromq:0.3.4'
     compile 'com.android.support:design:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.viewpagerindicator:library:2.4.1@aar'
 }
 
 android {
