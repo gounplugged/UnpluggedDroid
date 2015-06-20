@@ -60,10 +60,10 @@ public class ChatActivity extends BaseActivity {
     private final String TAG = "ChatActivity";
 
     // Constants
-    public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
+//    public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
     public static final int VIEWPAGE_MESSAGE_INPUT = 0;
     public static final int VIEWPAGE_SEARCH_CONTACT = 1;
-    public static final int NAVIGATION_GROUP_ID_CONVERSATIONS = 1;
+//    public static final int NAVIGATION_GROUP_ID_CONVERSATIONS = 1;
 
 
     // GUI
@@ -202,19 +202,21 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void loadGui() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setupToolbar("Main");
 
-        final ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
-        ab.setDisplayHomeAsUpEnabled(true);
-
-        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-        mConversations = conversationAccess.getAll();
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-        setupDrawerContent();
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//
+//        final ActionBar ab = getSupportActionBar();
+//        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+//        ab.setDisplayHomeAsUpEnabled(true);
+//
+//        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+//        mConversations = conversationAccess.getAll();
+//
+//        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+//        setupDrawerContent();
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         List<Fragment> fragments = new ArrayList<>();
@@ -266,82 +268,82 @@ public class ChatActivity extends BaseActivity {
     }
 
 
-    private void setupDrawerContent() {
-        mNavigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-//                        menuItem.setChecked(true);
+//    private void setupDrawerContent() {
+//        mNavigationView.setNavigationItemSelectedListener(
+//                new NavigationView.OnNavigationItemSelectedListener() {
+//                    @Override
+//                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+////                        menuItem.setChecked(true);
+//
+//
+//                        switch (menuItem.getItemId()) {
+//                            case R.id.nav_settings:
+//                                startActivity(new Intent(getApplicationContext(), PreferencesActivity.class));
+//                                mDrawerLayout.closeDrawers();
+//                                return true;
+//                            case R.id.nav_profile:
+//                                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+//                                mDrawerLayout.closeDrawers();
+//                                return true;
+//                        }
+//
+//                        Intent intent = menuItem.getIntent();
+//                        if (intent != null) {
+//                            long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
+//                            mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
+//                            mConversations.remove(mSelectedConversation);
+//                            mConversations.add(0, mSelectedConversation);
+//                            Profile.setLastConversationId(mSelectedConversation.id);
+//                            updateActivityViews();
+//                        }
+//                        mDrawerLayout.closeDrawers();
+//                        return true;
+//                    }
+//                });
+//
+//;
+//
+//        Menu menu = mNavigationView.getMenu();
+//        mConversationSubMenu = menu.addSubMenu("Recent conversations");
+//
+//        for (Conversation conversation : mConversations) {
+//            addConversationToSubMenu(conversation);
+//        }
+//        notifyNavigationMenuChanged();
+//
+//    }
 
-
-                        switch (menuItem.getItemId()) {
-                            case R.id.nav_settings:
-                                startActivity(new Intent(getApplicationContext(), PreferencesActivity.class));
-                                mDrawerLayout.closeDrawers();
-                                return true;
-                            case R.id.nav_profile:
-                                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                                mDrawerLayout.closeDrawers();
-                                return true;
-                        }
-
-                        Intent intent = menuItem.getIntent();
-                        if (intent != null) {
-                            long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
-                            mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
-                            mConversations.remove(mSelectedConversation);
-                            mConversations.add(0, mSelectedConversation);
-                            Profile.setLastConversationId(mSelectedConversation.id);
-                            updateActivityViews();
-                        }
-                        mDrawerLayout.closeDrawers();
-                        return true;
-                    }
-                });
-
-;
-
-        Menu menu = mNavigationView.getMenu();
-        mConversationSubMenu = menu.addSubMenu("Recent conversations");
-
-        for (Conversation conversation : mConversations) {
-            addConversationToSubMenu(conversation);
-        }
-        notifyNavigationMenuChanged();
-
-    }
-
-    private void rebuildSubMenu() {
-        Menu menu = mNavigationView.getMenu();
-        menu.removeGroup(NAVIGATION_GROUP_ID_CONVERSATIONS);
-
-        for (Conversation conversation : mConversations) {
-            addConversationToSubMenu(conversation);
-        }
-        notifyNavigationMenuChanged();
-    }
-
-    private void addConversationToSubMenu(Conversation conversation) {
-        mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
-        MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
-        item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
-        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-        intent.putExtra(EXTRA_CONVERSATION_ID, conversation.id);
-        item.setIntent(intent);
-    }
-
-    private void notifyNavigationMenuChanged() {
-        //http://stackoverflow.com/questions/30609408/how-to-add-submenu-items-to-navigationview-programmatically-instead-of-menu-xml
-        for (int i = 0, count = mNavigationView.getChildCount(); i < count; i++) {
-            final View child = mNavigationView.getChildAt(i);
-            if (child != null && child instanceof ListView) {
-                final ListView menuView = (ListView) child;
-                final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
-                final BaseAdapter wrapped = (BaseAdapter) adapter.getWrappedAdapter();
-                wrapped.notifyDataSetChanged();
-            }
-        }
-    }
+//    private void rebuildSubMenu() {
+//        Menu menu = mNavigationView.getMenu();
+//        menu.removeGroup(NAVIGATION_GROUP_ID_CONVERSATIONS);
+//
+//        for (Conversation conversation : mConversations) {
+//            addConversationToSubMenu(conversation);
+//        }
+//        notifyNavigationMenuChanged();
+//    }
+//
+//    private void addConversationToSubMenu(Conversation conversation) {
+//        mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
+//        MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
+//        item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
+//        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+//        intent.putExtra(EXTRA_CONVERSATION_ID, conversation.id);
+//        item.setIntent(intent);
+//    }
+//
+//    private void notifyNavigationMenuChanged() {
+//        //http://stackoverflow.com/questions/30609408/how-to-add-submenu-items-to-navigationview-programmatically-instead-of-menu-xml
+//        for (int i = 0, count = mNavigationView.getChildCount(); i < count; i++) {
+//            final View child = mNavigationView.getChildAt(i);
+//            if (child != null && child instanceof ListView) {
+//                final ListView menuView = (ListView) child;
+//                final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
+//                final BaseAdapter wrapped = (BaseAdapter) adapter.getWrappedAdapter();
+//                wrapped.notifyDataSetChanged();
+//            }
+//        }
+//    }
 
 
 //    public Toolbar getToolbar() {
@@ -393,7 +395,7 @@ public class ChatActivity extends BaseActivity {
         mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
         getSupportActionBar().setTitle(mSelectedConversation.getParticipant().getName());
         mMessageInputFragment.updateViews();
-        rebuildSubMenu();
+//        rebuildSubMenu();
 //        addConversationToSubMenu(mSelectedConversation);
 //        notifyNavigationMenuChanged();
     }

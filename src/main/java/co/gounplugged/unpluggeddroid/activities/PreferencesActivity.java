@@ -14,10 +14,7 @@ public class PreferencesActivity extends BaseActivity {
 
         setContentView(R.layout.activity_preferences);
 
-        // Display the fragment as the main content.
-//        getFragmentManager().beginTransaction()
-//                .replace(android.R.id.content, new ProfilePreferenceFragment())
-//                .commit();
+        setupToolbar("Settings");
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, new ProfilePreferenceFragment());
