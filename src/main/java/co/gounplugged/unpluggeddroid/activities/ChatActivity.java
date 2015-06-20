@@ -25,7 +25,8 @@ import android.widget.BaseAdapter;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 
-import com.viewpagerindicator.TitlePageIndicator;
+import com.viewpagerindicator.IconPagerAdapter;
+import com.viewpagerindicator.UnderlinePageIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,24 +60,18 @@ public class ChatActivity extends BaseActivity {
     private final String TAG = "ChatActivity";
 
     // Constants
-    public static final String EXTRA_MESSAGE = "message";
-
     public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
     public static final int VIEWPAGE_MESSAGE_INPUT = 0;
     public static final int VIEWPAGE_SEARCH_CONTACT = 1;
+    public static final int NAVIGATION_GROUP_ID_CONVERSATIONS = 1;
 
 
     // GUI
-//    private MessageAdapter mChatArrayAdapter;
-//    private ListView mChatListView;
     private ViewPager mViewPager;
-//    private ConversationContainer mConversationContainer;
-//    private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
-//    private Toolbar mToolbar;
-
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private SubMenu mConversationSubMenu;
+    private UnderlinePageIndicator mUnderlinePageIndicator;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
@@ -99,18 +94,6 @@ public class ChatActivity extends BaseActivity {
 
     private Conversation mSelectedConversation;
     private List<Conversation> mConversations;
-//    private Conversation mClickedConversation;  //TODO refactor global var
-
-//    private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
-//
-//        //TODO: clear distinction / proper naming for selecting a conversation and switching to conversation
-//        @Override
-//        public void onConversationClicked(Conversation conversation) {
-//            Log.i(TAG, "onConversationClicked: " + conversation.toString());
-//            mClickedConversation = conversation;
-//            showDropZones();
-//        }
-//    };
 
 
     private MessageRecyclerViewAdapter mMessageRecyclerViewAdapter;
@@ -142,11 +125,6 @@ public class ChatActivity extends BaseActivity {
         return mSelectedConversation;
     }
 
-//    public void setLastConversation(Conversation conversation) {
-//        Profile.setLastConversationId(conversation.id);
-////        mChatArrayAdapter.setConversation(conversation);
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,7 +133,6 @@ public class ChatActivity extends BaseActivity {
         Log.d(TAG, "onCreate");
 
         getLastSelectedConversation();
-//        mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
         loadGui();
     }
 
@@ -217,7 +194,6 @@ public class ChatActivity extends BaseActivity {
     }
 
     public void onEventMainThread(Message message) {
-//        mChatArrayAdapter.addMessage(message);
         mMessageRecyclerViewAdapter.addMessage(message);
     }
 
@@ -252,14 +228,14 @@ public class ChatActivity extends BaseActivity {
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
 
-        TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
-        titleIndicator.setViewPager(mViewPager);
+        mUnderlinePageIndicator = (UnderlinePageIndicator) findViewById(R.id.indicator);
+//        mUnderlinePageIndicator.setViewPager(mViewPager);
+//        mUnderlinePageIndicator.setCurrentItem(0);
 
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {  }
 
             @Override
             public void onPageSelected(int position) {
@@ -268,8 +244,7 @@ public class ChatActivity extends BaseActivity {
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
-            }
+            public void onPageScrollStateChanged(int state) { }
         });
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
@@ -283,6 +258,8 @@ public class ChatActivity extends BaseActivity {
                     public void onItemClick(View view, int position) {
                         Contact c = mContactRecyclerViewAdapter.getContact(position);
                         addConversation(c);
+                        //Re-order menu
+
                     }
                 })
         );
@@ -294,13 +271,26 @@ public class ChatActivity extends BaseActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
+//                        menuItem.setChecked(true);
+
+
+                        switch (menuItem.getItemId()) {
+                            case R.id.nav_settings:
+                                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                                mDrawerLayout.closeDrawers();
+                                return true;
+                            case R.id.nav_profile:
+                                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                                mDrawerLayout.closeDrawers();
+                                return true;
+                        }
+
                         Intent intent = menuItem.getIntent();
                         if (intent != null) {
                             long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
                             mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
                             mConversations.remove(mSelectedConversation);
-                            mConversations.add(mSelectedConversation);
+                            mConversations.add(0, mSelectedConversation);
                             Profile.setLastConversationId(mSelectedConversation.id);
                             updateActivityViews();
                         }
@@ -322,17 +312,17 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void rebuildSubMenu() {
-//        Menu menu = mNavigationView.getMenu();
-//        mConversationSubMenu = menu.remo
-//
-//        for (Conversation conversation : mConversations) {
-//            addConversationToSubMenu(conversation);
-//        }
-//        notifyNavigationMenuChanged();
+        Menu menu = mNavigationView.getMenu();
+        menu.removeGroup(NAVIGATION_GROUP_ID_CONVERSATIONS);
+
+        for (Conversation conversation : mConversations) {
+            addConversationToSubMenu(conversation);
+        }
+        notifyNavigationMenuChanged();
     }
 
     private void addConversationToSubMenu(Conversation conversation) {
-        mConversationSubMenu.add(Menu.NONE, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
+        mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
         MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
         item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
@@ -361,6 +351,7 @@ public class ChatActivity extends BaseActivity {
     private void toggleRecyclerView(int position) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+//        mUnderlinePageIndicator.setCurrentItem(position);
         switch (position) {
             case VIEWPAGE_MESSAGE_INPUT:
                 recyclerView.setAdapter(mMessageRecyclerViewAdapter);
@@ -402,22 +393,16 @@ public class ChatActivity extends BaseActivity {
         mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
         getSupportActionBar().setTitle(mSelectedConversation.getParticipant().getName());
         mMessageInputFragment.updateViews();
-        addConversationToSubMenu(mSelectedConversation);
-        notifyNavigationMenuChanged();
+        rebuildSubMenu();
+//        addConversationToSubMenu(mSelectedConversation);
+//        notifyNavigationMenuChanged();
     }
-
-//    private boolean hasConversationChanged(Conversation newConversation) {
-//        if(newConversation == null) return false;
-//        if(mSelectedConversation == null) return true;
-//        if(mSelectedConversation.equals(newConversation)) return false;
-//        return true;
-//    }
 
     public OpenPGPBridgeService getOpenPGPBridgeService() {
         return mOpenPGPBridgeService;
     }
 
-    static class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+    static class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter{
 
         private final List<Fragment> mViewPagerFragments;
 
@@ -440,6 +425,11 @@ public class ChatActivity extends BaseActivity {
         @Override
         public int getItemPosition(Object object) {
             return POSITION_NONE;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "iets";
         }
     }
 

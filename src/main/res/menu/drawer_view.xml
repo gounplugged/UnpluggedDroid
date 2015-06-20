@@ -18,10 +18,14 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:title="Home?" />
+            android:title="Home"
+            android:checked="true"/>
+        <!--<item-->
+            <!--android:id="@+id/nav_settings"-->
+            <!--android:title="Settings" />-->
         <item
-            android:id="@+id/nav_settings"
-            android:title="Settings" />
+            android:id="@+id/nav_profile"
+            android:title="Profile" />
         <!--android:icon="@drawable/ic_event"-->
     </group>
 </menu>
