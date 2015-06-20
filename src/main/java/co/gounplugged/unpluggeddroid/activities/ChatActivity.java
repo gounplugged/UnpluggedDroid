@@ -218,6 +218,7 @@ public class ChatActivity extends BaseActivity {
 
     public void onEventMainThread(Message message) {
 //        mChatArrayAdapter.addMessage(message);
+        mMessageRecyclerViewAdapter.addMessage(message);
     }
 
     public void filterContacts(String query) {

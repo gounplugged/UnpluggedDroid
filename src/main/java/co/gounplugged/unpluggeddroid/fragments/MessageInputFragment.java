@@ -41,27 +41,27 @@ public class MessageInputFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        EventBus.getDefault().removeAllStickyEvents();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().removeAllStickyEvents();
+//        EventBus.getDefault().unregister(this);
     }
 
-    public void onEventMainThread(ConversationEvent event) {
-//        switch (event.getType()) {
-//            case SELECTED:
-//                break;
-//            case SWITCHED:
-//                setSubmitButtonImage(event.getConversation());
-//                setHint(event.getConversation());
-//                break;
-//        }
-
-    }
+//    public void onEventMainThread(ConversationEvent event) {
+////        switch (event.getType()) {
+////            case SELECTED:
+////                break;
+////            case SWITCHED:
+////                setSubmitButtonImage(event.getConversation());
+////                setHint(event.getConversation());
+////                break;
+////        }
+//
+//    }
 
     public void updateViews() {
         final Conversation lastConversation = getLastConversation();
@@ -153,7 +153,6 @@ public class MessageInputFragment extends Fragment {
         Conversation conversation = chatActivity.getLastSelectedConversation();
         if(conversation != null) {
             Log.d(TAG, "ADDING MESSAGE TO CONVO: " + conversation.id);
-            Context context = getActivity().getApplicationContext();
             String text = newPostText.getText().toString();
             BaseApplication.App.ThrowManager.sendMessage(conversation, text, openPGPBridgeService);
             newPostText.setText("");

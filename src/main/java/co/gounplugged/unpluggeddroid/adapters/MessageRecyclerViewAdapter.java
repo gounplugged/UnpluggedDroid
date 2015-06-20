@@ -36,7 +36,7 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
     public void setConversation(Conversation conversation) {
         ConversationUtil.refresh(mContext, conversation);
         this.mCurrentConversation = conversation;
-        refreshMessages();
+        notifyDataSetChanged();
     }
 
     /**
@@ -45,16 +45,10 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
      */
     public void addMessage(Message message) {
         if(message.getConversation().equals(mCurrentConversation)) {
-            refreshMessages();
+            notifyDataSetChanged();
         }
     }
 
-    /**
-     * Refresh the messages from the current conversation.
-     */
-    public void refreshMessages() {
-        notifyDataSetChanged();
-    }
 
     private List<Message> getMessages() {
         if(mCurrentConversation == null) {
