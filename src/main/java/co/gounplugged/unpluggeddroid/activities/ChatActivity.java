@@ -23,7 +23,6 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.HeaderViewListAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.viewpagerindicator.TitlePageIndicator;
@@ -33,15 +32,14 @@ import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
-import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
 import co.gounplugged.unpluggeddroid.adapters.MessageRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.fragments.ContactListFragment;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
+import co.gounplugged.unpluggeddroid.listeners.RecyclerItemClickListener;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
@@ -50,7 +48,6 @@ import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
-import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
 import de.greenrobot.event.EventBus;
 
 
@@ -66,13 +63,16 @@ public class ChatActivity extends BaseActivity {
 
 
     // GUI
-    private MessageAdapter mChatArrayAdapter;
-    private ListView mChatListView;
+//    private MessageAdapter mChatArrayAdapter;
+//    private ListView mChatListView;
     private ViewPager mViewPager;
-    private ConversationContainer mConversationContainer;
-    private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
-    private Toolbar mToolbar;
+//    private ConversationContainer mConversationContainer;
+//    private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
+//    private Toolbar mToolbar;
+
     private DrawerLayout mDrawerLayout;
+    private NavigationView mNavigationView;
+    private SubMenu mConversationSubMenu;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
@@ -94,22 +94,26 @@ public class ChatActivity extends BaseActivity {
     private boolean mIsBoundToOpenPGP = false;
 
     private Conversation mSelectedConversation;
-    private Conversation mClickedConversation;  //TODO refactor global var
+    private List<Conversation> mConversations;
+//    private Conversation mClickedConversation;  //TODO refactor global var
 
-    private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
-
-        //TODO: clear distinction / proper naming for selecting a conversation and switching to conversation
-        @Override
-        public void onConversationClicked(Conversation conversation) {
-            Log.i(TAG, "onConversationClicked: " + conversation.toString());
-            mClickedConversation = conversation;
-            showDropZones();
-        }
-    };
+//    private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
+//
+//        //TODO: clear distinction / proper naming for selecting a conversation and switching to conversation
+//        @Override
+//        public void onConversationClicked(Conversation conversation) {
+//            Log.i(TAG, "onConversationClicked: " + conversation.toString());
+//            mClickedConversation = conversation;
+//            showDropZones();
+//        }
+//    };
 
 
     private MessageRecyclerViewAdapter mMessageRecyclerViewAdapter;
     private ContactRecyclerViewAdapter mContactRecyclerViewAdapter;
+
+    private MessageInputFragment mMessageInputFragment;
+    private SearchContactFragment mSearchContactFragment;
 
     /*
         Return the last selected conversation. Null if no last conversation.
@@ -134,10 +138,10 @@ public class ChatActivity extends BaseActivity {
         return mSelectedConversation;
     }
 
-    public void setLastConversation(Conversation conversation) {
-        Profile.setLastConversationId(conversation.id);
-        mChatArrayAdapter.setConversation(conversation);
-    }
+//    public void setLastConversation(Conversation conversation) {
+//        Profile.setLastConversationId(conversation.id);
+////        mChatArrayAdapter.setConversation(conversation);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +151,7 @@ public class ChatActivity extends BaseActivity {
         Log.d(TAG, "onCreate");
 
         getLastSelectedConversation();
-        mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
+//        mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
         loadGui();
     }
 
@@ -209,16 +213,11 @@ public class ChatActivity extends BaseActivity {
     }
 
     public void onEventMainThread(Message message) {
-        mChatArrayAdapter.addMessage(message);
+//        mChatArrayAdapter.addMessage(message);
     }
 
     public void filterContacts(String query) {
-//        ContactListFragment fragment = (ContactListFragment)
-//                getSupportFragmentManager().findFragmentById(R.id.contact_list_fragment_container);
-//        fragment.filter(query);
-
         mContactRecyclerViewAdapter.filter(query);
-
     }
 
     private void loadGui() {
@@ -229,17 +228,21 @@ public class ChatActivity extends BaseActivity {
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
 
+        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+        mConversations = conversationAccess.getAll();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            setupDrawerContent(navigationView);
-        }
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        setupDrawerContent();
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         List<Fragment> fragments = new ArrayList<>();
-        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
+        mMessageInputFragment = (MessageInputFragment) Fragment.instantiate(getApplicationContext(),
+                MessageInputFragment.class.getName(), getIntent().getExtras());
+        mSearchContactFragment = (SearchContactFragment) Fragment.instantiate(getApplicationContext(),
+                SearchContactFragment.class.getName(), getIntent().getExtras());
+        fragments.add(mMessageInputFragment);
+        fragments.add(mSearchContactFragment);
         //add conversations?
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
@@ -256,7 +259,6 @@ public class ChatActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
-//                toggleContactList();
                 toggleRecyclerView(position);
             }
 
@@ -270,11 +272,20 @@ public class ChatActivity extends BaseActivity {
         mMessageRecyclerViewAdapter = new MessageRecyclerViewAdapter(this, mSelectedConversation);
         mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(this, ContactUtil.getCachedContacts(getApplicationContext()));
         recyclerView.setAdapter(mMessageRecyclerViewAdapter);
+        recyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Contact c = mContactRecyclerViewAdapter.getContact(position);
+                        addConversation(c);
+                    }
+                })
+        );
     }
 
 
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
+    private void setupDrawerContent() {
+        mNavigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -284,29 +295,28 @@ public class ChatActivity extends BaseActivity {
                     }
                 });
 
-        //Add conversations in submenu
-        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-        List<Conversation> mConversations = conversationAccess.getAll();
+;
 
-        Menu menu = navigationView.getMenu();
-        SubMenu subMenu = menu.addSubMenu("Recent conversations");
+        Menu menu = mNavigationView.getMenu();
+        mConversationSubMenu = menu.addSubMenu("Recent conversations");
 
-        int i=0;
         for (Conversation conversation : mConversations) {
-            subMenu.add(Menu.NONE, Menu.NONE, i, conversation.getName());
-            MenuItem item  = subMenu.getItem(i);
-            item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
-            i++;
+            addConversationToSubMenu(conversation);
         }
-        notifyNavigationMenuChanged(navigationView);
-
+        notifyNavigationMenuChanged();
 
     }
 
-    private void notifyNavigationMenuChanged(NavigationView navigationView) {
+    private void addConversationToSubMenu(Conversation conversation) {
+        mConversationSubMenu.add(Menu.NONE, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
+        MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
+        item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
+    }
+
+    private void notifyNavigationMenuChanged() {
         //http://stackoverflow.com/questions/30609408/how-to-add-submenu-items-to-navigationview-programmatically-instead-of-menu-xml
-        for (int i = 0, count = navigationView.getChildCount(); i < count; i++) {
-            final View child = navigationView.getChildAt(i);
+        for (int i = 0, count = mNavigationView.getChildCount(); i < count; i++) {
+            final View child = mNavigationView.getChildAt(i);
             if (child != null && child instanceof ListView) {
                 final ListView menuView = (ListView) child;
                 final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
@@ -317,9 +327,9 @@ public class ChatActivity extends BaseActivity {
     }
 
 
-    public Toolbar getToolbar() {
-        return mToolbar;
-    }
+//    public Toolbar getToolbar() {
+//        return mToolbar;
+//    }
 
     private void toggleRecyclerView(int position) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
@@ -335,30 +345,6 @@ public class ChatActivity extends BaseActivity {
 
     }
 
-    private void replaceSelectedConversation(Conversation newConversation) {
-        if(!hasConversationChanged(newConversation)) return;
-        if(mSelectedConversation != null) mConversationContainer.addConversation(mSelectedConversation);
-
-        mConversationContainer.removeConversation(newConversation);
-        mSelectedConversation = newConversation;
-        setLastConversation(mSelectedConversation);
-
-        mChatArrayAdapter.setConversation(mSelectedConversation);
-    }
-
-    private void showDropZones() {
-        mImageViewDropZoneChats.setVisibility(View.VISIBLE);
-        mImageViewDropZoneDelete.setVisibility(View.VISIBLE);
-    }
-
-    private void hideDropZones() {
-        mImageViewDropZoneDelete.setVisibility(View.GONE);
-        mImageViewDropZoneChats.setVisibility(View.GONE);
-    }
-
-    public MessageAdapter getChatArrayAdapter() {
-        return mChatArrayAdapter;
-    }
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
@@ -374,18 +360,27 @@ public class ChatActivity extends BaseActivity {
             }
         }
 
-       replaceSelectedConversation(newConversation);
+        mSelectedConversation = newConversation;
+        mConversations.add(mSelectedConversation);
+        Profile.setLastConversationId(mSelectedConversation.id);
 
-        //switch to message-input view
-        mViewPager.setCurrentItem(0, true);
+        //update ui with new convo
+        mMessageRecyclerViewAdapter.setConversation(newConversation);
+        toggleRecyclerView(VIEWPAGE_MESSAGE_INPUT);
+        getSupportActionBar().setTitle(contact.getName());
+        mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
+        mMessageInputFragment.updateView();
+        addConversationToSubMenu(getLastSelectedConversation());
+        notifyNavigationMenuChanged();
+
     }
 
-    private boolean hasConversationChanged(Conversation newConversation) {
-        if(newConversation == null) return false;
-        if(mSelectedConversation == null) return true;
-        if(mSelectedConversation.equals(newConversation)) return false;
-        return true;
-    }
+//    private boolean hasConversationChanged(Conversation newConversation) {
+//        if(newConversation == null) return false;
+//        if(mSelectedConversation == null) return true;
+//        if(mSelectedConversation.equals(newConversation)) return false;
+//        return true;
+//    }
 
     public OpenPGPBridgeService getOpenPGPBridgeService() {
         return mOpenPGPBridgeService;

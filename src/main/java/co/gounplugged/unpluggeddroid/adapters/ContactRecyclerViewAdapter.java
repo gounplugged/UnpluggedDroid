@@ -44,47 +44,6 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         this.mContactsClone = new ArrayList<>(contacts);
     }
 
-//    public ContactRecyclerViewAdapter(Context context, List<Contact> contacts) {
-//        super(context, R.layout.list_item_contact, contacts);
-//
-//        sortContacts(contacts);
-//        setupSectionIndexer(contacts);
-//
-//        this.mContext = context;
-//        this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        this.mContacts = contacts;
-//        this.mContactsClone = new ArrayList<>(contacts);
-//    }
-//
-//    @Override
-//    public int getCount() {
-//        return mContacts.size();
-//    }
-//
-//    @Override
-//    public Contact getItem(int position) {
-//        return mContacts.get(position);
-//    }
-//
-
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        Contact contact = mContacts.get(position);
-//
-//        if (convertView == null) {
-//            convertView = mInflater.inflate(R.layout.list_item_contact, parent, false);
-//        }
-//
-//        TextView tvName = (TextView) convertView.findViewById(R.id.tv_name);
-//        tvName.setText(contact.getName());
-//
-//        CircleImageView ivAvatar = (CircleImageView) convertView.findViewById(R.id.iv_avatar);
-//
-//        ImageUtil.loadContactImage(mContext, contact, ivAvatar);
-//
-//        return convertView;
-//    }
-
     public void filter(String query) {
         if (query.length() >= 3) {
             mContacts = (List<Contact>) Predicate.filter(mContacts, new ContactSearchPredicate(query));
@@ -166,6 +125,10 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
     @Override
     public int getSectionForPosition(int position) {
         return 0;
+    }
+
+    public Contact getContact(int position) {
+        return mContacts.get(position);
     }
 
 

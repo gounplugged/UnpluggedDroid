@@ -53,30 +53,24 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:paddingBottom="98dp"/>
 
-    <!--set appbar_scrolling_view_behavior on sibling element of AppBarLayout for correct positioning-->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="98dp"
         android:layout_gravity="bottom"
+        android:orientation="vertical"
         >
-
-
-
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewpager"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_alignParentBottom="true"/>
 
         <com.viewpagerindicator.TitlePageIndicator
             android:id="@+id/titles"
             android:layout_height="32dp"
             android:layout_width="match_parent"
-            android:layout_above="@+id/viewpager"
             />
 
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

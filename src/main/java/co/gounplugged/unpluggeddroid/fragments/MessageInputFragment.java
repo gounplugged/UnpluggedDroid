@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -60,6 +61,10 @@ public class MessageInputFragment extends Fragment {
                 break;
         }
 
+    }
+
+    public void updateView() {
+        setHint(getLastConversation());
     }
 
 
