@@ -63,6 +63,10 @@ public class SearchContactFragment extends Fragment {
         return view;
     }
 
+    public void clearInput() {
+        mContactSearchEditText.setText("");
+    }
+
     @Override
     public void onDestroy() {
         if (mLoadContactsTask != null && mLoadContactsTask.getStatus() == AsyncTask.Status.RUNNING)

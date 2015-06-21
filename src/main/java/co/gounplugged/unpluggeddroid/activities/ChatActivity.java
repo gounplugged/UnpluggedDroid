@@ -169,6 +169,7 @@ public class ChatActivity extends BaseActivity {
 
     private void loadGui() {
         setupToolbar(NAVIGATION_MAIN_HOME);
+        getSupportActionBar().setTitle(mSelectedConversation.getName());
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
 
@@ -197,6 +198,14 @@ public class ChatActivity extends BaseActivity {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
                 mCurrentViewPage = position;
                 toggleRecyclerView(position);
+                switch (position) {
+                    case VIEWPAGE_MESSAGE_INPUT:
+                        getSupportActionBar().setTitle(mSelectedConversation.getName());
+                        break;
+                    case VIEWPAGE_SEARCH_CONTACT:
+                        getSupportActionBar().setTitle("Contacts");
+                        break;
+                }
             }
 
             @Override
@@ -221,6 +230,7 @@ public class ChatActivity extends BaseActivity {
                     public void onItemClick(View view, int position) {
                         Contact c = mContactRecyclerViewAdapter.getContact(position);
                         addConversation(c);
+                        mSearchContactFragment.clearInput();
                         //Re-order menu
 
                     }
