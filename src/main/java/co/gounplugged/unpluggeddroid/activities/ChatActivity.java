@@ -4,6 +4,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -46,6 +48,8 @@ public class ChatActivity extends BaseActivity {
     // Constants
     public static final int VIEWPAGE_MESSAGE_INPUT = 0;
     public static final int VIEWPAGE_SEARCH_CONTACT = 1;
+
+    private int mCurrentViewPage = VIEWPAGE_MESSAGE_INPUT;
 
     // GUI
     private ViewPager mViewPager;
@@ -185,22 +189,31 @@ public class ChatActivity extends BaseActivity {
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {  }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
+                mCurrentViewPage = position;
                 toggleRecyclerView(position);
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) { }
+            public void onPageScrollStateChanged(int state) {
+            }
         });
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         mMessageRecyclerViewAdapter = new MessageRecyclerViewAdapter(this, mSelectedConversation);
-        mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(this, ContactUtil.getCachedContacts(getApplicationContext()));
+
+//        mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(this, ContactUtil.getCachedContacts(getApplicationContext()));
+        if(Build.VERSION.SDK_INT >= 11)
+            new LoadContactsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        else
+            new LoadContactsTask().execute();
+
         recyclerView.setAdapter(mMessageRecyclerViewAdapter);
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
@@ -246,7 +259,7 @@ public class ChatActivity extends BaseActivity {
         }
 
         mSelectedConversation = newConversation;
-//        mConversations.add(mSelectedConversation);
+//        mConversations.add(mSelectedConversation); todo BaseApp.get().set()
         Profile.setLastConversationId(mSelectedConversation.id);
 
         //update ui with new convo
@@ -260,9 +273,6 @@ public class ChatActivity extends BaseActivity {
         mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
         getSupportActionBar().setTitle(mSelectedConversation.getParticipant().getName());
         mMessageInputFragment.updateViews();
-//        rebuildSubMenu();
-//        addConversationToSubMenu(mSelectedConversation);
-//        notifyNavigationMenuChanged();
     }
 
     public OpenPGPBridgeService getOpenPGPBridgeService() {
@@ -299,5 +309,25 @@ public class ChatActivity extends BaseActivity {
             return "BLABLABLABALBALA";
         }
     }
+
+    private class LoadContactsTask extends AsyncTask<Void, Void, List<Contact>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected List<Contact> doInBackground(Void... params) {
+            return ContactUtil.getCachedContacts(getApplicationContext());
+        }
+
+        @Override
+        protected void onPostExecute(List<Contact> contacts) {
+            super.onPostExecute(contacts);
+            mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(getApplicationContext(), contacts);
+        }
+
+
+    };
 
 }

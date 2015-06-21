@@ -109,11 +109,15 @@ public class BaseActivity extends AppCompatActivity {
                     menuItem.setChecked(true);
                     switch (menuItem.getItemId()) {
                         case R.id.nav_home:
-                            startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+                            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
                             closeAndFinish();
                             return true;
                         case R.id.nav_settings:
-                            startActivity(new Intent(getApplicationContext(), PreferencesActivity.class));
+                            Intent intent1 = new Intent(getApplicationContext(), PreferencesActivity.class);
+                            intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent1);
                             closeAndFinish();
                             return true;
                         case R.id.nav_profile:
@@ -136,7 +140,7 @@ public class BaseActivity extends AppCompatActivity {
 
                 private void closeAndFinish() {
                     mDrawerLayout.closeDrawers();
-                    finish();
+//                    finish();
                 }
             }
         );
@@ -158,6 +162,8 @@ public class BaseActivity extends AppCompatActivity {
         MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size() - 1);
         item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+        // instead of launching a new instance all other activities on top of it will be closed
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_CONVERSATION_ID, conversation.id);
         item.setIntent(intent);
     }
