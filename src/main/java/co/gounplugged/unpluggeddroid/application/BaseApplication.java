@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
+import co.gounplugged.unpluggeddroid.db.ConversationDatabaseAccess;
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -55,29 +56,20 @@ public class BaseApplication extends Application {
         Profile.loadProfile(getApplicationContext());
         mApiCaller = new APICaller(getApplicationContext());
 
-        switch(Profile.getApplicationState()) {
-            case(Profile.APPLICATION_STATE_UNINITALIZED):
+        switch (Profile.getApplicationState()) {
+            case (Profile.APPLICATION_STATE_UNINITALIZED):
                 break;
-            case(Profile.APPLICATION_STATE_INITALIZED):
+            case (Profile.APPLICATION_STATE_INITALIZED):
                 seedKnownMasks();
                 break;
         }
 
-        fetchConversations();
+        //todo threading
+        mRecentConversations = new ConversationDatabaseAccess(getApplicationContext()).getRecentConversations();
 
         Log.d(TAG, "APPLICATION PROGRESSED");
         startService(new Intent(this, EdgenetClientService.class));
         startService(new Intent(this, OpenPGPBridgeService.class));
-    }
-
-    private void fetchConversations() {
-        final DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mRecentConversations = conversationAccess.getAll();
-            }
-        }).start();
     }
 
     private void initManagers() {

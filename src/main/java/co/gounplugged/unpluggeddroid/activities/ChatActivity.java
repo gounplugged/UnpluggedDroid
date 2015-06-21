@@ -277,7 +277,6 @@ public class ChatActivity extends BaseActivity {
         }
 
         mSelectedConversation = newConversation;
-//        mConversations.add(mSelectedConversation); todo BaseApp.get().set()
         Profile.setLastConversationId(mSelectedConversation.id);
 
         //update ui with new convo

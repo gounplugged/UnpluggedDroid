@@ -157,7 +157,7 @@ public class BaseActivity extends AppCompatActivity {
 //        notifyNavigationMenuChanged();
 //    }
 
-    private void addConversationToSubMenu(Conversation conversation) {
+    protected void addConversationToSubMenu(Conversation conversation) {
         mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
         MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size() - 1);
         item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
