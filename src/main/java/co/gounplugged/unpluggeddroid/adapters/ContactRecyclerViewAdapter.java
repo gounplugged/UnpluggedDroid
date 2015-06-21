@@ -97,6 +97,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         final Contact contact = mContacts.get(position);
 
         holder.tvName.setText(contact.getName());
+        holder.tvPhoneNr.setText(contact.getFullNumber());
         ImageUtil.loadContactImage(mContext, contact, holder.ivAvatar);
     }
 
@@ -135,6 +136,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public final TextView tvName;
+        public final TextView tvPhoneNr;
         public final CircleImageView ivAvatar;
 
         public ViewHolder(View itemView) {
@@ -142,6 +144,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
 
             tvName = (TextView) itemView.findViewById(R.id.tv_name);
             ivAvatar = (CircleImageView) itemView.findViewById(R.id.iv_avatar);
+            tvPhoneNr = (TextView) itemView.findViewById(R.id.tv_phone_nr);
         }
     }
 
