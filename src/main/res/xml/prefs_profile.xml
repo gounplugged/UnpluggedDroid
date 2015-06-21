@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="@string/pref_key_profile_phone_number"
+        android:title="@string/pref_title_profile_phone_number" />
+
+    <ListPreference
+        android:key="@string/pref_key_profile_sms_plan"
+        android:title="@string/pref_title_profile_sms_plan"
+        android:entries="@array/sms_plans_array"
+        android:entryValues="@array/sms_plans_array"/>
+
+    <SwitchPreference
+        android:key="@string/pref_key_profile_default_app"
+        android:title="@string/pref_title_profile_default_app"
+        android:defaultValue="false"/>
+
+
+
+
+</PreferenceScreen>

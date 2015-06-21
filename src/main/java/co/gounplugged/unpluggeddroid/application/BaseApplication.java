@@ -12,7 +12,10 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
+import co.gounplugged.unpluggeddroid.db.ConversationDatabaseAccess;
+import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.EdgenetClientService;
@@ -29,6 +32,8 @@ public class BaseApplication extends Application {
 
     private APICaller mApiCaller;
     private List<Mask> mKnownMasks;
+    private List<Conversation> mRecentConversations;
+
     private OpenPGPBridgeService mOpenPGPBridgeService;
     private boolean mIsBoundToOpenPGP = false;
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
@@ -52,9 +57,9 @@ public class BaseApplication extends Application {
     }
 
     public static class App {
+
         public static ThrowManager ThrowManager;
     }
-
     /**
      * Get new masks from api or cache on app start
      */
@@ -67,14 +72,18 @@ public class BaseApplication extends Application {
         Profile.loadProfile(getApplicationContext());
         mApiCaller = new APICaller(getApplicationContext());
 
-        switch(Profile.getApplicationState()) {
-            case(Profile.APPLICATION_STATE_UNINITALIZED):
-
+        switch (Profile.getApplicationState()) {
+            case (Profile.APPLICATION_STATE_UNINITALIZED):
                 break;
-            case(Profile.APPLICATION_STATE_INITALIZED):
+            case (Profile.APPLICATION_STATE_INITALIZED):
                 seedKnownMasks();
                 break;
         }
+
+        //todo threading
+        mRecentConversations = new ConversationDatabaseAccess(getApplicationContext()).getRecentConversations();
+
+        Log.d(TAG, "APPLICATION PROGRESSED");
 
         startService(new Intent(this, EdgenetClientService.class));
         startService(new Intent(this, OpenPGPBridgeService.class));
@@ -98,6 +107,17 @@ public class BaseApplication extends Application {
 
     private void initManagers() {
         App.ThrowManager = new ThrowManager(getApplicationContext());
+    }
+
+    public List<Conversation> getRecentConversations() {
+        return mRecentConversations;
+    }
+
+    public void addRecentConversation(Conversation conversation) {
+        mRecentConversations.add(0, conversation);
+    }
+    public void removeRecentConversation(Conversation conversation) {
+        mRecentConversations.remove(conversation);
     }
 
     public void refreshKnownMasks() {

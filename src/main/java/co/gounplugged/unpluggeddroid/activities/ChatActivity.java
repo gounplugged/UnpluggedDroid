@@ -1,79 +1,93 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
+
+import com.viewpagerindicator.UnderlinePageIndicator;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.adapters.MessageAdapter;
+import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
+import co.gounplugged.unpluggeddroid.adapters.MessageRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
+import co.gounplugged.unpluggeddroid.listeners.RecyclerItemClickListener;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
-import co.gounplugged.unpluggeddroid.widgets.ConversationContainer;
-import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfinitePagerAdapter;
-import co.gounplugged.unpluggeddroid.widgets.infiniteviewpager.InfiniteViewPager;
 import de.greenrobot.event.EventBus;
 
 
 public class ChatActivity extends BaseActivity {
-	// Debug
-	private final String TAG = "ChatActivity";
-	
-	// Constants
-    public static final String EXTRA_MESSAGE = "message";
 
-	// GUI
-	private MessageAdapter mChatArrayAdapter;
-	private ListView mChatListView;
-    private InfiniteViewPager mViewPager;
-    private ConversationContainer mConversationContainer;
-    private ImageView mImageViewDropZoneChats, mImageViewDropZoneDelete;
+    // Debug
+    private final String TAG = "ChatActivity";
 
-    private Conversation mSelectedConversation;
-    private Conversation mClickedConversation;  //TODO refactor global var
+    // Constants
+    public static final int VIEWPAGE_MESSAGE_INPUT = 0;
+    public static final int VIEWPAGE_SEARCH_CONTACT = 1;
 
-    private ConversationContainer.ConversationListener conversationListener = new ConversationContainer.ConversationListener() {
+    private int mCurrentViewPage = VIEWPAGE_MESSAGE_INPUT;
 
-        //TODO: clear distinction / proper naming for selecting a conversation and switching to conversation
+    // GUI
+    private ViewPager mViewPager;
+    private UnderlinePageIndicator mUnderlinePageIndicator;
+
+    private OpenPGPBridgeService mOpenPGPBridgeService;
+    private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
         @Override
-        public void onConversationClicked(Conversation conversation) {
-            Log.i(TAG, "onConversationClicked: " + conversation.toString());
-            mClickedConversation = conversation;
-            showDropZones();
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
+            mOpenPGPBridgeService = binder.getService();
+            mIsBoundToOpenPGP = true;
+            Log.d(TAG, "bound to pgp bridge");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mIsBoundToOpenPGP = false;
+            Log.d(TAG, "unbound from pgp bridge");
         }
     };
+    ;
+    private boolean mIsBoundToOpenPGP = false;
+
+    private Conversation mSelectedConversation;
+
+    private MessageRecyclerViewAdapter mMessageRecyclerViewAdapter;
+    private ContactRecyclerViewAdapter mContactRecyclerViewAdapter;
+
+    private MessageInputFragment mMessageInputFragment;
+    private SearchContactFragment mSearchContactFragment;
 
     /*
         Return the last selected conversation. Null if no last conversation.
      */
     public synchronized Conversation getLastSelectedConversation() {
-        if(mSelectedConversation != null) ConversationUtil.refresh(getApplicationContext(), mSelectedConversation);
-        if(mSelectedConversation == null) {
+        if (mSelectedConversation != null)
+            ConversationUtil.refresh(getApplicationContext(), mSelectedConversation);
+        if (mSelectedConversation == null) {
             long cid = Profile.getLastConversationId();
-            if(cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
+            if (cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
                 try {
                     mSelectedConversation = ConversationUtil.findById(getApplicationContext(), cid);
                 } catch (NotFoundInDatabaseException e) {
@@ -81,29 +95,22 @@ public class ChatActivity extends BaseActivity {
                 }
             } else {
                 List<Conversation> conversations = ConversationUtil.getAll(getApplicationContext());
-                if(conversations != null && conversations.size() > 0)
+                if (conversations != null && conversations.size() > 0)
                     mSelectedConversation = conversations.get(0);
             }
         }
         return mSelectedConversation;
     }
 
-    public void setLastConversation(Conversation conversation) {
-        Profile.setLastConversationId(conversation.id);
-        mChatArrayAdapter.setConversation(conversation);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+
+        setContentView(R.layout.activity_chat_new);
         Log.d(TAG, "onCreate");
 
-        hideActionBar();
-
         getLastSelectedConversation();
-        mChatArrayAdapter = new MessageAdapter(this, mSelectedConversation);
-    	loadGui();
+        loadGui();
     }
 
     @Override
@@ -124,9 +131,7 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected synchronized void onResume() {
-    	super.onResume();
-        mConversationContainer.setConversationListener(conversationListener);
-
+        super.onResume();
         EventBus.getDefault().removeStickyEvent(Message.class);
         EventBus.getDefault().registerSticky(this);
     }
@@ -134,144 +139,116 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mConversationContainer.removeConversationListener(conversationListener);
         EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onDestroy() {
-    	super.onDestroy();
+        super.onDestroy();
     }
 
     public void onEventMainThread(Message message) {
-        mChatArrayAdapter.addMessage(message);
+        mMessageRecyclerViewAdapter.addMessage(message);
+    }
+
+    public void filterContacts(String query) {
+        mContactRecyclerViewAdapter.filter(query);
     }
 
     private void loadGui() {
-        // Setup navigation-drawer
-        final String[] menu = getResources().getStringArray(R.array.navigation_menu);
-        ArrayAdapter<String> drawerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menu);
+        setupToolbar(NAVIGATION_MAIN_HOME);
 
-        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
-        final ListView navList = (ListView) findViewById(R.id.drawer);
-        navList.setAdapter(drawerAdapter);
-        navList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int pos,long id){
-                switch (pos) {
-                    case 0:
-                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                        return;
-                    case 1:
-                        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                        return;
+        getSupportActionBar().setTitle(getConversationName());
 
-                }
-            }
-        });
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
 
-
-        // Input/Search infinite-viewpager
-        mViewPager = (InfiniteViewPager) findViewById(R.id.viewpager);
-
-        // It is only possible to achieve wrapping when you have at least 4 pages.
-        // This is because of the way the ViewPager creates, destroys, and displays the pages.
-        // No fix for the general case has been found.
         List<Fragment> fragments = new ArrayList<>();
-        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), MessageInputFragment.class.getName(), getIntent().getExtras()));
-        fragments.add(Fragment.instantiate(getApplicationContext(), SearchContactFragment.class.getName(), getIntent().getExtras()));
+        mMessageInputFragment = (MessageInputFragment) Fragment.instantiate(getApplicationContext(),
+                MessageInputFragment.class.getName(), getIntent().getExtras());
+        mSearchContactFragment = (SearchContactFragment) Fragment.instantiate(getApplicationContext(),
+                SearchContactFragment.class.getName(), getIntent().getExtras());
+        fragments.add(mMessageInputFragment);
+        fragments.add(mSearchContactFragment);
 
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
-        PagerAdapter wrappedAdapter = new InfinitePagerAdapter(adapter);
+        mViewPager.setAdapter(adapter);
 
-        mViewPager.setAdapter(wrappedAdapter);
+        mUnderlinePageIndicator = (UnderlinePageIndicator) findViewById(R.id.indicator);
+//        mUnderlinePageIndicator.setViewPager(mViewPager);
+//        mUnderlinePageIndicator.setCurrentItem(0);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
                 Log.i(TAG, (position % 2 == 0 ? "input" : "search") + "-fragment in viewpager selected");
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) { }
-        });
-
-        //drop zone views & animations
-        mImageViewDropZoneDelete = (ImageView) findViewById(R.id.iv_drop_zone_delete);
-        mImageViewDropZoneChats = (ImageView) findViewById(R.id.iv_drop_zone_chats);
-
-        //Check for drop-events on drop-zones
-        mImageViewDropZoneDelete.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                switch (event.getAction()) {
-                    //should always be called
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        hideDropZones();
+                mCurrentViewPage = position;
+                toggleRecyclerView(position);
+                switch (position) {
+                    case VIEWPAGE_MESSAGE_INPUT:
+                        getSupportActionBar().setTitle(getConversationName());
                         break;
-                    case DragEvent.ACTION_DROP:
-                        Log.i(TAG, "Conversation dropped on mImageViewDropZoneDelete.");
-                        // TODO be sure to only remove from conversation container, don't delet convo itself
-                        // update current selected convo
+                    case VIEWPAGE_SEARCH_CONTACT:
+                        getSupportActionBar().setTitle("Contacts");
                         break;
                 }
-                return true;
             }
-        });
-        mImageViewDropZoneChats.setOnDragListener(new View.OnDragListener() {
+
             @Override
-            public boolean onDrag(View v, DragEvent event) {
-                switch (event.getAction()) {
-                    case DragEvent.ACTION_DROP:
-                        Log.i(TAG, "Conversation dropped on mChatListView.");
-                        replaceSelectedConversation(mClickedConversation);
-                        break;
-                }
-                return true;
+            public void onPageScrollStateChanged(int state) {
             }
         });
 
-        // Chat log //todo extract
-        mChatListView = (ListView) findViewById(R.id.lv_chats);
-        mChatListView.setAdapter(mChatArrayAdapter);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+        mMessageRecyclerViewAdapter = new MessageRecyclerViewAdapter(this, mSelectedConversation);
 
-        //Conversations
-        mConversationContainer = (ConversationContainer) findViewById(R.id.conversation_container);
-        mConversationContainer.setConversationsAllBut(mSelectedConversation);
+        //Load contacts in adapter
+        if(Build.VERSION.SDK_INT >= 11)
+            new LoadContactsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        else
+            new LoadContactsTask().execute();
 
-        mChatArrayAdapter.setConversation(mSelectedConversation);
+        recyclerView.setAdapter(mMessageRecyclerViewAdapter);
+        // Only hackish click-listener for contacts in recyclerview for now
+        recyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Contact c = mContactRecyclerViewAdapter.getContact(position);
+                        addConversation(c);
+                        mSearchContactFragment.clearInput();
+                        //Re-order menu
+
+                    }
+                })
+        );
     }
 
-    private void replaceSelectedConversation(Conversation newConversation) {
-        if(!hasConversationChanged(newConversation)) return;
-        if(mSelectedConversation != null) mConversationContainer.addConversation(mSelectedConversation);
-
-        mConversationContainer.removeConversation(newConversation);
-        mSelectedConversation = newConversation;
-        setLastConversation(mSelectedConversation);
-
-        mChatArrayAdapter.setConversation(mSelectedConversation);
+    private String getConversationName() {
+        String name = (mSelectedConversation == null) ?
+                getString(R.string.app_name) : mSelectedConversation.getName();
+        return name;
     }
 
+    private void toggleRecyclerView(int position) {
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+//        mUnderlinePageIndicator.setCurrentItem(position);
+        switch (position) {
+            case VIEWPAGE_MESSAGE_INPUT:
+                recyclerView.setAdapter(mMessageRecyclerViewAdapter);
+                break;
+            case VIEWPAGE_SEARCH_CONTACT:
+                recyclerView.setAdapter(mContactRecyclerViewAdapter);
+                break;
+        }
 
-    private void showDropZones() {
-        mImageViewDropZoneChats.setVisibility(View.VISIBLE);
-        mImageViewDropZoneDelete.setVisibility(View.VISIBLE);
     }
 
-    private void hideDropZones() {
-        mImageViewDropZoneDelete.setVisibility(View.GONE);
-        mImageViewDropZoneChats.setVisibility(View.GONE);
-    }
-
-    public MessageAdapter getChatArrayAdapter() {
-        return mChatArrayAdapter;
-    }
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
@@ -287,17 +264,28 @@ public class ChatActivity extends BaseActivity {
             }
         }
 
-       replaceSelectedConversation(newConversation);
+        mSelectedConversation = newConversation;
+        Profile.setLastConversationId(mSelectedConversation.id);
+
+        //update ui with new convo
+        updateActivityViews();
+        addNewConversationToSubMenu(mSelectedConversation);
+
     }
 
-    private boolean hasConversationChanged(Conversation newConversation) {
-        if(newConversation == null) return false;
-        if(mSelectedConversation == null) return true;
-        if(mSelectedConversation.equals(newConversation)) return false;
-        return true;
+    private void updateActivityViews() {
+        mMessageRecyclerViewAdapter.setConversation(mSelectedConversation);
+        toggleRecyclerView(VIEWPAGE_MESSAGE_INPUT);
+        mViewPager.setCurrentItem(VIEWPAGE_MESSAGE_INPUT, true);
+        getSupportActionBar().setTitle(mSelectedConversation.getParticipant().getName());
+        mMessageInputFragment.updateViews();
     }
 
-    private class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+    public OpenPGPBridgeService getOpenPGPBridgeService() {
+        return mOpenPGPBridgeService;
+    }
+
+    static class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
 
         private final List<Fragment> mViewPagerFragments;
 
@@ -315,6 +303,37 @@ public class ChatActivity extends BaseActivity {
         public int getCount() {
             return mViewPagerFragments.size();
         }
+
+        //Always return POSITION_NONE from getItemPosition() method. Which means: "Fragment must be always recreated"
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "BLABLABLABALBALA";
+        }
     }
+
+    private class LoadContactsTask extends AsyncTask<Void, Void, List<Contact>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected List<Contact> doInBackground(Void... params) {
+            return ContactUtil.getCachedContacts(getApplicationContext());
+        }
+
+        @Override
+        protected void onPostExecute(List<Contact> contacts) {
+            super.onPostExecute(contacts);
+            mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(getApplicationContext(), contacts);
+        }
+
+
+    };
 
 }

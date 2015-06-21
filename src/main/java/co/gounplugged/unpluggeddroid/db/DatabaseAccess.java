@@ -27,7 +27,7 @@ public class DatabaseAccess<T> {
     private static final String DATABASE_NAME = "unplugged.db";
     private static final int DATABASE_VERSION = 1;
 
-    private Dao<T, Long> mDao;
+    protected Dao<T, Long> mDao;
     private static DatabaseHelper mHelper;
 
     public DatabaseAccess(Context context, Class<T> type) {

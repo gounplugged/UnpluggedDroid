@@ -50,7 +50,6 @@ public class ConversationContainer extends LinearLayout {
     public ConversationContainer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
-
     }
 
     public void setConversationListener(ConversationListener listener) {

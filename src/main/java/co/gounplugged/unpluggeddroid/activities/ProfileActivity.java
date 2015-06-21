@@ -1,25 +1,22 @@
 package co.gounplugged.unpluggeddroid.activities;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.preference.Preference;
 import android.provider.Telephony;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
 public class ProfileActivity extends BaseActivity {
+
     private TextView phoneNumberInput;
     private Button submitButton;
     private Spinner smsPlanSpinner;
@@ -32,8 +29,6 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        displayHomeAsUp();
-
         setupPhoneNumber();
         setupSmsPlan();
         submitButton = (Button) findViewById(R.id.submit_phone_number_activity_profile);
@@ -45,13 +40,11 @@ public class ProfileActivity extends BaseActivity {
                 setSmsPlan();
                 setPassword();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
-                Intent mainIntent = new Intent(ProfileActivity.this, SettingsActivity.class);
+                Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
             }
         });
-
-//        defaultAppPreference =
 
         defaultAppStatusText = (TextView) findViewById(R.id.default_app_status_title_activity_profile);
         if(BaseApplication.getInstance(getApplicationContext()).isDefaultSMSApp()) {
@@ -121,20 +114,5 @@ public class ProfileActivity extends BaseActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_profile, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
