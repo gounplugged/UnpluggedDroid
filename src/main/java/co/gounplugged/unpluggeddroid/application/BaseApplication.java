@@ -36,14 +36,10 @@ public class BaseApplication extends Application {
         return (BaseApplication) c.getApplicationContext();
     }
 
-    public List<Conversation> getRecentConversations() {
-        return mRecentConversations;
-    }
-
     public static class App {
+
         public static ThrowManager ThrowManager;
     }
-
     /**
      * Get new masks from api or cache on app start
      */
@@ -74,6 +70,17 @@ public class BaseApplication extends Application {
 
     private void initManagers() {
         App.ThrowManager = new ThrowManager(getApplicationContext());
+    }
+
+    public List<Conversation> getRecentConversations() {
+        return mRecentConversations;
+    }
+
+    public void addRecentConversation(Conversation conversation) {
+        mRecentConversations.add(0, conversation);
+    }
+    public void removeRecentConversation(Conversation conversation) {
+        mRecentConversations.remove(conversation);
     }
 
     public void refreshKnownMasks() {

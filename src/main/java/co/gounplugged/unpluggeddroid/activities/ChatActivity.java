@@ -281,6 +281,7 @@ public class ChatActivity extends BaseActivity {
 
         //update ui with new convo
         updateActivityViews();
+        addNewConversationToSubMenu(mSelectedConversation);
 
     }
 

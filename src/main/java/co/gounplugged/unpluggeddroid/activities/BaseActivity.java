@@ -41,11 +41,13 @@ public class BaseActivity extends AppCompatActivity {
     private NavigationView mNavigationView;
     private SubMenu mConversationSubMenu;
 
-    private List<Conversation> mConversations;
+    private BaseApplication mApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        
         super.onCreate(savedInstanceState);
+        mApplication = BaseApplication.getInstance(getApplicationContext());
     }
 
 
@@ -91,15 +93,11 @@ public class BaseActivity extends AppCompatActivity {
 
     private void setupDrawerConversationContent() {
 
-        mConversations = BaseApplication.getInstance(getApplicationContext()).getRecentConversations();
+        final List<Conversation> conversations = mApplication.getRecentConversations();
 
-        if (mConversations != null && mConversations.size() > 0) {
+        if (conversations != null && conversations.size() > 0) {
             Menu menu = mNavigationView.getMenu();
-            mConversationSubMenu = menu.addSubMenu("Recent conversations");
-            for (Conversation conversation : mConversations) {
-                addConversationToSubMenu(conversation);
-            }
-            notifyNavigationMenuChanged();
+            createAddAndRefreshSubMenu(conversations, menu);
         }
 
         mNavigationView.setNavigationItemSelectedListener(
@@ -112,52 +110,54 @@ public class BaseActivity extends AppCompatActivity {
                             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
-                            closeAndFinish();
-                            return true;
+                            break;
                         case R.id.nav_settings:
                             Intent intent1 = new Intent(getApplicationContext(), PreferencesActivity.class);
                             intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent1);
-                            closeAndFinish();
-                            return true;
+                            break;
                         case R.id.nav_profile:
                             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                            closeAndFinish();
-                            return true;
+                            break;
                     }
 
                     Intent intent = menuItem.getIntent();
                     if (intent != null) {
                         long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
-                        Conversation mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
-                        Profile.setLastConversationId(mSelectedConversation.id);
+                        Conversation selectedConversation = Predicate.select(conversations, new ConversationIdPredicate(conversationId));
+                        Profile.setLastConversationId(selectedConversation.id);
+                        //bring conversation to top in menu
+                        mApplication.removeRecentConversation(selectedConversation);
+                        mApplication.addRecentConversation(selectedConversation);
+                        createAddAndRefreshSubMenu(conversations, mNavigationView.getMenu());
                         startActivity(intent);
-                        closeAndFinish();
                     }
-
-                    return true;
-                }
-
-                private void closeAndFinish() {
                     mDrawerLayout.closeDrawers();
-//                    finish();
+                    return true;
                 }
             }
         );
 
     }
 
-//    private void rebuildSubMenu() {
-//        Menu menu = mNavigationView.getMenu();
-//        menu.removeGroup(NAVIGATION_GROUP_ID_CONVERSATIONS);
-//
-//        for (Conversation conversation : mConversations) {
-//            addConversationToSubMenu(conversation);
-//        }
-//        notifyNavigationMenuChanged();
-//    }
+    protected void addNewConversationToSubMenu(Conversation conversation) {
+        mApplication.addRecentConversation(conversation);
+        List<Conversation> conversations = mApplication.getRecentConversations();
+        Menu menu = mNavigationView.getMenu();
+        menu.removeItem(0);
+        createAddAndRefreshSubMenu(conversations, menu);
+    }
 
-    protected void addConversationToSubMenu(Conversation conversation) {
+    private void createAddAndRefreshSubMenu(List<Conversation> conversations, Menu menu) {
+        mConversationSubMenu = null;
+        mConversationSubMenu = menu.addSubMenu("Recent conversations");
+        for (Conversation c : conversations) {
+            addConversationToSubMenu(c);
+        }
+        notifyNavigationMenuChanged();
+    }
+
+    private void addConversationToSubMenu(Conversation conversation) {
         mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
         MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size() - 1);
         item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
