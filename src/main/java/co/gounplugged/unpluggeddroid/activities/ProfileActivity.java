@@ -38,7 +38,7 @@ public class ProfileActivity extends BaseActivity {
                 setPhoneNumber();
                 setSmsPlan();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
-                Intent mainIntent = new Intent(ProfileActivity.this, SettingsActivity.class);
+                Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
             }

@@ -169,7 +169,8 @@ public class ChatActivity extends BaseActivity {
 
     private void loadGui() {
         setupToolbar(NAVIGATION_MAIN_HOME);
-        getSupportActionBar().setTitle(mSelectedConversation.getName());
+
+        getSupportActionBar().setTitle(getConversationName());
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
 
@@ -200,7 +201,7 @@ public class ChatActivity extends BaseActivity {
                 toggleRecyclerView(position);
                 switch (position) {
                     case VIEWPAGE_MESSAGE_INPUT:
-                        getSupportActionBar().setTitle(mSelectedConversation.getName());
+                        getSupportActionBar().setTitle(getConversationName());
                         break;
                     case VIEWPAGE_SEARCH_CONTACT:
                         getSupportActionBar().setTitle("Contacts");
@@ -217,13 +218,14 @@ public class ChatActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         mMessageRecyclerViewAdapter = new MessageRecyclerViewAdapter(this, mSelectedConversation);
 
-//        mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(this, ContactUtil.getCachedContacts(getApplicationContext()));
+        //Load contacts in adapter
         if(Build.VERSION.SDK_INT >= 11)
             new LoadContactsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         else
             new LoadContactsTask().execute();
 
         recyclerView.setAdapter(mMessageRecyclerViewAdapter);
+        // Only hackish click-listener for contacts in recyclerview for now
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
@@ -236,6 +238,12 @@ public class ChatActivity extends BaseActivity {
                     }
                 })
         );
+    }
+
+    private String getConversationName() {
+        String name = (mSelectedConversation == null) ?
+                getString(R.string.app_name) : mSelectedConversation.getName();
+        return name;
     }
 
     private void toggleRecyclerView(int position) {
