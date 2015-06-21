@@ -125,9 +125,6 @@ public class OpenPGPBridgeService extends Service {
     public String encrypt(String plaintext, String recipientAddress) throws EncryptionUnavailableException {
         Log.d(TAG, "Attempt encrypt");
         if(isBound) {
-//        String recipient = encryptIntent.getStringExtra(EXTRA_RECIPIENT);
-//        String plaintext = encryptIntent.getStringExtra(EXTRA_PLAINTEXT);
-
             recipientAddress = "marvin@gounplugged.co"; //TODO remove
             Intent data = new Intent();
             data.setAction(OpenPgpApi.ACTION_ENCRYPT);
@@ -181,6 +178,31 @@ public class OpenPGPBridgeService extends Service {
             default:
                 Log.d(TAG, "Something strange");
                 throw new EncryptionUnavailableException("Unknown response from encryption service.");
+        }
+    }
+
+    public void generatePGPKey() throws EncryptionUnavailableException {
+        Log.d(TAG, "Attempt generate key");
+        if(isBound) {
+        /*    recipientAddress = "marvin@gounplugged.co"; //TODO remove
+            Intent data = new Intent();
+            data.setAction(OpenPgpApi.ACTION_GENERATE_KEY);
+            data.putExtra(OpenPgpApi.EXTRA_USER_IDS, new String[]{recipientAddress});
+            data.putExtra(OpenPgpApi.EXTRA_REQUEST_ASCII_ARMOR, true);
+
+            InputStream is = null;
+            try {
+                is = new ByteArrayInputStream(plaintext.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                //TODO
+            }
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+            Intent result = mAPI.executeApi(data, is, os);
+            // add compression https://stackoverflow.com/questions/6717165/how-can-i-zip-and-unzip-a-string-using-gzipoutputstream-that-is-compatible-with/6718707#6718707
+            return interpretResult(result, os);*/
+        } else {
+            throw new EncryptionUnavailableException("Encryption service not yet bound");
         }
     }
 

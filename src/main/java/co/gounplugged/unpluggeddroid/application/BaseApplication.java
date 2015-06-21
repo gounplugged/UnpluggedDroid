@@ -12,6 +12,7 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
@@ -94,6 +95,16 @@ public class BaseApplication extends Application {
 
     public OpenPGPBridgeService getOpenPGPBridgeService() {
         return mOpenPGPBridgeService;
+    }
+
+    public void generatePGPKey() {
+        if(mIsBoundToOpenPGP) {
+            try {
+                mOpenPGPBridgeService.generatePGPKey();
+            } catch (EncryptionUnavailableException e) {
+                // Todo
+            }
+        }
     }
 
     private void initManagers() {

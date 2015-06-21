@@ -1,11 +1,9 @@
 package co.gounplugged.unpluggeddroid.activities;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.preference.Preference;
 import android.provider.Telephony;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
@@ -45,13 +42,12 @@ public class ProfileActivity extends BaseActivity {
                 setSmsPlan();
                 setPassword();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
+                ((BaseApplication) getApplicationContext()).generatePGPKey();
                 Intent mainIntent = new Intent(ProfileActivity.this, SettingsActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
             }
         });
-
-//        defaultAppPreference =
 
         defaultAppStatusText = (TextView) findViewById(R.id.default_app_status_title_activity_profile);
         if(BaseApplication.getInstance(getApplicationContext()).isDefaultSMSApp()) {
