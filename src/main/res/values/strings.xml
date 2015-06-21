@@ -31,4 +31,6 @@
     <string name="drawer_close">close drawer</string>
     <string name="contact_list_empty">No contacts</string>
     <string name="pref_title_profile_phone_number">Phone number</string>
+    <string name="pref_title_profile_sms_plan">Sms plan</string>
+    <string name="pref_title_profile_default_app">Default Sms application</string>
 </resources>

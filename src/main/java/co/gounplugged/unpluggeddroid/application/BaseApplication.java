@@ -9,7 +9,9 @@ import android.util.Log;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
+import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
+import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.EdgenetClientService;
@@ -26,9 +28,15 @@ public class BaseApplication extends Application {
 
     private APICaller mApiCaller;
     private List<Mask> mKnownMasks;
+    private List<Conversation> mRecentConversations;
+
 
     public static final BaseApplication getInstance(Context c) {
         return (BaseApplication) c.getApplicationContext();
+    }
+
+    public List<Conversation> getRecentConversations() {
+        return mRecentConversations;
     }
 
     public static class App {
@@ -49,16 +57,27 @@ public class BaseApplication extends Application {
 
         switch(Profile.getApplicationState()) {
             case(Profile.APPLICATION_STATE_UNINITALIZED):
-
                 break;
             case(Profile.APPLICATION_STATE_INITALIZED):
                 seedKnownMasks();
                 break;
         }
 
+        fetchConversations();
+
         Log.d(TAG, "APPLICATION PROGRESSED");
         startService(new Intent(this, EdgenetClientService.class));
         startService(new Intent(this, OpenPGPBridgeService.class));
+    }
+
+    private void fetchConversations() {
+        final DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mRecentConversations = conversationAccess.getAll();
+            }
+        }).start();
     }
 
     private void initManagers() {

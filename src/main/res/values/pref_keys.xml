@@ -2,4 +2,6 @@
 <resources>
 
     <string name="pref_key_profile_phone_number">pref_key_profile_phone_number</string>
+    <string name="pref_key_profile_sms_plan">pref_key_profile_sms_plan</string>
+    <string name="pref_key_profile_default_app">pref_key_profile_default_app</string>
 </resources>

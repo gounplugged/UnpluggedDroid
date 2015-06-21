@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,7 @@ import android.widget.ListView;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.predicates.ConversationIdPredicate;
@@ -28,8 +29,12 @@ import co.gounplugged.unpluggeddroid.utils.Predicate;
 public class BaseActivity extends AppCompatActivity {
 
     public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
-    public static final int NAVIGATION_GROUP_ID_CONVERSATIONS = 1;
 
+    public static final int NAVIGATION_MAIN_HOME = 0;
+    public static final int NAVIGATION_MAIN_SETTINGS = 1;
+    public static final int NAVIGATION_MAIN_PROFILE = 2;
+
+    public static final int NAVIGATION_GROUP_ID_CONVERSATIONS = 1;
 
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
@@ -43,7 +48,18 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
-    protected void setupToolbar(String title) {
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void setupToolbar(int mainNavigationId) {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -53,39 +69,56 @@ public class BaseActivity extends AppCompatActivity {
         final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
-        ab.setTitle(title);
 
-        setupDrawerContent();
+        // main navigation
+        Menu menu = mNavigationView.getMenu();
+        menu.getItem(mainNavigationId).setChecked(true);
+        switch (mainNavigationId) {
+            case NAVIGATION_MAIN_HOME:
+                ab.setTitle("Home");
+                break;
+            case NAVIGATION_MAIN_SETTINGS:
+                ab.setTitle("Settings");
+                break;
+            case NAVIGATION_MAIN_PROFILE:
+                ab.setTitle("Profile");
+                break;
+        }
+
+        setupDrawerConversationContent();
     }
 
 
-    private void setupDrawerContent() {
+    private void setupDrawerConversationContent() {
 
-        Menu menu = mNavigationView.getMenu();
-        mConversationSubMenu = menu.addSubMenu("Recent conversations");
+        mConversations = BaseApplication.getInstance(getApplicationContext()).getRecentConversations();
 
-        //TODO move to BaseApp? and keep in mem
-        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-        mConversations = conversationAccess.getAll();
-
-        for (Conversation conversation : mConversations) {
-            addConversationToSubMenu(conversation);
+        if (mConversations != null && mConversations.size() > 0) {
+            Menu menu = mNavigationView.getMenu();
+            mConversationSubMenu = menu.addSubMenu("Recent conversations");
+            for (Conversation conversation : mConversations) {
+                addConversationToSubMenu(conversation);
+            }
+            notifyNavigationMenuChanged();
         }
-        notifyNavigationMenuChanged();
 
         mNavigationView.setNavigationItemSelectedListener(
             new NavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(MenuItem menuItem) {
-//                        menuItem.setChecked(true);
+                    menuItem.setChecked(true);
                     switch (menuItem.getItemId()) {
+                        case R.id.nav_home:
+                            startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+                            closeAndFinish();
+                            return true;
                         case R.id.nav_settings:
                             startActivity(new Intent(getApplicationContext(), PreferencesActivity.class));
-                            mDrawerLayout.closeDrawers();
+                            closeAndFinish();
                             return true;
                         case R.id.nav_profile:
                             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                            mDrawerLayout.closeDrawers();
+                            closeAndFinish();
                             return true;
                     }
 
@@ -94,10 +127,16 @@ public class BaseActivity extends AppCompatActivity {
                         long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
                         Conversation mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
                         Profile.setLastConversationId(mSelectedConversation.id);
-//                            updateActivityViews();
+                        startActivity(intent);
+                        closeAndFinish();
                     }
-                    mDrawerLayout.closeDrawers();
+
                     return true;
+                }
+
+                private void closeAndFinish() {
+                    mDrawerLayout.closeDrawers();
+                    finish();
                 }
             }
         );
@@ -116,7 +155,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private void addConversationToSubMenu(Conversation conversation) {
         mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
-        MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
+        MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size() - 1);
         item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(EXTRA_CONVERSATION_ID, conversation.id);

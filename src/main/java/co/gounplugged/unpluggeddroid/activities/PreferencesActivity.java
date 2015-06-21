@@ -14,7 +14,7 @@ public class PreferencesActivity extends BaseActivity {
 
         setContentView(R.layout.activity_preferences);
 
-        setupToolbar("Settings");
+        setupToolbar(NAVIGATION_MAIN_SETTINGS);
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, new ProfilePreferenceFragment());

@@ -6,26 +6,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import android.widget.BaseAdapter;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ListView;
 
-import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.UnderlinePageIndicator;
 
 import java.util.ArrayList;
@@ -35,7 +23,6 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.adapters.MessageRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
@@ -45,12 +32,9 @@ import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.models.predicates.ConversationIdPredicate;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ConversationUtil;
-import co.gounplugged.unpluggeddroid.utils.ImageUtil;
-import co.gounplugged.unpluggeddroid.utils.Predicate;
 import de.greenrobot.event.EventBus;
 
 
@@ -60,17 +44,11 @@ public class ChatActivity extends BaseActivity {
     private final String TAG = "ChatActivity";
 
     // Constants
-//    public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
     public static final int VIEWPAGE_MESSAGE_INPUT = 0;
     public static final int VIEWPAGE_SEARCH_CONTACT = 1;
-//    public static final int NAVIGATION_GROUP_ID_CONVERSATIONS = 1;
-
 
     // GUI
     private ViewPager mViewPager;
-    private DrawerLayout mDrawerLayout;
-    private NavigationView mNavigationView;
-    private SubMenu mConversationSubMenu;
     private UnderlinePageIndicator mUnderlinePageIndicator;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
@@ -93,8 +71,6 @@ public class ChatActivity extends BaseActivity {
     private boolean mIsBoundToOpenPGP = false;
 
     private Conversation mSelectedConversation;
-    private List<Conversation> mConversations;
-
 
     private MessageRecyclerViewAdapter mMessageRecyclerViewAdapter;
     private ContactRecyclerViewAdapter mContactRecyclerViewAdapter;
@@ -164,8 +140,6 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected synchronized void onResume() {
         super.onResume();
-//        mConversationContainer.setConversationListener(conversationListener);
-
         EventBus.getDefault().removeStickyEvent(Message.class);
         EventBus.getDefault().registerSticky(this);
     }
@@ -173,24 +147,12 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        mConversationContainer.removeConversationListener(conversationListener);
         EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public void onEventMainThread(Message message) {
@@ -202,23 +164,10 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void loadGui() {
-        setupToolbar("Main");
-
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//
-//        final ActionBar ab = getSupportActionBar();
-//        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
-//        ab.setDisplayHomeAsUpEnabled(true);
-//
-//        DatabaseAccess<Conversation> conversationAccess = new DatabaseAccess<>(getApplicationContext(), Conversation.class);
-//        mConversations = conversationAccess.getAll();
-//
-//        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-//        setupDrawerContent();
+        setupToolbar(NAVIGATION_MAIN_HOME);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
+
         List<Fragment> fragments = new ArrayList<>();
         mMessageInputFragment = (MessageInputFragment) Fragment.instantiate(getApplicationContext(),
                 MessageInputFragment.class.getName(), getIntent().getExtras());
@@ -226,14 +175,13 @@ public class ChatActivity extends BaseActivity {
                 SearchContactFragment.class.getName(), getIntent().getExtras());
         fragments.add(mMessageInputFragment);
         fragments.add(mSearchContactFragment);
-        //add conversations?
+
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
 
         mUnderlinePageIndicator = (UnderlinePageIndicator) findViewById(R.id.indicator);
 //        mUnderlinePageIndicator.setViewPager(mViewPager);
 //        mUnderlinePageIndicator.setCurrentItem(0);
-
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -267,89 +215,6 @@ public class ChatActivity extends BaseActivity {
         );
     }
 
-
-//    private void setupDrawerContent() {
-//        mNavigationView.setNavigationItemSelectedListener(
-//                new NavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-////                        menuItem.setChecked(true);
-//
-//
-//                        switch (menuItem.getItemId()) {
-//                            case R.id.nav_settings:
-//                                startActivity(new Intent(getApplicationContext(), PreferencesActivity.class));
-//                                mDrawerLayout.closeDrawers();
-//                                return true;
-//                            case R.id.nav_profile:
-//                                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-//                                mDrawerLayout.closeDrawers();
-//                                return true;
-//                        }
-//
-//                        Intent intent = menuItem.getIntent();
-//                        if (intent != null) {
-//                            long conversationId = intent.getLongExtra(EXTRA_CONVERSATION_ID, -1);
-//                            mSelectedConversation = Predicate.select(mConversations, new ConversationIdPredicate(conversationId));
-//                            mConversations.remove(mSelectedConversation);
-//                            mConversations.add(0, mSelectedConversation);
-//                            Profile.setLastConversationId(mSelectedConversation.id);
-//                            updateActivityViews();
-//                        }
-//                        mDrawerLayout.closeDrawers();
-//                        return true;
-//                    }
-//                });
-//
-//;
-//
-//        Menu menu = mNavigationView.getMenu();
-//        mConversationSubMenu = menu.addSubMenu("Recent conversations");
-//
-//        for (Conversation conversation : mConversations) {
-//            addConversationToSubMenu(conversation);
-//        }
-//        notifyNavigationMenuChanged();
-//
-//    }
-
-//    private void rebuildSubMenu() {
-//        Menu menu = mNavigationView.getMenu();
-//        menu.removeGroup(NAVIGATION_GROUP_ID_CONVERSATIONS);
-//
-//        for (Conversation conversation : mConversations) {
-//            addConversationToSubMenu(conversation);
-//        }
-//        notifyNavigationMenuChanged();
-//    }
-//
-//    private void addConversationToSubMenu(Conversation conversation) {
-//        mConversationSubMenu.add(NAVIGATION_GROUP_ID_CONVERSATIONS, Menu.NONE, mConversationSubMenu.size(), conversation.getName());
-//        MenuItem item  = mConversationSubMenu.getItem(mConversationSubMenu.size()-1);
-//        item.setIcon(ImageUtil.getDrawableFromUri(getApplicationContext(), conversation.getParticipant().getImageUri()));
-//        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-//        intent.putExtra(EXTRA_CONVERSATION_ID, conversation.id);
-//        item.setIntent(intent);
-//    }
-//
-//    private void notifyNavigationMenuChanged() {
-//        //http://stackoverflow.com/questions/30609408/how-to-add-submenu-items-to-navigationview-programmatically-instead-of-menu-xml
-//        for (int i = 0, count = mNavigationView.getChildCount(); i < count; i++) {
-//            final View child = mNavigationView.getChildAt(i);
-//            if (child != null && child instanceof ListView) {
-//                final ListView menuView = (ListView) child;
-//                final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
-//                final BaseAdapter wrapped = (BaseAdapter) adapter.getWrappedAdapter();
-//                wrapped.notifyDataSetChanged();
-//            }
-//        }
-//    }
-
-
-//    public Toolbar getToolbar() {
-//        return mToolbar;
-//    }
-
     private void toggleRecyclerView(int position) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
@@ -381,7 +246,7 @@ public class ChatActivity extends BaseActivity {
         }
 
         mSelectedConversation = newConversation;
-        mConversations.add(mSelectedConversation);
+//        mConversations.add(mSelectedConversation);
         Profile.setLastConversationId(mSelectedConversation.id);
 
         //update ui with new convo
@@ -431,7 +296,7 @@ public class ChatActivity extends BaseActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "iets";
+            return "BLABLABLABALBALA";
         }
     }
 
