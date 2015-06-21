@@ -11,17 +11,17 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textColor="@color/chat_outgoing_text"
-        android:textColorHint="@color/message_hint"
+        android:textColorHint="@color/text_color_secondary"
         android:inputType="textShortMessage"
         android:imeOptions="actionSend"
         android:imeActionId="1"
         android:imeActionLabel="Send"
         android:layout_toLeftOf="@+id/submit_button"
         android:background="#fff"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         />
 
     <ImageButton
