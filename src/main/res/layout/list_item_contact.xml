@@ -32,6 +32,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceListItemSmall"
             android:textSize="12sp"
+            android:textColor="@color/color_primary_light"
             android:text="+32475932921"
         />
 

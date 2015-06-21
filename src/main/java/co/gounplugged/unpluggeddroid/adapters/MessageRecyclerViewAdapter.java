@@ -2,12 +2,16 @@ package co.gounplugged.unpluggeddroid.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.R;
@@ -77,6 +81,9 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
     public void onBindViewHolder(IncomingAndOutgoingViewHolder holder, int position) {
         Message message = getMessages().get(position);
         holder.tvMessage.setText(message.getText());
+        CharSequence date = DateUtils.getRelativeTimeSpanString(message.getTimeStamp(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+//        Date date = new Date(message.getTimeStamp());
+        holder.tvTimeStamp.setText(date);
     }
 
     @Override
@@ -98,68 +105,16 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
         }
     }
 
-
-//    @Override
-//    public int getCount() {
-//        return getMessages().size();
-//    }
-//
-//    @Override
-//    public Object getItem(int position) {
-//        return getMessages().get(position);
-//    }
-//
-//    @Override
-//    public long getItemId(int position) {
-//        return 0;
-//    }
-//
-//    @Override
-//    public int getViewTypeCount() {
-//        return 2;
-//    }
-//
-//    @Override
-//    public int getItemViewType(int position) {
-//        Message message = getMessages().get(position);
-//        switch (message.getType()) {
-//            case Message.TYPE_INCOMING:
-//                return 0;
-//            case Message.TYPE_OUTGOING:
-//                return 1;
-//            default:
-//                return 0;
-//        }
-//    }
-//
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        Message message = getMessages().get(position);
-//
-//        if (convertView == null) {
-//            if (message.isOutgoing()) {
-//                convertView = mInflater.inflate(R.layout.list_item_message_outgoing, parent, false);
-//            } else {
-//                convertView = mInflater.inflate(R.layout.list_item_message_incoming, parent, false);
-//            }
-//        }
-//
-//        TextView tvName = (TextView) convertView.findViewById(R.id.tv_message);
-//        tvName.setText(message.getText());
-//
-//        return convertView;
-
-//    }
-
-
     public static class IncomingAndOutgoingViewHolder extends RecyclerView.ViewHolder {
 
         public final TextView tvMessage;
+        public final TextView tvTimeStamp;
 
         public IncomingAndOutgoingViewHolder(View itemView) {
             super(itemView);
 
             tvMessage = (TextView) itemView.findViewById(R.id.tv_message);
+            tvTimeStamp = (TextView) itemView.findViewById(R.id.tv_timestamp);
         }
     }
 }
