@@ -1,5 +1,4 @@
 <resources>
-    <color name="window_background">#fff</color>
     <color name="chat_background">#dee1ec</color>
     <color name="chat_incoming_text">#5d728c</color>
     <color name="chat_outgoing_text">#333745</color>
@@ -8,4 +7,12 @@
     <color name="search_hint">#AFAF97</color>
     <color name="chat_timestamp">#b1b7ca</color>
     <color name="transparent">#00000000</color>
+
+
+    <color name="color_primary_dark">#00796B</color>
+    <color name="color_primary">#009688</color>
+    <color name="color_accent">#FFC107</color>
+    <color name="window_background">@color/color_primary</color>
+    <color name="default_text_color">#ffffff</color>
+
 </resources>

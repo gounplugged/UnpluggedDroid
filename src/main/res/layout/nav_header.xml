@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="?attr/colorPrimary"
+    android:background="?attr/colorPrimaryDark"
     >
 
     <ImageView
@@ -24,12 +24,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:background="?attr/colorPrimary"
         android:gravity="center_vertical|start"
         android:minHeight="100dp"
         android:paddingLeft="8dp"
         android:paddingTop="25dp"
         android:text="@string/user_name"
-        tools:ignore="Overdraw,RtlHardcoded,RtlSymmetry" />
+        tools:ignore="Overdraw,RtlHardcoded,RtlSymmetry"
+        android:textColor="@color/default_text_color"/>
 
 </LinearLayout>
