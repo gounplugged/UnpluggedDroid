@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class BaseActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private SubMenu mConversationSubMenu;
+    private TextView mNavHeaderTitle;
 
     private BaseApplication mApplication;
 
@@ -65,6 +67,7 @@ public class BaseActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavHeaderTitle = (TextView) findViewById(R.id.nav_header_title);
 
         setSupportActionBar(mToolbar);
 
@@ -86,6 +89,9 @@ public class BaseActivity extends AppCompatActivity {
                 ab.setTitle("Profile");
                 break;
         }
+
+        //get image for header title
+//        mNavHeaderTitle.setCompoundDrawablesWithIntrinsicBounds(R.drawable.avatar_tim, 0, 0, 0);
 
         setupDrawerConversationContent();
     }
