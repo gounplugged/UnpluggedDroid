@@ -10,6 +10,7 @@
 
 
     <color name="color_primary_dark">#00796B</color>
+    <color name="color_primary_light">#B2DFDB</color>
     <color name="color_primary">#009688</color>
     <color name="color_accent">#FFC107</color>
     <color name="window_background">@color/color_primary</color>

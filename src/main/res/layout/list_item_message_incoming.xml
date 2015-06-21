@@ -3,19 +3,24 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:background="#fff"
+                android:padding="4dp"
                 android:id="@+id/root"
         >
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/tv_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/chat_incoming_text"
-        android:text="This is an example text."
+        android:text="This is an example text. That consists of multiple lines"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="12dp"/>
+        android:layout_marginLeft="32dp"
+        android:background="#fff"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        />
 
 </RelativeLayout>

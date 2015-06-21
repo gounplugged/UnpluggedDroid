@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:background="#fff"
-        >
+                android:padding="12dp" >
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/tv_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="This is an example text."
+        android:text="This is an example text. That consists of multiple lines."
         android:textColor="@color/chat_outgoing_text"
         android:layout_centerVertical="true"
-        android:layout_marginRight="12dp"
-        android:layout_alignParentRight="true"/>
+        android:layout_marginRight="32dp"
+        android:layout_alignParentRight="true"
+        android:background="@color/color_primary_light"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"/>
 
 </RelativeLayout>
