@@ -3,6 +3,7 @@ package co.gounplugged.unpluggeddroid.models;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
@@ -20,7 +21,7 @@ public class SecondLine {
             String message,
             String fromPhone,
             OpenPGPBridgeService openPGPBridgeService)
-            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            throws EncryptionUnavailableException,
             ThrowParser.KreweException {
 
         return new Throw(message, fromPhone, selectedKrewe, openPGPBridgeService);

@@ -1,13 +1,17 @@
 package co.gounplugged.unpluggeddroid.models;
 
-import android.content.Context;
+import android.content.Intent;
 
+import org.openintents.openpgp.util.OpenPgpApi;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
-import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 import co.gounplugged.unpluggeddroid.utils.ThrowParser;
 
 /**
@@ -15,107 +19,140 @@ import co.gounplugged.unpluggeddroid.utils.ThrowParser;
  */
 public class Throw {
     private final static String TAG = "Throw";
+    private final static int STATE_UNINITIALIZED = 0;
+    private final static int STATE_READY_TO_THROW = 1;
+    private final static int STATE_RECEIVED = 2; // if received a throw and could only decrypt a layer
+    private final static int STATE_AT_DESTINATION = 3;
+    private int mState = STATE_UNINITIALIZED;
 
-    public String getEncryptedContent() {
-        return mEncryptedContent;
-    }
-
-    private final String mEncryptedContent;
+    private final String mThrowToAddress; // originator address when arrives
+    private final String mContent;
     private final OpenPGPBridgeService mOpenPGPBridgeService;
 
-    public Mask getThrowTo() {
-        return throwTo;
+    /**
+     *
+     * @return content to be thrown over wire or decrypted message.
+     */
+    public String getContent() throws InvalidStateException {
+        if(mState == STATE_READY_TO_THROW || mState == STATE_AT_DESTINATION) return mContent;
+        throw new InvalidStateException("Throw not ready to be read");
     }
 
-    private final Mask throwTo;
-    /*
-        Use to originate a message
+    /**
+     *
+     * @return address of next Mask in Second Line.
+     */
+    public String getThrowToAddress() throws InvalidStateException {
+        if(mState == STATE_READY_TO_THROW) return mThrowToAddress;
+        throw new InvalidStateException("Throw not ready to be thrown");
+    }
+
+    public int getState() {
+        return this.mState;
+    }
+
+    public boolean isAtDestination() {
+        return this.mState == STATE_AT_DESTINATION;
+    }
+
+    public boolean isRelay() {
+        return this.mState == STATE_READY_TO_THROW;
+    }
+
+    /**
+     * Use this if generating a new message as originator.
+     * @param message
+     * @param originatorNumber
+     * @param krewe
+     * @param openPGPBridgeService
+     * @throws EncryptionUnavailableException
+     * @throws ThrowParser.KreweException
      */
     public Throw(
             String message,
             String originatorNumber,
             Krewe krewe,
             OpenPGPBridgeService openPGPBridgeService)
-            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            throws EncryptionUnavailableException,
             ThrowParser.KreweException {
 
-        this.throwTo = krewe.getNextMask();
         this.mOpenPGPBridgeService = openPGPBridgeService;
-        this.mEncryptedContent = encryptedContentFor(message, originatorNumber, krewe);
+        assertEncryption();
+        this.mThrowToAddress = krewe.getNextMask().getFullNumber();
+        this.mContent = encryptedContentFor(message, originatorNumber, krewe);
+        this.mState = STATE_READY_TO_THROW;
     }
 
-    /*
-        Use when receiving a message from someone else
+    /**
+     * When receiving a message from somebody else.
+     * @param encryptedContent
+     * @param openPGPBridgeService
+     * @throws InvalidPhoneNumberException
+     * @throws InvalidThrowException
      */
-    public Throw(String encryptedContent, OpenPGPBridgeService openPGPBridgeService) throws InvalidPhoneNumberException, InvalidThrowException {
+    public Throw(
+            String encryptedContent,
+            OpenPGPBridgeService openPGPBridgeService)
+            throws InvalidPhoneNumberException,
+            InvalidThrowException,
+            EncryptionUnavailableException {
+
+
+        this.mState = STATE_RECEIVED;
         this.mOpenPGPBridgeService = openPGPBridgeService;
-        if(!ThrowParser.isValidThrow(encryptedContent)) throw new InvalidThrowException("Message is not valid throw");
-        encryptedContent = decryptContent(encryptedContent);
-        this.throwTo = getNextMask(encryptedContent);
-        this.mEncryptedContent = peelOffLayer(encryptedContent);
+        assertEncryption();
+        if(!ThrowParser.isValidThrow(encryptedContent)) throw new InvalidThrowException("Message is not formatted like a throw");
+        String partiallyDecryptedContent = openPGPBridgeService.decrypt(encryptedContent);
+
+        if(ThrowParser.isFullyDecrypted(partiallyDecryptedContent)) {
+            this.mThrowToAddress = ThrowParser.getOriginatorNumber(partiallyDecryptedContent);
+            this.mContent = ThrowParser.getMessage(partiallyDecryptedContent);
+            this.mState = STATE_AT_DESTINATION;
+        } else {
+            this.mThrowToAddress = ThrowParser.getNextMaskAddress(partiallyDecryptedContent);
+            this.mContent = ThrowParser.contentFor(partiallyDecryptedContent);
+            this.mState =  STATE_READY_TO_THROW;
+        }
     }
 
-    /*
-        TODO: Add encryption
-     */
-    private String decryptContent(String encryptedContent) {
-        return encryptedContent;
+    private void assertEncryption() throws EncryptionUnavailableException {
+        if(mOpenPGPBridgeService == null) throw new EncryptionUnavailableException("null");
     }
 
-    /*
-        TODO: Add encryption
+    /**
+     *
+     * @param message
+     * @param originatorNumber
+     * @param krewe
+     * @return
+     * @throws EncryptionUnavailableException
+     * @throws ThrowParser.KreweException
      */
     private String encryptedContentFor(
             String message,
             String originatorNumber,
             Krewe krewe)
-            throws OpenPGPBridgeService.EncryptionUnavailableException,
+            throws EncryptionUnavailableException,
             ThrowParser.KreweException {
 
         return ThrowParser.contentFor(message, originatorNumber, krewe, mOpenPGPBridgeService);
     }
 
-    private Mask getNextMask(String decryptedContent) throws InvalidPhoneNumberException {
-        if(ThrowParser.isValidRelayThrow(decryptedContent)) {
-            String nextPhoneNumber = ThrowParser.getNextMask(decryptedContent);
-            return new Mask(nextPhoneNumber);
-        } else {
-            return null;
+    public String getOriginatorAddress() throws InvalidStateException {
+        if(mState == STATE_AT_DESTINATION) return this.mThrowToAddress;
+        throw new InvalidStateException("Throw is not at its destination. Unable to read originating address");
+    }
+
+    public class InvalidStateException extends Exception {
+        public InvalidStateException(String message) {
+            super(message);
         }
     }
 
-    private String peelOffLayer(String receivedThrowContent) {
-        if(hasArrived()) {
-            return receivedThrowContent;
-        } else {
-            return ThrowParser.removeNextMask(receivedThrowContent);
+    public class InvalidThrowException extends Exception {
+        public InvalidThrowException(String message) {
+            super(message);
         }
-    }
-
-    public boolean hasArrived() {
-        return throwTo == null;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Throw))
-            return false;
-        if (obj == this)
-            return true;
-
-        Throw rhs = (Throw) obj;
-        return mEncryptedContent.equals(rhs.getEncryptedContent());
-    }
-
-    public Contact getThrowOriginator(Context context)
-            throws InvalidPhoneNumberException, PrematureReadException, NotFoundInDatabaseException {
-        if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original sender");
-        return ContactUtil.getContact(context, ThrowParser.getOriginatorNumber(mEncryptedContent));
-    }
-
-    public String getDecryptedContent() throws PrematureReadException {
-        if(!hasArrived()) throw new PrematureReadException("Only the ultimate recipient may read original content");
-        return ThrowParser.getMessage(mEncryptedContent);
     }
 }
 

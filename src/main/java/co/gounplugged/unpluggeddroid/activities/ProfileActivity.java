@@ -22,6 +22,7 @@ public class ProfileActivity extends BaseActivity {
     private Spinner smsPlanSpinner;
     private TextView defaultAppStatusText;
     private Preference defaultAppPreference;
+    private TextView passwordInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class ProfileActivity extends BaseActivity {
             public void onClick(View v) {
                 setPhoneNumber();
                 setSmsPlan();
+                setPassword();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
                 Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
@@ -60,6 +62,8 @@ public class ProfileActivity extends BaseActivity {
                 }
             });
         }
+
+        passwordInput = (TextView) findViewById(R.id.password_activity_profile);
     }
 
 
@@ -74,6 +78,12 @@ public class ProfileActivity extends BaseActivity {
         Profile.setPhoneNumber(phoneNumber);
         ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
+
+    private void setPassword() {
+        String password = passwordInput.getText().toString();
+        Profile.setPassword(password);
+    }
+
 
     private void setupSmsPlan() {
         smsPlanSpinner = (Spinner) findViewById(R.id.sms_plan_selection_activity_profile);

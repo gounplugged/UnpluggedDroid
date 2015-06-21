@@ -1,34 +1,21 @@
 package co.gounplugged.unpluggeddroid.fragments;
 
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 
-import java.util.List;
-
 import co.gounplugged.unpluggeddroid.R;
-import co.gounplugged.unpluggeddroid.activities.BaseActivity;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.adapters.ContactAdapter;
 import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
-import co.gounplugged.unpluggeddroid.adapters.ConversationRecyclerViewAdapter;
-import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
 import co.gounplugged.unpluggeddroid.events.ConversationEvent;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
@@ -85,7 +72,7 @@ public class ContactListFragment  extends Fragment implements AdapterView.OnItem
         } catch(NotFoundInDatabaseException e) {
             try {
                 newConversation = ConversationUtil.createConversation(contact, getActivity());
-            } catch (InvalidConversationException e1) {
+            } catch (Conversation.InvalidConversationException e1) {
                 //TODO let user know something went wrong
                 return;
             }

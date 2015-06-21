@@ -1,8 +1,11 @@
 package co.gounplugged.unpluggeddroid.application;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -31,6 +34,23 @@ public class BaseApplication extends Application {
     private List<Mask> mKnownMasks;
     private List<Conversation> mRecentConversations;
 
+    private OpenPGPBridgeService mOpenPGPBridgeService;
+    private boolean mIsBoundToOpenPGP = false;
+    private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
+            mOpenPGPBridgeService = binder.getService();
+            mIsBoundToOpenPGP = true;
+            Log.d(TAG, "bound to pgp bridge");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mIsBoundToOpenPGP = false;
+            Log.d(TAG, "unbound from pgp bridge");
+        }
+    };
 
     public static final BaseApplication getInstance(Context c) {
         return (BaseApplication) c.getApplicationContext();
@@ -64,8 +84,25 @@ public class BaseApplication extends Application {
         mRecentConversations = new ConversationDatabaseAccess(getApplicationContext()).getRecentConversations();
 
         Log.d(TAG, "APPLICATION PROGRESSED");
+
         startService(new Intent(this, EdgenetClientService.class));
         startService(new Intent(this, OpenPGPBridgeService.class));
+
+        bindService(
+                new Intent(this, OpenPGPBridgeService.class),
+                mOpenPGPBridgeConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+    public void unbindFromPGPService() {
+        if (mIsBoundToOpenPGP) {
+            unbindService(mOpenPGPBridgeConnection);
+            mIsBoundToOpenPGP = false;
+        }
+    }
+
+    public OpenPGPBridgeService getOpenPGPBridgeService() {
+        return mOpenPGPBridgeService;
     }
 
     private void initManagers() {

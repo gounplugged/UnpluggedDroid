@@ -7,16 +7,12 @@ import android.util.Log;
 
 import java.util.List;
 
-import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidConversationException;
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.InvalidThrowException;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.exceptions.PrematureReadException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.models.Profile;
@@ -42,55 +38,74 @@ public class ThrowManager {
 
     /**
      * Process incoming SMS messages as throw or regular sms
-     * @param receivedSMS
+     * @param lastSMSInBundle
+     * @param concatenatedText
      */
-    public void processUnknownSMS(SmsMessage receivedSMS) {
-        String receivedText = receivedSMS.getMessageBody().toString();
-        Log.d(TAG, "Received text: " + receivedText);
+    public void processUnknownSMS(SmsMessage lastSMSInBundle, String concatenatedText) {
+        Log.d(TAG, "Received text: " + concatenatedText);
         try {
-            Throw receivedThrow = new Throw(receivedText, null);
-            processThrow(mContext, receivedThrow);
-        }  catch (InvalidThrowException e) {
-            processRegularSMS(receivedSMS);
+            Throw receivedThrow = new Throw(concatenatedText, ((BaseApplication) mContext).getOpenPGPBridgeService());
+            processThrow(receivedThrow);
+            Log.d(TAG, "processed as throw");
+        }  catch (Throw.InvalidThrowException e) {
+            processRegularSMS(lastSMSInBundle, concatenatedText);
+            Log.d(TAG, "processed as SMS");
         } catch (InvalidPhoneNumberException e) {
             //TODO recover from problem to ensure message delivery
+            Log.d(TAG, "process interrupted for invalid phone number");
+        } catch (EncryptionUnavailableException e) {
+            // TODO first assume regular SMS. If fail, wait for decryption then try again.
+            Log.d(TAG, "processed interuppted because no encryption available");
         }
     }
 
     /**
-     * Decrypt Throw and either send to next person if relay or add to messages if recipient.
-     * @param context
+     * Decide whether to throw again or process as received message.
      * @param receivedThrow
      */
-    private void processThrow(Context context, Throw receivedThrow) {
-        if(!receivedThrow.hasArrived()) { // Being used as relay Mask. Throw again.
-            String nextText = receivedThrow.getEncryptedContent();
-            SMSUtil.sendSms(receivedThrow.getThrowTo().getFullNumber(), nextText);
-        } else { // Message has received at ultimate recipient
-            try {
-                Contact originator = receivedThrow.getThrowOriginator(context);
-                Conversation conversation = ConversationUtil.findOrNew(originator, context);
-                receiveThrow(receivedThrow, conversation);
-            } catch (PrematureReadException e) { // Tried reading message even though not ultimate recipient
-
-            } catch (NotFoundInDatabaseException e) { // Sender not a known contact
-                Log.e(TAG, "Contact not found");
-            } catch (InvalidPhoneNumberException e) { // Sender number malformed
-                //TODO recover from problem to ensure message delivery
-                Log.e(TAG, "Invalid phone number");
-            } catch (InvalidConversationException e) {
-                // TODO Originator null
+    private void processThrow(Throw receivedThrow) {
+        try {
+            String content = receivedThrow.getContent();
+            if (receivedThrow.isAtDestination()) {
+                // Throw reached its final destination.
+                processThrowAtDestination(receivedThrow);
+                Log.d(TAG, "processed throw at destination");
+            } else if (receivedThrow.isRelay()) {
+                // Just a relay. Throw to next Mask.
+                SMSUtil.sendSms(receivedThrow.getThrowToAddress(), content);
+                Log.d(TAG, "processed throw as relay");
+            } else {
+                // Should never be the case.
             }
+        } catch (Throw.InvalidStateException e) {
+            // Received a weird throw. Ignore.
+        }
+    }
+
+    public void processThrowAtDestination(Throw throwAtDestination) {
+        try {
+            String originatorAddress = throwAtDestination.getOriginatorAddress();
+            Contact originator = ContactUtil.firstOrCreate(mContext, originatorAddress, originatorAddress);
+            Conversation conversation = ConversationUtil.findOrNew(originator, mContext);
+            String receivedText = throwAtDestination.getContent();
+            addTextToConversation(receivedText, conversation);
+        } catch (Throw.InvalidStateException e) {
+            // Should never be here
+        } catch (InvalidPhoneNumberException e) {
+            // TODO throw was created with a bad from address. Reply impossible. Display anyways?
+            // For now, ignore.
+        } catch (Conversation.InvalidConversationException e) {
+            // TODO Originator null
         }
     }
 
     /**
      * Find or create appropriate conversation for this message.
-     * @param receivedSMS
+     * @param lastSMSInBundle
+     * @param concatenatedText
      */
-    private void processRegularSMS(SmsMessage receivedSMS) {
-        String originatingAddress = receivedSMS.getOriginatingAddress();
-        String text = receivedSMS.getMessageBody();
+    private void processRegularSMS(SmsMessage lastSMSInBundle, String concatenatedText) {
+        String originatingAddress = lastSMSInBundle.getOriginatingAddress();
 
         Contact participant;
         // Find or create Contact based on sender's phone number
@@ -106,23 +121,25 @@ public class ThrowManager {
             }
         }
 
-        boolean isSLMessage = MessageUtil.isSLCompatible(text);
+        boolean isSLMessage = MessageUtil.isSLCompatible(concatenatedText);
         Log.d(TAG, "Message tagged as SL compatible: " + isSLMessage);
         if(isSLMessage) {
             participant.setUsesSecondLine(mContext, isSLMessage);
-            text = MessageUtil.sanitizeSLCompatibilityText(text);
+            concatenatedText = MessageUtil.sanitizeSLCompatibilityText(concatenatedText);
         }
 
         // Find or create conversation with participant
         Conversation conversation = null;
         try {
+            Log.d(TAG, "Participant tagged as SL compatible: " + participant.usesSecondLine());
             conversation = ConversationUtil.findOrNew(participant, mContext);
-            Log.d(TAG, "CONVO DOES THIS: " + conversation.isSecondLineComptabile());
-        } catch (InvalidConversationException e) {
+            Log.d(TAG, "Conversation tagged as SL compatible: " + conversation.isSecondLineComptabile());
+
+        } catch (Conversation.InvalidConversationException e) {
             // TODO can participant ever be null?
         }
 
-        addTextToConversation(text, conversation);
+        addTextToConversation(concatenatedText, conversation);
     }
 
     /**
@@ -130,18 +147,26 @@ public class ThrowManager {
      * @param conversation
      * @param text
      */
-    public void sendMessage(Conversation conversation, String text, OpenPGPBridgeService openPGPBridgeService) {
-        Message message = MessageUtil.create(
-                mContext,
-                conversation,
-                text,
-                Message.TYPE_OUTGOING,
-                System.currentTimeMillis());
+    public void sendMessage(final Conversation conversation, final String text, final OpenPGPBridgeService openPGPBridgeService) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Message message = MessageUtil.create(
+                        mContext,
+                        conversation,
+                        text,
+                        Message.TYPE_OUTGOING,
+                        System.currentTimeMillis());
 
-        EventBus.getDefault().postSticky(message);
+                Log.d(TAG, "sendMessage message uses SL: " + message.getConversation().isSecondLineComptabile() +
+                        " conversation uses SL: " + conversation.isSecondLineComptabile());
 
-        sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks(), openPGPBridgeService);
-        Log.d(TAG, "Sending message: " + message);
+                EventBus.getDefault().postSticky(message);
+
+                sendSMSOverWire(message, BaseApplication.getInstance(mContext).getKnownMasks(), openPGPBridgeService);
+                Log.d(TAG, "Sending message: " + message);
+            }
+        }).run();
     }
 
 
@@ -163,33 +188,33 @@ public class ThrowManager {
             Throw t = null;
             try {
                 t = secondLine.getThrow(message.getText(), Profile.getPhoneNumber(), openPGPBridgeService);
-            } catch (OpenPGPBridgeService.EncryptionUnavailableException e) {
-                // TODO recover from failure
-                return;
+            } catch (EncryptionUnavailableException e) {
+                // Encryption unavailable so just send normally
+                phoneNumber = conversation.getParticipant().getFullNumber();
+                message.mutateTextToShowSLCompatibility();
+                text = message.getText();
+                SMSUtil.sendSms(phoneNumber, text);
             } catch (ThrowParser.KreweException e) {
                 // TODO make sure krewe is never too short
                 return;
             }
-            phoneNumber = t.getThrowTo().getFullNumber();
-            text = t.getEncryptedContent();
+
+            try {
+                phoneNumber = t.getThrowToAddress();
+                text = t.getContent();
+                SMSUtil.sendSms(phoneNumber, text);
+                return;
+            } catch (Throw.InvalidStateException e) {
+                // TODO something went wrong with encryption
+                return;
+            }
+
         } else { // Regular messages are mutated to indicate they were created with SL
             phoneNumber = conversation.getParticipant().getFullNumber();
             message.mutateTextToShowSLCompatibility();
             text = message.getText();
+            SMSUtil.sendSms(phoneNumber, text);
         }
-
-        // Send text to phoneNumber
-        SMSUtil.sendSms(phoneNumber, text);
-    }
-
-    /**
-     *
-     * @param receivedThrow
-     * @param conversation
-     */
-    private void receiveThrow(Throw receivedThrow, Conversation conversation) {
-        String receivedText = ThrowParser.getMessage(receivedThrow.getEncryptedContent());
-        addTextToConversation(receivedText, conversation);
     }
 
     /**

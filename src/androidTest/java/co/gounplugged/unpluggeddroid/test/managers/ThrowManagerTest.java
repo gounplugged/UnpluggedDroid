@@ -63,11 +63,11 @@ public class ThrowManagerTest extends AndroidTestCase {
     }
 
     public void testUnderstandsSLMessages() {
-        throwManager.processUnknownSMS(marvinMessage);
+        throwManager.processUnknownSMS(marvinMessage, marvinText);
         assertEquals(1, ContactUtil.getAll(getContext()).size()); // No additional contacts created
         assertFalse(marvin.usesSecondLine());
 
-        throwManager.processUnknownSMS(marvin_Message);
+        throwManager.processUnknownSMS(marvin_Message, marvin_Text);
         ContactUtil.refresh(getContext(), marvin);
         assertEquals(1, ContactUtil.getAll(getContext()).size()); // No additional contacts created
         assertTrue(marvin.usesSecondLine());
@@ -78,7 +78,7 @@ public class ThrowManagerTest extends AndroidTestCase {
      */
     public void testSLIdentifierNotAdded() {
         MessageUtil.deleteAll(getContext());
-        throwManager.processUnknownSMS(marvin_Message);
+        throwManager.processUnknownSMS(marvin_Message, marvin_Text);
         assertEquals(marvinText, MessageUtil.getAll(getContext()).get(0).getText());
     }
 

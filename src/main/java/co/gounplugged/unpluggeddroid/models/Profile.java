@@ -21,6 +21,10 @@ public class Profile {
     public static final int SMS_DEFAULT = SMS_LIMITED;
     public static final String SMS_PLAN_PREFERENCE_NAME = "SMSPref";
 
+    public static final String PASSWORD_PREFERENCE_NAME = "PasswordPref";
+    public static final String PASSWORD_UNSET_VALUE = "";
+    public static String password;
+
     public static final String PHONE_NUMBER_PREFERENCE_NAME = "CountryPref";
 
     public static int getSmsPlan() {
@@ -97,6 +101,7 @@ public class Profile {
         phoneNumber = profileSharedPreferences.getString(PHONE_NUMBER_PREFERENCE_NAME, null);
         contactsSynced = profileSharedPreferences.getBoolean(ARE_CONTACTS_SYNCED_PREFERENCE_NAME, false);
         lastSelectedConversationId = profileSharedPreferences.getLong(LAST_SELECTED_CONVERSATION_ID, LAST_SELECTED_CONVERSATION_UNSET_ID);
+        password = profileSharedPreferences.getString(PASSWORD_PREFERENCE_NAME, PASSWORD_UNSET_VALUE);
         applicationState = profileSharedPreferences.getInt(APPLICATION_STATE_PREFERENCE_NAME, APPLICATION_STATE_UNINITALIZED);
     }
 
@@ -124,6 +129,18 @@ public class Profile {
         SharedPreferences.Editor editor = profileSharedPreferences.edit();
         editor.putLong(LAST_SELECTED_CONVERSATION_ID, lastSelectedConversationId);
         editor.commit();
+    }
+
+    public static void setPassword(String pass) {
+        Log.d(TAG, "Setting password to " + pass);
+        password = pass;
+        SharedPreferences.Editor editor = profileSharedPreferences.edit();
+        editor.putString(PASSWORD_PREFERENCE_NAME, password);
+        editor.commit();
+    }
+
+    public static String getPassword() {
+        return password;
     }
 
     // Update application stated based on current settings
