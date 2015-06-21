@@ -46,7 +46,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
 
     public void filter(String query) {
         if (query.length() >= 3) {
-            mContacts = (List<Contact>) Predicate.filter(mContacts, new ContactSearchPredicate(query));
+            mContacts = (List<Contact>) Predicate.filter(mContactsClone, new ContactSearchPredicate(query));
             notifyDataSetChanged();
         } else {
             mContacts = new ArrayList<>(mContactsClone);
