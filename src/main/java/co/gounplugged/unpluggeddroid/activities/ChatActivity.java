@@ -152,6 +152,8 @@ public class ChatActivity extends BaseActivity {
     }
 
     public void filterContacts(String query) {
+        if (null == mContactRecyclerViewAdapter)
+            return;
         mContactRecyclerViewAdapter.filter(query);
     }
 

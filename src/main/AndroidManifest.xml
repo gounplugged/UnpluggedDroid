@@ -42,10 +42,8 @@
             android:enabled="true" />
 
         <activity
-            android:name=".activities.ChatActivity"
-            android:configChanges="orientation|screenSize"
-            >
-            <intent-filter>
+            android:name=".activities.ChatActivity" >
+        <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
                 <data android:scheme="sms" />
                 <data android:scheme="smsto" />
