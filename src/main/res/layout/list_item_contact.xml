@@ -8,21 +8,34 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:scaleType="centerCrop"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-
+        android:layout_margin="12dp"
         />
 
-    <TextView
-        android:id="@+id/tv_name"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceListItem"
-        android:text="This is an example text."
+        android:orientation="vertical"
+        android:layout_toRightOf="@+id/iv_avatar"
         android:layout_centerVertical="true"
-        android:paddingTop="20dp"
-        android:paddingBottom="24dp"
-        android:paddingLeft="72dp"
-        android:paddingRight="16dp"/>
+        >
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:text="This is an example text."
+        />
+        <TextView
+            android:id="@+id/tv_phone_nr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"
+            android:textSize="12sp"
+            android:textColor="@color/color_primary_light"
+            android:text="+32475932921"
+        />
+
+    </LinearLayout>
 
 </RelativeLayout>

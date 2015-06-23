@@ -4,19 +4,21 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity">
 
+    <!--main-->
     <FrameLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <!--main-->
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/chat_background">
+            android:background="@color/chat_background"
+            android:paddingTop="?attr/actionBarSize"
+            android:clipToPadding="false">
 
 
             <View
@@ -63,7 +65,7 @@
 
                 </LinearLayout>
 
-
+                <!--chats and contacts-fragment-->
                 <ListView
                     android:id="@+id/lv_chats"
                     android:layout_width="match_parent"
@@ -84,12 +86,30 @@
                     android:layout_toLeftOf="@+id/conversation_root"
                     />
 
+                <!-- todo extract fragment from xml and lazy-load programatically-->
+                <fragment
+                    android:id="@+id/contact_list_fragment_container"
+                    android:name="co.gounplugged.unpluggeddroid.fragments.ContactListFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#002200"
+                    />
+
             </RelativeLayout>
 
         </RelativeLayout>
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/actionBarSize"
+            android:background="@color/link_text_material_light" >
+        </android.support.v7.widget.Toolbar>
+
     </FrameLayout>
 
+    <!--drawer-->
     <ListView
         android:id="@+id/drawer"
         android:layout_width="240dp"

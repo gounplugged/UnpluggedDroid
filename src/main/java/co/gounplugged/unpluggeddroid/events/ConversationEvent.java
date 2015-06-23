@@ -26,16 +26,4 @@ public class ConversationEvent {
         return mConversation;
     }
 
-    @Override
-    public String toString() {
-        return new StringBuilder()
-                .append("conversation-event : { ")
-                .append("\n")
-                .append("type: " + mType.toString())
-                .append("\n")
-                .append(mConversation.toString())
-                .append("\n")
-                .append("}")
-                .toString();
-    }
 }

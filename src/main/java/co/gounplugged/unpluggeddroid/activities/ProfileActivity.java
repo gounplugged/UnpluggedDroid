@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.provider.Telephony;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,6 +16,7 @@ import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
 public class ProfileActivity extends BaseActivity {
+
     private TextView phoneNumberInput;
     private Button submitButton;
     private Spinner smsPlanSpinner;
@@ -28,8 +28,6 @@ public class ProfileActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-        displayHomeAsUp();
 
         setupPhoneNumber();
         setupSmsPlan();
@@ -43,7 +41,7 @@ public class ProfileActivity extends BaseActivity {
                 setPassword();
                 ((BaseApplication) getApplicationContext()).refreshKnownMasks();
                 ((BaseApplication) getApplicationContext()).generatePGPKey();
-                Intent mainIntent = new Intent(ProfileActivity.this, SettingsActivity.class);
+                Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
             }
@@ -117,20 +115,5 @@ public class ProfileActivity extends BaseActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_profile, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

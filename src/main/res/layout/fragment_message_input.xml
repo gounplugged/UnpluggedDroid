@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/bottom_container"
+    android:id="@+id/message_input_container"
     android:layout_height="80dp"
     android:layout_width="match_parent"
     android:layout_alignParentBottom="true"
@@ -11,17 +11,17 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textColor="@color/chat_outgoing_text"
-        android:textColorHint="@color/message_hint"
+        android:textColorHint="@color/text_color_secondary"
         android:inputType="textShortMessage"
         android:imeOptions="actionSend"
         android:imeActionId="1"
         android:imeActionLabel="Send"
         android:layout_toLeftOf="@+id/submit_button"
         android:background="#fff"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         />
 
     <ImageButton

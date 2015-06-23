@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="?attr/colorPrimaryDark"
+    >
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/avatar_tim"
+        android:scaleType="centerInside"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="8dp"
+        />
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="@style/TextAppearance.AppCompat.Title.Inverse"
+        android:id="@+id/nav_header_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:gravity="center_vertical|start"
+        android:minHeight="100dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="25dp"
+        android:text="@string/user_name"
+        tools:ignore="Overdraw,RtlHardcoded,RtlSymmetry"
+        android:textColor="@color/default_text_color"/>
+
+</LinearLayout>

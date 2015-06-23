@@ -1,7 +1,11 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import android.text.format.DateUtils;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.util.Date;
 
 import co.gounplugged.unpluggeddroid.utils.MessageUtil;
 
@@ -56,6 +60,10 @@ public class Message {
 
     public void mutateTextToShowSLCompatibility() {
         this.mText = MessageUtil.mutateTextToShowSLCompatibility(mText);
+    }
+
+    public long getTimeStamp() {
+        return mTimeStamp;
     }
 
     @Override
