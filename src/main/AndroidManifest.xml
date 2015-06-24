@@ -42,7 +42,8 @@
             android:enabled="true" />
 
         <activity
-            android:name=".activities.ChatActivity" >
+            android:name=".activities.ChatActivity"
+            android:windowSoftInputMode="adjustResize">
         <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
                 <data android:scheme="sms" />
