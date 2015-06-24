@@ -18,6 +18,7 @@ import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
+import co.gounplugged.unpluggeddroid.services.DemoPgpService;
 import co.gounplugged.unpluggeddroid.services.EdgenetClientService;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
@@ -39,7 +40,7 @@ public class BaseApplication extends Application {
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
+            DemoPgpService.LocalBinder binder = (DemoPgpService.LocalBinder) service;
             mOpenPGPBridgeService = binder.getService();
             mIsBoundToOpenPGP = true;
             Log.d(TAG, "bound to pgp bridge");
