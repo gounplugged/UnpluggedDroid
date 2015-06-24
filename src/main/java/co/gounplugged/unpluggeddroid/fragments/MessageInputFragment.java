@@ -118,6 +118,8 @@ public class MessageInputFragment extends Fragment {
     }
 
     private Conversation getLastConversation() {
+        if (null == getActivity())
+            return null;
         return ((ChatActivity) getActivity()).getLastSelectedConversation();
     }
 
