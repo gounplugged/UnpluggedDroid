@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
@@ -79,6 +80,9 @@ public class ChatActivity extends BaseActivity {
     private MessageInputFragment mMessageInputFragment;
     private SearchContactFragment mSearchContactFragment;
 
+    private String mSavedQuery = null;
+
+
     /*
         Return the last selected conversation. Null if no last conversation.
      */
@@ -142,6 +146,19 @@ public class ChatActivity extends BaseActivity {
         EventBus.getDefault().unregister(this);
     }
 
+    private static final String BUNDLE_KEY_VIEW_PAGE = "co.gounplugged.unpluggeddroid.mCurrentView";
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putInt(BUNDLE_KEY_VIEW_PAGE, mCurrentViewPage);
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mCurrentViewPage = savedInstanceState.getInt(BUNDLE_KEY_VIEW_PAGE);
+        toggleRecyclerView(mCurrentViewPage);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -151,7 +168,11 @@ public class ChatActivity extends BaseActivity {
         mMessageRecyclerViewAdapter.addMessage(message);
     }
 
+
     public void filterContacts(String query) {
+        mSavedQuery = query;
+        if (null == mContactRecyclerViewAdapter)
+            return;
         mContactRecyclerViewAdapter.filter(query);
     }
 
@@ -331,6 +352,14 @@ public class ChatActivity extends BaseActivity {
         protected void onPostExecute(List<Contact> contacts) {
             super.onPostExecute(contacts);
             mContactRecyclerViewAdapter = new ContactRecyclerViewAdapter(getApplicationContext(), contacts);
+
+            if (!TextUtils.isEmpty(mSavedQuery))
+                mContactRecyclerViewAdapter.filter(mSavedQuery);
+
+            //todo activity could be killed at this point!
+            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+            if (mCurrentViewPage == VIEWPAGE_SEARCH_CONTACT)
+                recyclerView.setAdapter(mContactRecyclerViewAdapter);
         }
 
 
