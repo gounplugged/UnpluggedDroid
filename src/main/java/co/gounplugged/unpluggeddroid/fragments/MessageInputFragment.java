@@ -121,16 +121,19 @@ public class MessageInputFragment extends Fragment {
 
 
     private void setHint(Conversation lastConversation) {
-        String hint;
-        // TODO should really just not show text input on first run
-        if(lastConversation == null) {
-            hint = getString(R.string.new_post_text_hint_first_run);
-        } else {
-            String conversationName = lastConversation.getName();
-            hint = (getString(R.string.new_post_text_hint)) + " " + conversationName;
-        }
+        String hint = "";
+        if (getActivity() != null && !getActivity().isFinishing()) {
+            // TODO should really just not show text input on first run
+            if(lastConversation == null) {
+                hint = getString(R.string.new_post_text_hint_first_run);
+            } else {
+                String conversationName = lastConversation.getName();
+                hint = (getString(R.string.new_post_text_hint)) + " " + conversationName;
+            }
 
+        }
         newPostText.setHint(hint);
+
     }
 
     private void setSubmitButtonImage(Conversation conversation) {
