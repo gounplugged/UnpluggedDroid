@@ -36,27 +36,12 @@ public class MessageInputFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        EventBus.getDefault().removeAllStickyEvents();
-//        EventBus.getDefault().unregister(this);
     }
-
-//    public void onEventMainThread(ConversationEvent event) {
-////        switch (event.getType()) {
-////            case SELECTED:
-////                break;
-////            case SWITCHED:
-////                setSubmitButtonImage(event.getConversation());
-////                setHint(event.getConversation());
-////                break;
-////        }
-//
-//    }
 
     public void updateViews() {
         final Conversation lastConversation = getLastConversation();

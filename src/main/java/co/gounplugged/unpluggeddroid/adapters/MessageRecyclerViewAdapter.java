@@ -66,13 +66,16 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
     public IncomingAndOutgoingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case ITEM_VIEW_TYPE_INCOMING:
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_message_incoming, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(
+                        R.layout.list_item_message_incoming, parent, false);
                 return new IncomingAndOutgoingViewHolder(view);
             case ITEM_VIEW_TYPE_OUTGOING:
-                View view2 = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_message_outgoing, parent, false);
+                View view2 = LayoutInflater.from(parent.getContext()).inflate(
+                        R.layout.list_item_message_outgoing, parent, false);
                 return new IncomingAndOutgoingViewHolder(view2);
             default:
-                View view3 = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_message_incoming, parent, false);
+                View view3 = LayoutInflater.from(parent.getContext()).inflate(
+                        R.layout.list_item_message_incoming, parent, false);
                 return new IncomingAndOutgoingViewHolder(view3);
         }
     }
@@ -81,8 +84,8 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
     public void onBindViewHolder(IncomingAndOutgoingViewHolder holder, int position) {
         Message message = getMessages().get(position);
         holder.tvMessage.setText(message.getText());
-        CharSequence date = DateUtils.getRelativeTimeSpanString(message.getTimeStamp(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
-//        Date date = new Date(message.getTimeStamp());
+        CharSequence date = DateUtils.getRelativeTimeSpanString(
+                message.getTimeStamp(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         holder.tvTimeStamp.setText(date);
     }
 
