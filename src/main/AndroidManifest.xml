@@ -62,6 +62,15 @@
                 android:value=".activities.ChatActivity" />
         </activity>
         <activity
+            android:name=".activities.IntroActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.ChatActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatActivity" />
+        </activity>
+        <activity
             android:name=".activities.NotificationsActivity"
             android:label="@string/title_activity_notifications"
             android:parentActivityName=".activities.ChatActivity" >

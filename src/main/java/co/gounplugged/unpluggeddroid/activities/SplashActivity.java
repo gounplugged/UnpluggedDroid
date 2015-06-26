@@ -32,7 +32,7 @@ public class SplashActivity extends BaseActivity {
                 switch (applicationState) {
                     // Go to ProfileActivity in order to be able to send messages
                     case Profile.APPLICATION_STATE_UNINITALIZED:
-                        Intent profileIntent = new Intent(SplashActivity.this, ProfileActivity.class);
+                        Intent profileIntent = new Intent(SplashActivity.this, IntroActivity.class);
                         SplashActivity.this.startActivity(profileIntent);
                         SplashActivity.this.finish();
                         break;

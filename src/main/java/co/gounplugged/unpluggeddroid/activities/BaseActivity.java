@@ -123,7 +123,7 @@ public class BaseActivity extends AppCompatActivity {
                             startActivity(intent1);
                             break;
                         case R.id.nav_profile:
-                            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                            startActivity(new Intent(getApplicationContext(), IntroActivity.class));
                             break;
                     }
 
