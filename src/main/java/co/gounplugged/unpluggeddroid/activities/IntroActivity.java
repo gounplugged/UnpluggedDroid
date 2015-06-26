@@ -25,6 +25,9 @@ public class IntroActivity extends BaseActivity {
         setContentView(R.layout.activity_intro);
         ButterKnife.inject(this);
 
+        setupToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         
 
 

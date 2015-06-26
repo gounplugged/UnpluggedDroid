@@ -57,14 +57,22 @@ public class BaseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                if (mDrawerLayout == null)
+                    return super.onOptionsItemSelected(item);
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    protected void setupToolbar(int mainNavigationId) {
+    protected void setupToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+    }
+
+    protected void setupDrawer(int mainNavigationId) {
+        setupToolbar();
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavHeaderTitle = (TextView) findViewById(R.id.nav_header_title);

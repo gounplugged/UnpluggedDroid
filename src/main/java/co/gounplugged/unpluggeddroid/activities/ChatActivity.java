@@ -186,7 +186,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void loadGui() {
-        setupToolbar(NAVIGATION_MAIN_HOME);
+        setupDrawer(NAVIGATION_MAIN_HOME);
 
         getSupportActionBar().setTitle(getConversationName());
 
