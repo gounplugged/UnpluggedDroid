@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid.activities;
 
 import android.os.Bundle;
+import android.view.Menu;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -31,6 +32,13 @@ public class IntroActivity extends BaseActivity {
         getSupportActionBar().setTitle(getString(R.string.app_name));
 
         setupRadioGroup();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_intro, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void setupRadioGroup() {
