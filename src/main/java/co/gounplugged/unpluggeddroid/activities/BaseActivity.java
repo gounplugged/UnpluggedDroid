@@ -27,7 +27,7 @@ import co.gounplugged.unpluggeddroid.models.predicates.ConversationIdPredicate;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 import co.gounplugged.unpluggeddroid.utils.Predicate;
 
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     public static final String EXTRA_CONVERSATION_ID = "co.gounplugged.unpluggeddroid.EXTRA_CONVERSATION_ID";
 
