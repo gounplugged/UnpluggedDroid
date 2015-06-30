@@ -58,35 +58,26 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/sms_plan_activity_profile"
-            android:id="@+id/sms_plan_title_activity_profile"
+            android:id="@+id/tv_sms_plan_title"
             android:layout_below="@+id/text_input_password"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
-        <!--<Spinner-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/sms_plan_selection_activity_profile"-->
-            <!--android:layout_below="@+id/sms_plan_title_activity_profile"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_alignParentStart="true" />-->
-
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/sms_plan_title_activity_profile"
+            android:layout_below="@+id/tv_sms_plan_title"
             android:id="@+id/rg_sms_plan"/>
 
 
-        <Button
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/submit_phone_number_activity_profile"
-            android:id="@+id/submit_phone_number_activity_profile"
-            android:layout_alignParentBottom="true"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/tv_default_app_status"
+            android:layout_below="@+id/rg_sms_plan"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="130dp" />
+            android:layout_alignParentStart="true" />
 
     </RelativeLayout>
 

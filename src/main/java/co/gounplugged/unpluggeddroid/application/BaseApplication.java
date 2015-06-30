@@ -168,10 +168,10 @@ public class BaseApplication extends Application {
     }
 
     public boolean isDefaultSMSApp() {
-        String defaultApplication = Settings.Secure.getString(getContentResolver(),  SMS_DEFAULT_APPLICATION);
+        String defaultApplication = Settings.Secure.getString(getContentResolver(), SMS_DEFAULT_APPLICATION);
         String thisApplication = getApplicationContext().getPackageName();
 
-        return defaultApplication.equals(thisApplication);
+        return thisApplication.equals(defaultApplication);
     }
 
     public void checkDefaultSMSApp() {
