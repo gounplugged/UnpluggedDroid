@@ -8,6 +8,10 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.viewpagerindicator.CirclePageIndicator;
+import com.viewpagerindicator.LinePageIndicator;
+import com.viewpagerindicator.TitlePageIndicator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,9 @@ public class IntroActivity extends BaseActivity {
         getSupportActionBar().setTitle(getString(R.string.app_name));
 
         setupViewPager();
+
+        CirclePageIndicator circlePageIndicator = (CirclePageIndicator)findViewById(R.id.titles);
+        circlePageIndicator.setViewPager(viewPager);
     }
 
     @Override
