@@ -32,8 +32,8 @@ dependencies {
     compile 'com.facebook.stetho:stetho:+'
     compile 'com.jakewharton:butterknife:+'
     compile 'com.squareup.dagger:dagger:+'
-
-
+    compile 'com.android.support:support-v13:+'  //contains FragmentPagerAdapter for non-support fragments
+    compile 'org.jraf:android-switch-backport:2.0.1' //used for switch pref
 }
 
 android {

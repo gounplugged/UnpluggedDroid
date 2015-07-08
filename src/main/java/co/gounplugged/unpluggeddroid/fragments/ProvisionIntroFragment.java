@@ -26,7 +26,7 @@ import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
 
-public class ProvisionIntroFragment extends Fragment {
+public class ProvisionIntroFragment extends BaseIntroFragment {
 
     @Bind(R.id.et_phone_number) EditText editTextPhoneNumber;
     @Bind(R.id.et_password) EditText editTextPassword;
@@ -47,18 +47,18 @@ public class ProvisionIntroFragment extends Fragment {
         return view;
     }
 
-    // todo: implement
+    @Override
     public boolean isInputValid() {
-        saveProfileInfo();
+        //todo: implement
         return true;
     }
 
-    private void saveProfileInfo() {
+    @Override
+    public void saveInfo() {
         String phoneNumber = editTextPhoneNumber.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
         Profile.setPhoneNumber(phoneNumber);
         Profile.setPassword(password);
     }
-
 }

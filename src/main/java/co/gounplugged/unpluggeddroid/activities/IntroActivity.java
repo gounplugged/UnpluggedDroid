@@ -1,9 +1,9 @@
 package co.gounplugged.unpluggeddroid.activities;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,12 +19,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.fragments.BaseIntroFragment;
 import co.gounplugged.unpluggeddroid.fragments.ProfileIntroFragment;
 import co.gounplugged.unpluggeddroid.fragments.ProvisionIntroFragment;
 
 public class IntroActivity extends BaseActivity {
 
-    @Bind(R.id.viewpager) ViewPager viewPager;
+    @Bind(R.id.viewpager)
+    ViewPager viewPager;
 
     List<Fragment> mFragments;
 
@@ -53,12 +55,17 @@ public class IntroActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_intro_action_next) {
-            if(viewPager.getCurrentItem() == 0) {
-                final ProvisionIntroFragment fragment = (ProvisionIntroFragment) mFragments.get(0);
-                if (fragment.isInputValid()) {
-                    viewPager.setCurrentItem(1, true);
-                }
-            } else if (viewPager.getCurrentItem() == 1) {
+            final int currentPage = viewPager.getCurrentItem();
+            final BaseIntroFragment fragment = (BaseIntroFragment) mFragments.get(currentPage);
+
+            if (!fragment.isInputValid())
+                return super.onOptionsItemSelected(item);
+
+            fragment.saveInfo();
+
+            if(currentPage == 0) {
+                viewPager.setCurrentItem(1, true);
+            } else if (currentPage == 1) {
                 BaseApplication.getInstance(this).seedKnownMasks();
                 startMain();
             }
@@ -71,7 +78,7 @@ public class IntroActivity extends BaseActivity {
         mFragments.add(ProvisionIntroFragment.newInstance());
         mFragments.add(ProfileIntroFragment.newInstance());
 
-        final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager(), mFragments);
+        final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager(), mFragments);
         viewPager.setAdapter(adapter);
     }
 
@@ -81,7 +88,7 @@ public class IntroActivity extends BaseActivity {
         finish();
     }
 
-    static class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+    static class FragmentPagerAdapter extends android.support.v13.app.FragmentPagerAdapter {
 
         private final List<Fragment> mViewPagerFragments;
 

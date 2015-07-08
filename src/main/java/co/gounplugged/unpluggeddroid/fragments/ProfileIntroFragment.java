@@ -20,7 +20,7 @@ import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.models.Profile;
 
-public class ProfileIntroFragment extends Fragment {
+public class ProfileIntroFragment extends BaseIntroFragment {
 
     @Bind(R.id.rg_sms_plan) RadioGroup radioGroupSmsPlan;
     @Bind(R.id.tv_default_app_status) TextView textViewDefaultAppStatus;
@@ -51,9 +51,15 @@ public class ProfileIntroFragment extends Fragment {
         setupDefaultAppTextView();
     }
 
-    private void saveProfileInfo() {
-        int smsPlanId = radioGroupSmsPlan.getCheckedRadioButtonId();
+    @Override
+    public boolean isInputValid() {
+        // todo: implement
+        return true;
+    }
 
+    @Override
+    public void saveInfo() {
+        int smsPlanId = radioGroupSmsPlan.getCheckedRadioButtonId();
         Profile.setSmsPlan(smsPlanId);
     }
 
@@ -92,7 +98,4 @@ public class ProfileIntroFragment extends Fragment {
             });
         }
     }
-
-
-
 }

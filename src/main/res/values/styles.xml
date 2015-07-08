@@ -18,6 +18,7 @@
         <item name="strokeWidth">1dp</item>
         <item name="radius">4dp</item>
         <item name="centered">true</item>
+        <item name="asb_switchPreferenceStyle">@style/asb_Preference.SwitchPreference</item>
     </style>
 
     <style name="ThemeOverlay.Unplugged.Dark.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
