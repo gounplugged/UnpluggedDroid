@@ -2,14 +2,11 @@ package co.gounplugged.unpluggeddroid.utils;
 
 import android.content.Context;
 
-import com.j256.ormlite.stmt.QueryBuilder;
-
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
+import co.gounplugged.unpluggeddroid.db.MaskDatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
-import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Mask;
 
 /**
@@ -21,17 +18,22 @@ public class MaskUtil {
         return databaseAccess.getAll();
     }
 
-    public static Mask getMask(Context context, String countryCode, String phoneNumber) throws NotFoundInDatabaseException {
-        DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(context, Mask.class);
-        QueryBuilder<Mask, String> query = maskAccess.m
-//        try {
-//            phoneNumber = PhoneNumberParser.parsePhoneNumber(phoneNumber);
-//        } catch (InvalidPhoneNumberException e) {
-//            e.printStackTrace();
-//        }
-//        DatabaseAccess<Contact> contactAccess = new DatabaseAccess<>(context, Contact.class);
-//        Contact contact = contactAccess.getFirstString("mPhoneNumber", phoneNumber);
-//        if (contact == null) throw new NotFoundInDatabaseException("Could not find a contact with that phone number");
-//        return contact;
+    public static Mask getMask(Context context, String countryCode, String phoneNumber) {
+        return (new MaskDatabaseAccess(context)).getMask(countryCode, phoneNumber);
     }
+
+    public static Mask getMask(Context context, String fullPhoneNumber) throws InvalidPhoneNumberException {
+        String countryCode = PhoneNumberParser.parseCountryCode(fullPhoneNumber);
+        String phoneNumber = PhoneNumberParser.parsePhoneNumber(fullPhoneNumber);
+
+        return getMask(context, countryCode, phoneNumber);
+    }
+
+    public static Mask create(Context context, String fullPhoneNumber) throws InvalidPhoneNumberException {
+        DatabaseAccess<Mask> maskAccess = new DatabaseAccess<>(context, Mask.class);
+        Mask m = new Mask(fullPhoneNumber);
+        maskAccess.create(m);
+        return m;
+    }
+
 }

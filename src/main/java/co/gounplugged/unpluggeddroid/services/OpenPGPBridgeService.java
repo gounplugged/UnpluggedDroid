@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 
 import co.gounplugged.unpluggeddroid.activities.OpenPGPUserInteractionActivity;
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
+import co.gounplugged.unpluggeddroid.models.Throw;
 
 /**
  * Created by Marvin Arnold on 10/06/15.
@@ -81,8 +82,9 @@ public class OpenPGPBridgeService extends Service {
         }
     }
 
-    public String decrypt(String ciphertext) throws EncryptionUnavailableException {
-        return ciphertext;
+    public String decrypt(String throwCipherText) throws EncryptionUnavailableException {
+
+        return throwCipherText.replace(Throw.THROW_IDENTIFIER, "");
         /*Log.d(TAG, "Attempt decrypt");
         ciphertext = ciphertext.replaceFirst(ThrowParser.THROW_IDENTIFIER, "");
         try {

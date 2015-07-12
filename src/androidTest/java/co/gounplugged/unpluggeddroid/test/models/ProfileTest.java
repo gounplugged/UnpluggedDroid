@@ -12,6 +12,7 @@ public class ProfileTest extends AndroidTestCase {
      * Should return empty string if no number set, or country code otherwise.
      */
     public void testGetCountryCodeFilter() {
+        Profile.setSmsPlan(Profile.SMS_LIMITED);
         Profile.setPhoneNumber(null);
         assertEquals("", Profile.getCountryCodeFilter());
 

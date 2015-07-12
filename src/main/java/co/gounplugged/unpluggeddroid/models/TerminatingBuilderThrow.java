@@ -1,6 +1,7 @@
 package co.gounplugged.unpluggeddroid.models;
 
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
+import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  * Created by Marvin Arnold on 11/07/15.
@@ -23,5 +24,18 @@ public class TerminatingBuilderThrow extends Throw {
             OpenPGPBridgeService openPGPBridgeService) {
 
         super(TERMINATING_BUILDER_THROW_IDENTIFIER + originatorPhoneNumber, adjacentMask);
+    }
+
+    public static boolean isValidTerminatingBuilderThrow(String unencryptedContent) {
+        return unencryptedContent.matches(
+                        "^" +
+                        TERMINATING_BUILDER_THROW_IDENTIFIER +
+                        PhoneNumberParser.PHONE_NUMBER_REGEX +
+                        ".*");
+    }
+
+    public static String getTrueOriginatorNumber(String unencryptedContent) {
+        // Remove identifier, the rest is the number
+        return unencryptedContent.replaceFirst("^" + TERMINATING_BUILDER_THROW_IDENTIFIER, "");
     }
 }

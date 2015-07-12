@@ -25,4 +25,13 @@ public class MessageThrow extends Throw {
 
         super(MESSAGE_THROW_IDENTIFIER + unencryptedContent, adjacentMask);
     }
+
+    public static boolean isValidMessageThrow(String encryptedContent) {
+        return encryptedContent.matches("^" + MESSAGE_THROW_IDENTIFIER + ".*");
+    }
+
+    public static String getContent(String unencryptedContent) {
+        // Remove identifier, the rest is the number
+        return unencryptedContent.replaceFirst("^" + MESSAGE_THROW_IDENTIFIER, "");
+    }
 }

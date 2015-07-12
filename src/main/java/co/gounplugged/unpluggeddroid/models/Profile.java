@@ -105,13 +105,13 @@ public class Profile {
 
     public static String getCountryCodeFilter() {
         if(smsPlan == SMS_UNLIMITED_INTERNATIONAL) {
-            return null;
+            return "";
         } else {
             try {
                 return (phoneNumber == null) ? "" : PhoneNumberParser.parseCountryCode(phoneNumber);
             } catch (InvalidPhoneNumberException e) {
                 //TODO
-                return null;
+                return "";
             }
         }
     }

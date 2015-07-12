@@ -8,12 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
-import co.gounplugged.unpluggeddroid.db.MaskDatabaseAccess;
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.MaskUtil;
-import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  *
@@ -22,6 +20,7 @@ public class SecondLine {
     private List<Mask> mKnownMasks;
     private Map<Contact, Krewe> mEstablishedKrewes;
     private Map<Mask, Mask> mKreweResponsibilities;
+    private Map<Mask, Contact> mKreweUnderstandings;
     private final Context mContext;
     private final APICaller mApiCaller;
 
@@ -31,6 +30,9 @@ public class SecondLine {
         this.mKnownMasks = new ArrayList<>();
         this.mEstablishedKrewes = new HashMap<>();
         this.mKreweResponsibilities = new HashMap<>();
+        this.mKreweUnderstandings = new HashMap<>();
+
+        seedKnownMasks();
     }
 
     /**
@@ -79,20 +81,27 @@ public class SecondLine {
         mKreweResponsibilities.put(sentFrom, sendTo);
     }
 
-    public boolean hasKreweResponsibility(String sentFromMaskAddress) {
-        try {
-            String countryCode = PhoneNumberParser.parseCountryCode(sentFromMaskAddress);
-
-            Mask sentFromMask = (new MaskDatabaseAccess(mContext)).getMask();
-
-            return mKreweResponsibilities.containsKey(sentFrom);
-        } catch (InvalidPhoneNumberException e) {
-            e.printStackTrace();
-        }
-
+    public void addUnderstanding(Mask sentFrom, Contact trueOriginator) {
+        mKreweUnderstandings.put(sentFrom, trueOriginator);
     }
 
+    public Contact getKreweUnderstanding(Mask sentFromMask) throws SecondLineException {
+        Contact trueOriginator = mKreweUnderstandings.get(sentFromMask);
+        if(sentFromMask == null || trueOriginator == null) throw new SecondLineException("No existing Understanding found");
+        return trueOriginator;
+    }
 
+    public Mask getKreweResponsibility(String sentFromMaskAddress) throws SecondLineException {
+        try {
+            Mask sentFromMask = MaskUtil.getMask(mContext, sentFromMaskAddress);
+
+            Mask sendToMask = mKreweResponsibilities.get(sentFromMask);
+            if(sentFromMask == null || sendToMask == null) throw new SecondLineException("No existing Responsibility found");
+            return sendToMask;
+        } catch (InvalidPhoneNumberException e) {
+            throw new SecondLineException("Invalid number, cannot have a Responsibility");
+        }
+    }
 
     public class SecondLineException extends Exception {
         public SecondLineException(String message) {
