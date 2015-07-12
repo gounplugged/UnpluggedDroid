@@ -1,7 +1,6 @@
 package co.gounplugged.unpluggeddroid.utils;
 
 import android.telephony.SmsManager;
-import android.telephony.SmsMessage;
 
 import java.util.ArrayList;
 

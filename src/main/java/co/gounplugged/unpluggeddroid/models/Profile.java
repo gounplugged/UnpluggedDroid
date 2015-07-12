@@ -2,8 +2,6 @@ package co.gounplugged.unpluggeddroid.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.Preference;
-import android.provider.Settings;
 import android.util.Log;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
@@ -107,13 +105,13 @@ public class Profile {
 
     public static String getCountryCodeFilter() {
         if(smsPlan == SMS_UNLIMITED_INTERNATIONAL) {
-            return null;
+            return "";
         } else {
             try {
                 return (phoneNumber == null) ? "" : PhoneNumberParser.parseCountryCode(phoneNumber);
             } catch (InvalidPhoneNumberException e) {
                 //TODO
-                return null;
+                return "";
             }
         }
     }

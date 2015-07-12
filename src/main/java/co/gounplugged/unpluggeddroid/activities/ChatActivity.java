@@ -23,7 +23,6 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.adapters.MessageRecyclerViewAdapter;
-import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -122,8 +121,6 @@ public class ChatActivity extends BaseActivity {
         super.onStart();
 
         Log.d(TAG, "onStart");
-
-        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     @Override

@@ -39,7 +39,8 @@ public class ProfileActivity extends BaseActivity {
                 setPhoneNumber();
                 setSmsPlan();
                 setPassword();
-                ((BaseApplication) getApplicationContext()).refreshKnownMasks();
+//                ((BaseApplication) getApplicationContext()).refreshKnownMasks();
+//                ((BaseApplication) getApplicationContext()).generatePGPKey();
                 Intent mainIntent = new Intent(ProfileActivity.this, ChatActivity.class);
                 ProfileActivity.this.startActivity(mainIntent);
                 ProfileActivity.this.finish();
@@ -70,13 +71,13 @@ public class ProfileActivity extends BaseActivity {
     private void setSmsPlan() {
         int selectedId = (int) smsPlanSpinner.getSelectedItemId();
         Profile.setSmsPlan(selectedId);
-        ((BaseApplication) getApplicationContext()).seedKnownMasks();
+//        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     private void setPhoneNumber() {
         String phoneNumber = phoneNumberInput.getText().toString();
         Profile.setPhoneNumber(phoneNumber);
-        ((BaseApplication) getApplicationContext()).seedKnownMasks();
+//        ((BaseApplication) getApplicationContext()).seedKnownMasks();
     }
 
     private void setPassword() {

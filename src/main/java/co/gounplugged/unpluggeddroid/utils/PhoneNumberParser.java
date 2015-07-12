@@ -23,13 +23,13 @@ public class PhoneNumberParser {
         return parseGroup(fullNumber, 1);
     }
 
-    public static String parseGroup(String fullNumber, int group) throws  InvalidPhoneNumberException {
+    private static String parseGroup(String fullNumber, int group) throws  InvalidPhoneNumberException {
         fullNumber = sanitizePhoneNumber(fullNumber);
         if(isValidFullPhoneNumber(fullNumber)) return splitOnCountryCode(fullNumber, group);
         throw new InvalidPhoneNumberException("malformed number");
     }
 
-    public static String splitOnCountryCode(String sanitizedFullNumber, int group) {
+    private static String splitOnCountryCode(String sanitizedFullNumber, int group) {
         Matcher m = Pattern.compile(PHONE_NUMBER_REGEX).matcher(sanitizedFullNumber);
         m.matches();
         return m.group(group);

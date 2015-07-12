@@ -3,10 +3,8 @@ package co.gounplugged.unpluggeddroid.services;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Binder;
 import android.os.IBinder;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import org.openintents.openpgp.IOpenPgpService;
@@ -21,8 +19,7 @@ import java.io.UnsupportedEncodingException;
 
 import co.gounplugged.unpluggeddroid.activities.OpenPGPUserInteractionActivity;
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
-import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.utils.ThrowParser;
+import co.gounplugged.unpluggeddroid.models.Throw;
 
 /**
  * Created by Marvin Arnold on 10/06/15.
@@ -31,9 +28,6 @@ public class OpenPGPBridgeService extends Service {
     protected static final String TAG = "OpenPGPBridgeService";
     protected OpenPgpServiceConnection mServiceConnection;
     private final IBinder mBinder = new LocalBinder();
-    public static final String ACTION_ENCRYPT = "OpenPGPBridgeService_ACTION_ENCRYPT";
-    public static final String EXTRA_PLAINTEXT = "OpenPGPBridgeService_EXTRA_PLAINTEXT";
-    public static final String EXTRA_RECIPIENT = "OpenPGPBridgeService_EXTRA_RECIPIENT";
     protected boolean isBound;
     private OpenPgpServiceConnection.OnBound onBoundCallback;
     private OpenPgpApi mAPI;
@@ -88,9 +82,16 @@ public class OpenPGPBridgeService extends Service {
         }
     }
 
-    public String decrypt(String ciphertext) throws EncryptionUnavailableException {
-        Log.d(TAG, "Attempt decrypt");
+    public String decrypt(String throwCipherText) throws EncryptionUnavailableException {
+
+        return throwCipherText.replace(Throw.THROW_IDENTIFIER, "");
+        /*Log.d(TAG, "Attempt decrypt");
         ciphertext = ciphertext.replaceFirst(ThrowParser.THROW_IDENTIFIER, "");
+        try {
+            ciphertext = new String(Base64.decode(ciphertext));
+        } catch (IOException e) {
+            throw new EncryptionUnavailableException("Not encoded correctly");
+        }
         Log.d(TAG, "CIPHERTEXT: " + ciphertext);
         if(isBound) {
             Intent data = new Intent();
@@ -109,7 +110,7 @@ public class OpenPGPBridgeService extends Service {
             }
         } else {
             throw new EncryptionUnavailableException("Description service not yet bound");
-        }
+        }*/
     }
 
     /**
@@ -123,9 +124,6 @@ public class OpenPGPBridgeService extends Service {
     public String encrypt(String plaintext, String recipientAddress) throws EncryptionUnavailableException {
         Log.d(TAG, "Attempt encrypt");
         if(isBound) {
-//        String recipient = encryptIntent.getStringExtra(EXTRA_RECIPIENT);
-//        String plaintext = encryptIntent.getStringExtra(EXTRA_PLAINTEXT);
-
             recipientAddress = "marvin@gounplugged.co"; //TODO remove
             Intent data = new Intent();
             data.setAction(OpenPgpApi.ACTION_ENCRYPT);
@@ -141,6 +139,7 @@ public class OpenPGPBridgeService extends Service {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 
             Intent result = mAPI.executeApi(data, is, os);
+            // add compression https://stackoverflow.com/questions/6717165/how-can-i-zip-and-unzip-a-string-using-gzipoutputstream-that-is-compatible-with/6718707#6718707
             return interpretResult(result, os);
         } else {
             throw new EncryptionUnavailableException("Encryption service not yet bound");
@@ -179,6 +178,31 @@ public class OpenPGPBridgeService extends Service {
                 Log.d(TAG, "Something strange");
                 throw new EncryptionUnavailableException("Unknown response from encryption service.");
         }
+    }
+
+    public void generatePGPKey() throws EncryptionUnavailableException {
+        Log.d(TAG, "Attempt generate key");
+        /*if(isBound) {
+            recipientAddress = "marvin@gounplugged.co"; //TODO remove
+            Intent data = new Intent();
+            data.setAction(OpenPgpApi.ACTION_GENERATE_KEY);
+            data.putExtra(OpenPgpApi.EXTRA_USER_IDS, new String[]{recipientAddress});
+            data.putExtra(OpenPgpApi.EXTRA_REQUEST_ASCII_ARMOR, true);
+
+            InputStream is = null;
+            try {
+                is = new ByteArrayInputStream(plaintext.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                //TODO
+            }
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+            Intent result = mAPI.executeApi(data, is, os);
+            // add compression https://stackoverflow.com/questions/6717165/how-can-i-zip-and-unzip-a-string-using-gzipoutputstream-that-is-compatible-with/6718707#6718707
+            return interpretResult(result, os);
+        } else {
+            throw new EncryptionUnavailableException("Encryption service not yet bound");
+        }*/
     }
 
     /*String testDecrypt = "-----BEGIN PGP MESSAGE-----\n" +

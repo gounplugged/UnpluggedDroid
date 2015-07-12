@@ -13,8 +13,6 @@ public class ConversationDatabaseAccess extends DatabaseAccess<Conversation>{
         super(context, Conversation.class);
     }
 
-
-
     public List<Conversation> getRecentConversations() {
         try {
             return mDao.queryBuilder().orderBy("id", false).query();

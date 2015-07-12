@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.db.DatabaseAccess;
