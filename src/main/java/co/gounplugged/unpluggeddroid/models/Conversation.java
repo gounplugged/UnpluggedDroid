@@ -5,14 +5,11 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Collection;
-import java.util.List;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
     private static final String TAG = "Conversation";
     public static final String PARTICIPANT_ID_FIELD_NAME = "contact_id";
-
-    private SecondLine mCurrentSecondLine;
 
     @DatabaseField(generatedId = true)
     public long id;
@@ -75,18 +72,6 @@ public class Conversation {
         return mParticipant.usesSecondLine();
     }
 
-    public SecondLine getCurrentSecondLine() {
-        return mCurrentSecondLine;
-    }
-
-    public SecondLine getAndRefreshSecondLine(List<Mask> knownMasks) {
-        if(mCurrentSecondLine == null) this.mCurrentSecondLine = new SecondLine(mParticipant, knownMasks);
-        return mCurrentSecondLine;
-    }
-
-    public void setCurrentSecondLine(SecondLine currentSecondLine) {
-        this.mCurrentSecondLine = currentSecondLine;
-    }
 
     public String getName() {
         return (getParticipant() == null) ? "" : getParticipant().getName();

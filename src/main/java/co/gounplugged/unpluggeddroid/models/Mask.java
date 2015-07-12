@@ -17,12 +17,12 @@ public class Mask {
     public long id;
 
     @DatabaseField
-    private String phoneNumber;
+    private String mPhoneNumber;
 
     @DatabaseField
-    private String countryCode;
+    private String mCountryCode;
     public String getCountryCode() {
-        return countryCode;
+        return mCountryCode;
     }
 
     public Mask() {
@@ -30,15 +30,15 @@ public class Mask {
     }
 
     public Mask(String fullNumber) throws InvalidPhoneNumberException {
-        this.phoneNumber = PhoneNumberParser.parsePhoneNumber(fullNumber);
-        this.countryCode = PhoneNumberParser.parseCountryCode(fullNumber);
+        this.mPhoneNumber = PhoneNumberParser.parsePhoneNumber(fullNumber);
+        this.mCountryCode = PhoneNumberParser.parseCountryCode(fullNumber);
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return mPhoneNumber;
     }
 
     public String getFullNumber() {
-        return countryCode + phoneNumber;
+        return mCountryCode + mPhoneNumber;
     }
 }

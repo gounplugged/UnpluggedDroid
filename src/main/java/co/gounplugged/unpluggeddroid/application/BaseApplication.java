@@ -11,18 +11,16 @@ import android.util.Log;
 
 import java.util.List;
 
-import co.gounplugged.unpluggeddroid.api.APICaller;
-import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.db.ConversationDatabaseAccess;
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.managers.ThrowManager;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 import co.gounplugged.unpluggeddroid.models.Mask;
 import co.gounplugged.unpluggeddroid.models.Profile;
-import co.gounplugged.unpluggeddroid.services.DemoPgpService;
+import co.gounplugged.unpluggeddroid.models.SecondLine;
 import co.gounplugged.unpluggeddroid.services.EdgenetClientService;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ContactUtil;
-import co.gounplugged.unpluggeddroid.utils.MaskUtil;
 
 /**
  * Serves as global application instance
@@ -31,8 +29,8 @@ public class BaseApplication extends Application {
     private static final String TAG = "BaseApplication";
     public static final String SMS_DEFAULT_APPLICATION = "sms_default_application";
 
-    private APICaller mApiCaller;
-    private List<Mask> mKnownMasks;
+//    private List<Mask> mKnownMasks;
+    private SecondLine mSecondLine;
     private List<Conversation> mRecentConversations;
 
     private OpenPGPBridgeService mOpenPGPBridgeService;
@@ -40,7 +38,7 @@ public class BaseApplication extends Application {
     private ServiceConnection mOpenPGPBridgeConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            DemoPgpService.LocalBinder binder = (DemoPgpService.LocalBinder) service;
+            OpenPGPBridgeService.LocalBinder binder = (OpenPGPBridgeService.LocalBinder) service;
             mOpenPGPBridgeService = binder.getService();
             mIsBoundToOpenPGP = true;
             Log.d(TAG, "bound to pgp bridge");
@@ -71,13 +69,13 @@ public class BaseApplication extends Application {
         initManagers();
 
         Profile.loadProfile(getApplicationContext());
-        mApiCaller = new APICaller(getApplicationContext());
+        mSecondLine = new SecondLine(getApplicationContext());
 
         switch (Profile.getApplicationState()) {
             case (Profile.APPLICATION_STATE_UNINITALIZED):
                 break;
             case (Profile.APPLICATION_STATE_INITALIZED):
-                seedKnownMasks();
+                mSecondLine.seedKnownMasks();
                 break;
         }
 
@@ -131,23 +129,16 @@ public class BaseApplication extends Application {
         mRecentConversations.remove(conversation);
     }
 
-    public void refreshKnownMasks() {
-        mKnownMasks = null;
-        seedKnownMasks();
-    }
+//    public void refreshKnownMasks() {
+//        mSecondLine.refreshKnownMasks();
+//    }
 
-    public void seedKnownMasks() {
-        if(mKnownMasks == null) mKnownMasks = MaskUtil.getCachedMasks(getApplicationContext());
-        if(mKnownMasks.isEmpty()) mApiCaller.getMasks(Profile.getCountryCodeFilter());
-    }
-
-    public List<Mask> getKnownMasks() {
-        seedKnownMasks();
-        return mKnownMasks;
+    public SecondLine getSecondLine() {
+        return mSecondLine;
     }
 
     public void setKnownMasks(List<Mask> knownMasks) {
-        this.mKnownMasks = knownMasks;
+        mSecondLine.setKnownMasks(knownMasks);
     }
 
     public void loadContacts() {
