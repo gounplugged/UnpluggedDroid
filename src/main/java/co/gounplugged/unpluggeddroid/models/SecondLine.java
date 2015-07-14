@@ -76,12 +76,14 @@ public class SecondLine {
     }
 
     public Krewe getEstablishedKrewe(Contact contact) throws SecondLineException {
-        Krewe establishedKrewe = mEstablishedKrewes.get(contact);
-        if(contact == null || establishedKrewe == null) throw new SecondLineException("No existing Krewe found");
+        if(contact == null) throw new SecondLineException("No established Krewes for null contacts");
+        Krewe establishedKrewe = mEstablishedKrewes.get(contact.getFullNumber());
+        if(establishedKrewe == null) throw new SecondLineException("No established Krewe found");
         return establishedKrewe;
     }
 
     public Contact getKreweUnderstanding(Mask sentFromMask) throws SecondLineException {
+        if(sentFromMask == null) throw new SecondLineException("No understandings for null contacts");
         Contact trueOriginator = mKreweUnderstandings.get(sentFromMask.getFullNumber());
         if(trueOriginator == null) throw new SecondLineException("No existing Understanding found");
         return trueOriginator;
