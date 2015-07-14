@@ -52,10 +52,9 @@ public class SecondLine {
     }
 
     public Throw getMessageThrow(String content, Contact recipient, OpenPGPBridgeService openPGPBridgeService)
-            throws SecondLineException, EncryptionUnavailableException{
+            throws SecondLineException, EncryptionUnavailableException {
 
-        if (!mEstablishedKrewes.containsKey(recipient)) throw new SecondLineException("Krewe to this recipient not established");
-        Krewe establishedKrewe = mEstablishedKrewes.get(recipient);
+        Krewe establishedKrewe = getEstablishedKrewe(recipient);
 
         return new MessageThrow(
                         content,
@@ -90,15 +89,9 @@ public class SecondLine {
     }
 
     public Mask getKreweResponsibility(String sentFromMaskAddress) throws SecondLineException {
-//        try {
-//            Mask sentFromMask = MaskUtil.getMask(mContext, sentFromMaskAddress);
-
             Mask sendToMask = mKreweResponsibilities.get(sentFromMaskAddress);
             if(sendToMask == null) throw new SecondLineException("No existing Responsibility found");
             return sendToMask;
-//        } catch (InvalidPhoneNumberException e) {
-//            throw new SecondLineException("Invalid number, cannot have a Responsibility");
-//        }
     }
 
     public class SecondLineException extends Exception {
