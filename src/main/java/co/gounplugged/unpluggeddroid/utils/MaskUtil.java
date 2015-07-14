@@ -12,12 +12,7 @@ import co.gounplugged.unpluggeddroid.models.Mask;
 /**
  * Created by Marvin Arnold on 18/05/15.
  */
-public class MaskUtil {
-    public static List<Mask> getCachedMasks(Context context) {
-        DatabaseAccess<Mask> databaseAccess  = new DatabaseAccess<>(context, Mask.class);
-        return databaseAccess.getAll();
-    }
-
+public class MaskUtil extends DbUtil {
     public static Mask getMask(Context context, String countryCode, String phoneNumber) {
         return (new MaskDatabaseAccess(context)).getMask(countryCode, phoneNumber);
     }
@@ -34,6 +29,10 @@ public class MaskUtil {
         Mask m = new Mask(fullPhoneNumber);
         maskAccess.create(m);
         return m;
+    }
+
+    public static List<Mask> getKnownMasks(Context context) {
+        return getAll(context, Mask.class);
     }
 
 }

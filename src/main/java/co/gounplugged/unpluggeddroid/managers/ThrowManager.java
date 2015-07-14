@@ -123,8 +123,10 @@ public class ThrowManager {
             addTextToConversation(content, conversation);
         } catch (SecondLine.SecondLineException e) {
             // TODO don't know sent this to you.
+            Log.d(TAG, "processMessageThrow: SecondLineException");
         } catch (Conversation.InvalidConversationException e) {
             // TODO conversation is null for unknown reason
+            Log.d(TAG, "processMessageThrow: InvalidConversationException");
         }
     }
 
@@ -162,7 +164,7 @@ public class ThrowManager {
         try {
             Log.d(TAG, "Participant tagged as SL compatible: " + participant.usesSecondLine());
             conversation = ConversationUtil.findOrNew(participant, mContext);
-            Log.d(TAG, "Conversation tagged as SL compatible: " + conversation.isSecondLineComptabile());
+            Log.d(TAG, "Conversation " + conversation.id + " tagged as SL compatible: " + conversation.isSecondLineComptabile(mContext));
 
         } catch (Conversation.InvalidConversationException e) {
             // TODO can participant ever be null?
@@ -187,8 +189,8 @@ public class ThrowManager {
                         Message.TYPE_OUTGOING,
                         System.currentTimeMillis());
 
-                Log.d(TAG, "sendMessage message uses SL: " + message.getConversation().isSecondLineComptabile() +
-                        " conversation uses SL: " + conversation.isSecondLineComptabile());
+                Log.d(TAG, "sendMessage message uses SL: " + message.getConversation().isSecondLineComptabile(mContext) +
+                        " conversation uses SL: " + conversation.isSecondLineComptabile(mContext));
 
                 EventBus.getDefault().postSticky(message);
 
@@ -209,11 +211,11 @@ public class ThrowManager {
         Conversation conversation = message.getConversation();
 
         // SL messages must be encrypted and wrapped in layers
-        if(conversation.isSecondLineComptabile()) {
+        if(conversation.isSecondLineComptabile(mContext)) {
             SecondLine secondLine = getBaseApplication().getSecondLine();
-            Throw t = null;
+
             try {
-                t = secondLine.getMessageThrow(
+                Throw t = secondLine.getMessageThrow(
                         message.getText(),
                         message.getConversation().getParticipant(),
                         openPGPBridgeService);
@@ -224,7 +226,14 @@ public class ThrowManager {
             } catch (SecondLine.SecondLineException e) {
                 // Krewe not yet established for this recipient.
                 // Establish path and then send.
-                establishKrewe(message, openPGPBridgeService);
+                boolean kreweEstablished = ensureKreweEstablished(message.getConversation(), openPGPBridgeService);
+                // TODO make sure we don't go into infinite loop doing this
+
+                if (kreweEstablished) {
+                    sendMessageOverWire(message, openPGPBridgeService);
+                } else {
+                    sendSMSOverWire(message);
+                }
             }
         } else {
             sendSMSOverWire(message);
@@ -234,7 +243,7 @@ public class ThrowManager {
     private void sendThrowOverWire(Throw t) {
         String phoneNumber = t.getAdjacentThrowAddress();
         String content = t.getContent();
-        Log.d(TAG, "Send throw to: " + phoneNumber);
+        Log.d(TAG, "Send throw to: " + phoneNumber + " content: " + content);
         SMSUtil.sendSms(phoneNumber, content);
     }
 
@@ -249,19 +258,43 @@ public class ThrowManager {
         SMSUtil.sendSms(phoneNumber, content);
     }
 
-    public void establishKrewe(Message message, OpenPGPBridgeService openPGPBridgeService) {
-        SecondLine secondLine = getBaseApplication().getSecondLine();
-        try {
-            List<Throw> builderThrows = secondLine.establishKrewe(message.getConversation().getParticipant(), openPGPBridgeService);
-            for(Throw t : builderThrows) {
-                sendThrowOverWire(t);
+    public boolean ensureKreweEstablished(Conversation conversation, OpenPGPBridgeService openPGPBridgeService) {
+        Log.d(TAG, "STARTING TO ensureKreweEstablished");
+        if(conversation.isSecondLineComptabile(mContext)) {
+            Log.d(TAG, "ensureKreweEstablished: isSecondLineCompatible");
+            SecondLine secondLine = getBaseApplication().getSecondLine();
+            try {
+                secondLine.getEstablishedKrewe(conversation.getParticipant());
+                Log.d(TAG, "ensureKreweEstablished: krewe already established");
+                return true;
+            } catch (SecondLine.SecondLineException e) {
+                Log.d(TAG, "ensureKreweEstablished: no krewe established");
+                return establishNewKrewe(conversation, secondLine, openPGPBridgeService);
             }
-        } catch (Krewe.KreweException e) {
-            // TODO not enough known masks. get more then try again.
-        } catch (EncryptionUnavailableException e) {
-            // Encryption unavailable so just send normally
-            sendSMSOverWire(message);
         }
+
+        return false;
+    }
+
+    public boolean establishNewKrewe(Conversation conversation, SecondLine secondLine, OpenPGPBridgeService openPGPBridgeService) {
+        if(conversation.isSecondLineComptabile(mContext)) {
+            try {
+                List<Throw> builderThrows = secondLine.establishNewKrewe(conversation.getParticipant(), openPGPBridgeService);
+                for (Throw t : builderThrows) {
+                    Log.d(TAG, "establishNewKrewe: sending out a builder throw");
+                    sendThrowOverWire(t);
+                }
+                return true;
+            } catch (Krewe.KreweException e) {
+                // TODO seed with more known masks
+                Log.d(TAG, "establishNewKrewe: not enough masks");
+            } catch (EncryptionUnavailableException e) {
+                // TODO display message to user to enable encryption
+                Log.d(TAG, "establishNewKrewe: no encryption");
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -41,4 +41,15 @@ public class Mask {
     public String getFullNumber() {
         return mCountryCode + mPhoneNumber;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Contact))
+            return false;
+        if (obj == this)
+            return true;
+        Mask rhs = (Mask) obj;
+
+        return getFullNumber().equals(rhs.getFullNumber());
+    }
 }

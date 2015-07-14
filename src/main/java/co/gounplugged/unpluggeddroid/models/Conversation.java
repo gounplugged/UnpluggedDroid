@@ -1,10 +1,14 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import android.content.Context;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Collection;
+
+import co.gounplugged.unpluggeddroid.utils.ContactUtil;
 
 @DatabaseTable(tableName = "conversations")
 public class Conversation {
@@ -17,7 +21,7 @@ public class Conversation {
     @ForeignCollectionField
     private Collection<Message> mMessages;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PARTICIPANT_ID_FIELD_NAME, maxForeignAutoRefreshLevel = 3)
     private final Contact mParticipant;
     public Contact getParticipant() {
         return mParticipant;
@@ -68,8 +72,9 @@ public class Conversation {
         return id == rhs.id;
     }
 
-    public boolean isSecondLineComptabile() {
-        return mParticipant.usesSecondLine();
+    public boolean isSecondLineComptabile(Context context) {
+        ContactUtil.refresh(context, getParticipant());
+        return getParticipant().usesSecondLine();
     }
 
 

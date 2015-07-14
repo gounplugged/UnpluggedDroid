@@ -103,15 +103,21 @@ public class Profile {
         applicationState = profileSharedPreferences.getInt(APPLICATION_STATE_PREFERENCE_NAME, APPLICATION_STATE_UNINITALIZED);
     }
 
+    /**
+     * The expectation is to get back something that behaves like this \^getCountryCodeFilter().*\
+     * "" means accept all, null means accept none
+     * @return "" if unlimited international plan, otherwise return the country code from profile.
+     * Returns null if plan is limited and unsure of user's phone number.
+     */
     public static String getCountryCodeFilter() {
         if(smsPlan == SMS_UNLIMITED_INTERNATIONAL) {
             return "";
         } else {
             try {
-                return (phoneNumber == null) ? "" : PhoneNumberParser.parseCountryCode(phoneNumber);
+                return (phoneNumber == null) ? null : PhoneNumberParser.parseCountryCode(phoneNumber);
             } catch (InvalidPhoneNumberException e) {
-                //TODO
-                return "";
+                //TODO should not reach this point. Number should be validated (and verified?) before it can be saved.
+                return null;
             }
         }
     }

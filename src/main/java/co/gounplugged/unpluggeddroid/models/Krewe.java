@@ -20,6 +20,7 @@ public class Krewe {
     public Krewe(Contact recipient, List<Mask> knownMasks) throws KreweException {
         if(knownMasks.size() < NUMBER_MASKS_IN_KREWE) throw new KreweException("Need more masks to choose from");
         List<Mask> masksBuilder = new ArrayList<>();
+        // TODO more efficiently do this. Not on all masks!
         Collections.shuffle(knownMasks);
 
         for(int i = 0; i < NUMBER_MASKS_IN_KREWE; i++) {

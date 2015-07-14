@@ -10,8 +10,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import co.gounplugged.unpluggeddroid.activities.ChatActivity;
+import java.util.List;
+
 import co.gounplugged.unpluggeddroid.application.BaseApplication;
+import co.gounplugged.unpluggeddroid.models.Mask;
 
 /**
  * Created by pili on 5/04/15.
@@ -34,8 +36,9 @@ public class APICaller {
                     @Override
                     public void onResponse(String response) {
                         Log.d(TAG, response);
-                        //Temporarily cache maskes in global app instance
-                        ((BaseApplication)mContext).setKnownMasks(JSONParser.getMasks(response, filterByCountryCode));
+                        List<Mask> receivedMasks = APIResponse.getMasks(response, filterByCountryCode);
+                        Log.d(TAG, "received " + receivedMasks.size());
+                        ((BaseApplication)mContext).receiveMasks(receivedMasks);
                     }
                 }, new Response.ErrorListener() {
             @Override

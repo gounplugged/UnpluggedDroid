@@ -14,7 +14,7 @@ public class ProfileTest extends AndroidTestCase {
     public void testGetCountryCodeFilter() {
         Profile.setSmsPlan(Profile.SMS_LIMITED);
         Profile.setPhoneNumber(null);
-        assertEquals("", Profile.getCountryCodeFilter());
+        assertEquals(null, Profile.getCountryCodeFilter());
 
         Profile.setPhoneNumber("+13016864576");
         assertEquals("+1", Profile.getCountryCodeFilter());

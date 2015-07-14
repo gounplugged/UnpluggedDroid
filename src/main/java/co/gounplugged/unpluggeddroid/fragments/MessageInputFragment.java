@@ -1,7 +1,5 @@
 package co.gounplugged.unpluggeddroid.fragments;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,10 +20,8 @@ import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.InvalidRecipientException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
-import co.gounplugged.unpluggeddroid.models.Message;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.ImageUtil;
-import de.greenrobot.event.EventBus;
 
 public class MessageInputFragment extends Fragment {
     private static final String TAG = "MessageInputFragment";
@@ -154,7 +150,7 @@ public class MessageInputFragment extends Fragment {
 
         Conversation conversation = chatActivity.getLastSelectedConversation();
         if(conversation != null) {
-            Log.d(TAG, "ADDING MESSAGE TO CONVO: " + conversation.id + "SL Compatible: " + conversation.isSecondLineComptabile());
+            Log.d(TAG, "ADDING MESSAGE TO CONVO: " + conversation.id + "SL Compatible: " + conversation.isSecondLineComptabile(chatActivity.getApplicationContext()));
             String text = newPostText.getText().toString();
             newPostText.setText("");
             BaseApplication.App.ThrowManager.sendMessage(conversation, text, openPGPBridgeService);
