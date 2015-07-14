@@ -37,9 +37,11 @@ public class APIResponseTest extends AndroidTestCase {
         List<Mask> actualResponse = APIResponse.getMasks(response, "");
 
         for(int i = 0; i < expectedResponse.size(); i++) {
-//            String expectedMaskNumber = expectedResponse.get(i).getFullNumber();
-//            String actualMaskNumber = actualResponse.get(i).getFullNumber();
+            String expectedMaskNumber = expectedResponse.get(i).getFullNumber();
+            String actualMaskNumber = actualResponse.get(i).getFullNumber();
+//            Log.d("APIResponseTest", expectedMaskNumber + " compared to " + actualMaskNumber);
 //            assertEquals(expectedMaskNumber, actualMaskNumber);
+
             assertEquals(expectedResponse.get(i), actualResponse.get(i));
         }
 

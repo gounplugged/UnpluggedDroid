@@ -2,7 +2,6 @@ package co.gounplugged.unpluggeddroid.test.models;
 
 import android.test.AndroidTestCase;
 
-import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
 import co.gounplugged.unpluggeddroid.models.Contact;
 import co.gounplugged.unpluggeddroid.models.Conversation;
 
@@ -32,8 +31,8 @@ public class ConversationTest extends AndroidTestCase {
             Conversation users = new Conversation(user);
             Conversation haters = new Conversation(hater);
 
-            assertTrue(users.isSecondLineComptabile());
-            assertFalse(haters.isSecondLineComptabile());
+            assertTrue(users.isSecondLineComptabile(getContext()));
+            assertFalse(haters.isSecondLineComptabile(getContext()));
         } catch (Exception e) {
             assertTrue(false);
         }
@@ -45,9 +44,9 @@ public class ConversationTest extends AndroidTestCase {
             Contact user = new Contact("",number, false);
             Conversation users = new Conversation(user);
 
-            assertFalse(users.isSecondLineComptabile());
+            assertFalse(users.isSecondLineComptabile(getContext()));
             user.setUsesSecondLine(getContext(), true);
-            assertTrue(users.isSecondLineComptabile());
+            assertTrue(users.isSecondLineComptabile(getContext()));
         } catch (Exception e) {
             assertTrue(false);
         }

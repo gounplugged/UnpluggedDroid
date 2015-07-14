@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
@@ -21,10 +22,16 @@ public class BuilderThrow extends Throw {
             String nextPhoneNumber,
             String secondToNextPhoneNumber,
             Mask adjacentMask,
-            OpenPGPBridgeService openPGPBridgeService) {
+            OpenPGPBridgeService openPGPBridgeService)
+            throws EncryptionUnavailableException {
 
-        super(BUILDER_THROW_IDENTIFIER + nextPhoneNumber, adjacentMask);
+        super(adjacentMask);
+        setContent(openPGPBridgeService.encrypt(
+                BUILDER_THROW_IDENTIFIER + nextPhoneNumber,
+                secondToNextPhoneNumber));
     }
+
+
 
     public static boolean isValidBuilderThrow(String unencryptedContent) {
         return unencryptedContent.matches("^" + BUILDER_THROW_IDENTIFIER + PhoneNumberParser.PHONE_NUMBER_REGEX + "$");

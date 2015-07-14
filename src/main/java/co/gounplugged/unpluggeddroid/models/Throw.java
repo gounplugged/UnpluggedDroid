@@ -12,8 +12,8 @@ public class Throw {
     private final static int STATE_AT_DESTINATION = 3;
     private int mState = STATE_UNINITIALIZED;
 
-    private final String mAdjacentThrowAddres; // originator address when arrives
-    private final String mContent;
+    private final String mAdjacentThrowAddress; // originator address when arrives
+    private String mContent;
 
     /**
      *
@@ -28,17 +28,24 @@ public class Throw {
      * @return address of next Mask in Second Line.
      */
     public String getAdjacentThrowAddress() {
-        return mAdjacentThrowAddres;
+        return mAdjacentThrowAddress;
+    }
+
+    public Throw(Mask adjacentMask) {
+        this.mAdjacentThrowAddress = adjacentMask.getFullNumber();
     }
 
     public Throw(String encryptedContent, Mask adjacentMask) {
+        this(adjacentMask);
         this.mContent = THROW_IDENTIFIER + encryptedContent;
-        this.mAdjacentThrowAddres = adjacentMask.getFullNumber();
     }
 
     public static boolean isValidThrow(String encryptedContent) {
         return encryptedContent.matches("^" + THROW_IDENTIFIER + ".*");
     }
 
+    public void setContent(String content) {
+        this.mContent = THROW_IDENTIFIER + content;
+    }
 }
 

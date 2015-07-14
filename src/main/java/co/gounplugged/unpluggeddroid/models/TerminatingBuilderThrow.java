@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
@@ -21,9 +22,13 @@ public class TerminatingBuilderThrow extends Throw {
             String originatorPhoneNumber,
             String terminatingPhoneNumber,
             Mask adjacentMask,
-            OpenPGPBridgeService openPGPBridgeService) {
+            OpenPGPBridgeService openPGPBridgeService)
+            throws EncryptionUnavailableException {
 
-        super(TERMINATING_BUILDER_THROW_IDENTIFIER + originatorPhoneNumber, adjacentMask);
+        super(adjacentMask);
+        setContent(openPGPBridgeService.encrypt(
+                TERMINATING_BUILDER_THROW_IDENTIFIER + originatorPhoneNumber,
+                terminatingPhoneNumber));
     }
 
     public static boolean isValidTerminatingBuilderThrow(String unencryptedContent) {

@@ -36,7 +36,7 @@ public class APIResponse {
                     String countryCode = oneObject.getString("country_code");
                     Log.d(TAG, countryCode);
 
-                    if(filterByCountryCode == "" || countryCode.equals(filterByCountryCode)) {
+                    if(filterByCountryCode.equals("") || countryCode.equals(filterByCountryCode)) {
                         String phoneNumber = oneObject.getString("number");
                         Log.d(TAG, phoneNumber);
                         try {

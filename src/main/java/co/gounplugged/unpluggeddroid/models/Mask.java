@@ -44,7 +44,7 @@ public class Mask {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Contact))
+        if (!(obj instanceof Mask))
             return false;
         if (obj == this)
             return true;
