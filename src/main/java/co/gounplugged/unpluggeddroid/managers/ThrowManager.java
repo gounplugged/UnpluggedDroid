@@ -225,15 +225,10 @@ public class ThrowManager {
                 sendSMSOverWire(message);
             } catch (SecondLine.SecondLineException e) {
                 // Krewe not yet established for this recipient.
-                // Establish path and then send.
-                boolean kreweEstablished = ensureKreweEstablished(message.getConversation(), openPGPBridgeService);
-                // TODO make sure we don't go into infinite loop doing this
-
-                if (kreweEstablished) {
-                    sendMessageOverWire(message, openPGPBridgeService);
-                } else {
-                    sendSMSOverWire(message);
-                }
+                // Establish path and then send regular message.
+                // Will be able to send Throw next time
+                ensureKreweEstablished(message.getConversation(), openPGPBridgeService);
+                sendSMSOverWire(message);
             }
         } else {
             sendSMSOverWire(message);
