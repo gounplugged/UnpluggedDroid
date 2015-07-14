@@ -41,7 +41,7 @@ public class Throw {
     }
 
     public static boolean isValidThrow(String encryptedContent) {
-        return encryptedContent.matches("^" + THROW_IDENTIFIER + ".*");
+        return encryptedContent.contains(THROW_IDENTIFIER);
     }
 
     public void setContent(String content) {

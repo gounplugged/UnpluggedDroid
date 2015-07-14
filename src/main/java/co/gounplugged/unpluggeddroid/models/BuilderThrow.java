@@ -2,7 +2,6 @@ package co.gounplugged.unpluggeddroid.models;
 
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
-import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 
 /**
  * Created by Marvin Arnold on 11/07/15.
@@ -34,11 +33,11 @@ public class BuilderThrow extends Throw {
 
 
     public static boolean isValidBuilderThrow(String unencryptedContent) {
-        return unencryptedContent.matches("^" + BUILDER_THROW_IDENTIFIER + PhoneNumberParser.PHONE_NUMBER_REGEX + "$");
+        return unencryptedContent.contains(BUILDER_THROW_IDENTIFIER);
     }
 
     public static String getThrowToNumber(String unencryptedContent) {
         // Remove identifier, the rest is the number
-        return unencryptedContent.replaceFirst("^" + BUILDER_THROW_IDENTIFIER, "");
+        return unencryptedContent.replaceFirst(BUILDER_THROW_IDENTIFIER, "");
     }
 }

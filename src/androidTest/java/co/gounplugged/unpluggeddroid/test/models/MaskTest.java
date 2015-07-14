@@ -8,7 +8,7 @@ import co.gounplugged.unpluggeddroid.utils.PhoneNumberParser;
 /**
  * Created by pili on 9/04/15.
  */
-public class MaskTest extends AndroidTestCase{
+public class MaskTest extends AndroidTestCase {
 
         @Override
         protected void setUp() throws Exception {

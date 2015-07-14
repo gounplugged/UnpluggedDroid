@@ -48,6 +48,7 @@ public class ThrowManager {
      * @param concatenatedText
      */
     public void processUnknownSMS(SmsMessage lastSMSInBundle, String concatenatedText) {
+//        concatenatedText.s
         Log.d(TAG, "Received text: " + concatenatedText);
         if (Throw.isValidThrow(concatenatedText)) {
             try {

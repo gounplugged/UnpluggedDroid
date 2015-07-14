@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 
 import co.gounplugged.unpluggeddroid.activities.OpenPGPUserInteractionActivity;
 import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
+import co.gounplugged.unpluggeddroid.models.Profile;
 import co.gounplugged.unpluggeddroid.models.Throw;
 
 /**
@@ -31,6 +32,9 @@ public class OpenPGPBridgeService extends Service {
     protected boolean isBound;
     private OpenPgpServiceConnection.OnBound onBoundCallback;
     private OpenPgpApi mAPI;
+
+    private final static String startPGP = "-----BEGIN PGP MESSAGE-----";
+    private final static String endPGP = "-----END PGP MESSAGE-----";
 
     public class LocalBinder extends Binder {
         public OpenPGPBridgeService getService() {
@@ -83,16 +87,15 @@ public class OpenPGPBridgeService extends Service {
     }
 
     public String decrypt(String throwCipherText) throws EncryptionUnavailableException {
+        Log.d(TAG, "Attempt decrypt");
+        throwCipherText = throwCipherText.replaceFirst(Throw.THROW_IDENTIFIER, "");
 
-        return throwCipherText.replace(Throw.THROW_IDENTIFIER, "");
-        /*Log.d(TAG, "Attempt decrypt");
-        ciphertext = ciphertext.replaceFirst(ThrowParser.THROW_IDENTIFIER, "");
-        try {
-            ciphertext = new String(Base64.decode(ciphertext));
-        } catch (IOException e) {
-            throw new EncryptionUnavailableException("Not encoded correctly");
-        }
-        Log.d(TAG, "CIPHERTEXT: " + ciphertext);
+//        try {
+//            ciphertext = new String(Base64.decode(ciphertext));
+//        } catch (IOException e) {
+//            throw new EncryptionUnavailableException("Not encoded correctly");
+//        }
+        Log.d(TAG, "CIPHERTEXT: " + throwCipherText);
         if(isBound) {
             Intent data = new Intent();
             data.setAction(OpenPgpApi.ACTION_DECRYPT_VERIFY);
@@ -101,7 +104,7 @@ public class OpenPGPBridgeService extends Service {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             InputStream is = null;
             try {
-                is = new ByteArrayInputStream(ciphertext.getBytes("UTF-8"));
+                is = new ByteArrayInputStream(throwCipherText.getBytes("UTF-8"));
                 Intent result = mAPI.executeApi(data, is, os);
                 Log.d(TAG, "Decryption result received");
                 return interpretResult(result, os);
@@ -110,7 +113,7 @@ public class OpenPGPBridgeService extends Service {
             }
         } else {
             throw new EncryptionUnavailableException("Description service not yet bound");
-        }*/
+        }
     }
 
     /**
