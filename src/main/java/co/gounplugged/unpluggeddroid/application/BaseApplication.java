@@ -162,4 +162,12 @@ public class BaseApplication extends Application {
 
         return defaultApplication.equals(thisApplication);
     }
+
+    public void checkDefaultSMSApp() {
+        if(isDefaultSMSApp()) {
+
+        } else {
+
+        }
+    }
 }
