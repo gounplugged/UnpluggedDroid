@@ -89,6 +89,7 @@ public class OpenPGPBridgeService extends Service {
     public String decrypt(String throwCipherText) throws EncryptionUnavailableException {
         Log.d(TAG, "Attempt decrypt");
         throwCipherText = throwCipherText.replaceFirst(Throw.THROW_IDENTIFIER, "");
+        throwCipherText = startPGP + throwCipherText + endPGP;
 
 //        try {
 //            ciphertext = new String(Base64.decode(ciphertext));
@@ -154,6 +155,8 @@ public class OpenPGPBridgeService extends Service {
             case OpenPgpApi.RESULT_CODE_SUCCESS: {
                 try {
                     String encrypted = os.toString("UTF-8");
+                    encrypted = encrypted.replace(startPGP, "");
+                    encrypted = encrypted.replace(endPGP, "");
                     Log.d(TAG, "output: " + encrypted);
                     return encrypted;
                 } catch (UnsupportedEncodingException e) {

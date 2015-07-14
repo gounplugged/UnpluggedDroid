@@ -214,11 +214,14 @@ public class ThrowManager {
                         message.getText(),
                         message.getConversation().getParticipant(),
                         openPGPBridgeService);
+                Log.d(TAG, "Sending MessageThrow over");
                 sendThrowOverWire(t);
             } catch (EncryptionUnavailableException e) {
+                Log.d(TAG, "No encryption, sending regular SMS");
                 // Encryption unavailable so just send normally
                 sendSMSOverWire(message);
             } catch (SecondLine.SecondLineException e) {
+                Log.d(TAG, "No established krewe. Establish one but send this as a regular SMS");
                 // Krewe not yet established for this recipient.
                 // Establish path and then send regular message.
                 // Will be able to send Throw next time
