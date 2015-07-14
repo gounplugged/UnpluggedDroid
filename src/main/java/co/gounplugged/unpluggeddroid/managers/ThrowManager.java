@@ -153,7 +153,6 @@ public class ThrowManager {
         }
 
         boolean isSLMessage = MessageUtil.isSLCompatible(concatenatedText);
-        Log.d(TAG, "Message tagged as SL compatible: " + isSLMessage);
         if(isSLMessage) {
             participant.setUsesSecondLine(mContext, isSLMessage);
             concatenatedText = MessageUtil.sanitizeSLCompatibilityText(concatenatedText);
@@ -162,9 +161,7 @@ public class ThrowManager {
         // Find or create conversation with participant
         Conversation conversation = null;
         try {
-            Log.d(TAG, "Participant tagged as SL compatible: " + participant.usesSecondLine());
             conversation = ConversationUtil.findOrNew(participant, mContext);
-            Log.d(TAG, "Conversation " + conversation.id + " tagged as SL compatible: " + conversation.isSecondLineComptabile(mContext));
 
         } catch (Conversation.InvalidConversationException e) {
             // TODO can participant ever be null?
@@ -188,9 +185,6 @@ public class ThrowManager {
                         text,
                         Message.TYPE_OUTGOING,
                         System.currentTimeMillis());
-
-                Log.d(TAG, "sendMessage message uses SL: " + message.getConversation().isSecondLineComptabile(mContext) +
-                        " conversation uses SL: " + conversation.isSecondLineComptabile(mContext));
 
                 EventBus.getDefault().postSticky(message);
 
@@ -254,7 +248,7 @@ public class ThrowManager {
     }
 
     public boolean ensureKreweEstablished(Conversation conversation, OpenPGPBridgeService openPGPBridgeService) {
-        Log.d(TAG, "STARTING TO ensureKreweEstablished");
+        Log.d(TAG, "start to ensureKreweEstablished");
         if(conversation.isSecondLineComptabile(mContext)) {
             Log.d(TAG, "ensureKreweEstablished: isSecondLineCompatible");
             SecondLine secondLine = getBaseApplication().getSecondLine();
