@@ -86,6 +86,7 @@ public class Contact {
     }
 
     public boolean usesSecondLine() {
+//        ContactUtil.update(context, this);
         return mUsesSecondLine;
     }
     public void setUsesSecondLine(Context context, boolean usesSecondLine) {

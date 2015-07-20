@@ -1,5 +1,6 @@
 package co.gounplugged.unpluggeddroid.models;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 
 /**
@@ -21,17 +22,21 @@ public class MessageThrow extends Throw {
             String unencryptedContent,
             String terminatingRecipientNumber,
             Mask adjacentMask,
-            OpenPGPBridgeService openPGPBridgeService) {
+            OpenPGPBridgeService openPGPBridgeService)
+            throws EncryptionUnavailableException {
 
-        super(MESSAGE_THROW_IDENTIFIER + unencryptedContent, adjacentMask);
+        super(adjacentMask);
+        setContent(openPGPBridgeService.encrypt(
+                MESSAGE_THROW_IDENTIFIER + unencryptedContent,
+                terminatingRecipientNumber));
     }
 
     public static boolean isValidMessageThrow(String encryptedContent) {
-        return encryptedContent.matches("^" + MESSAGE_THROW_IDENTIFIER + ".*");
+        return encryptedContent.contains(MESSAGE_THROW_IDENTIFIER);
     }
 
     public static String getContent(String unencryptedContent) {
         // Remove identifier, the rest is the number
-        return unencryptedContent.replaceFirst("^" + MESSAGE_THROW_IDENTIFIER, "");
+        return unencryptedContent.replaceFirst(MESSAGE_THROW_IDENTIFIER, "");
     }
 }

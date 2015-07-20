@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import co.gounplugged.unpluggeddroid.exceptions.EncryptionUnavailableException;
 import co.gounplugged.unpluggeddroid.services.OpenPGPBridgeService;
 
 /**
@@ -20,6 +21,8 @@ public class Krewe {
     public Krewe(Contact recipient, List<Mask> knownMasks) throws KreweException {
         if(knownMasks.size() < NUMBER_MASKS_IN_KREWE) throw new KreweException("Need more masks to choose from");
         List<Mask> masksBuilder = new ArrayList<>();
+        // TODO more efficiently do this. Not on all masks!
+        // TODO make sure you don't select a contact. this will F things up hardcore.
         Collections.shuffle(knownMasks);
 
         for(int i = 0; i < NUMBER_MASKS_IN_KREWE; i++) {
@@ -30,7 +33,9 @@ public class Krewe {
         this.mRecipient = recipient;
     }
 
-    public List<Throw> getBuilderThrows(OpenPGPBridgeService openPGPBridgeService) {
+    public List<Throw> getBuilderThrows(OpenPGPBridgeService openPGPBridgeService)
+            throws EncryptionUnavailableException {
+
         List<Throw> builderThrows = new ArrayList<>();
         Mask adjacentMask = getAdjacentMask();
 

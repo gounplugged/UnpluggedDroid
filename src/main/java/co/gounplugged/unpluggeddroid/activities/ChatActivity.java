@@ -23,6 +23,7 @@ import java.util.List;
 import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.adapters.ContactRecyclerViewAdapter;
 import co.gounplugged.unpluggeddroid.adapters.MessageRecyclerViewAdapter;
+import co.gounplugged.unpluggeddroid.application.BaseApplication;
 import co.gounplugged.unpluggeddroid.exceptions.NotFoundInDatabaseException;
 import co.gounplugged.unpluggeddroid.fragments.MessageInputFragment;
 import co.gounplugged.unpluggeddroid.fragments.SearchContactFragment;
@@ -86,23 +87,34 @@ public class ChatActivity extends BaseActivity {
         Return the last selected conversation. Null if no last conversation.
      */
     public synchronized Conversation getLastSelectedConversation() {
-        if (mSelectedConversation != null)
+        if (mSelectedConversation != null) // refresh conversation as it may have changed
             ConversationUtil.refresh(getApplicationContext(), mSelectedConversation);
         if (mSelectedConversation == null) {
             long cid = Profile.getLastConversationId();
+            // try to load last conversation saved to profile
             if (cid != Profile.LAST_SELECTED_CONVERSATION_UNSET_ID) {
                 try {
                     mSelectedConversation = ConversationUtil.findById(getApplicationContext(), cid);
                 } catch (NotFoundInDatabaseException e) {
-                    e.printStackTrace();
+                    // That conversation got erased from the db
+                    mSelectedConversation = getTopConversation();
                 }
             } else {
-                List<Conversation> conversations = ConversationUtil.getAll(getApplicationContext());
-                if (conversations != null && conversations.size() > 0)
-                    mSelectedConversation = conversations.get(0);
+                mSelectedConversation = getTopConversation();
             }
         }
         return mSelectedConversation;
+    }
+
+    /**
+     * Get the conversation at the top of the list
+     * @return
+     */
+    private Conversation getTopConversation() {
+        List<Conversation> conversations = ConversationUtil.getAll(getApplicationContext());
+        if (conversations != null && conversations.size() > 0)
+            return mSelectedConversation = conversations.get(0);
+        return null;
     }
 
     @Override
@@ -240,7 +252,6 @@ public class ChatActivity extends BaseActivity {
                         addConversation(c);
                         mSearchContactFragment.clearInput();
                         //Re-order menu
-
                     }
                 })
         );
@@ -267,6 +278,15 @@ public class ChatActivity extends BaseActivity {
 
     }
 
+    private void establishSecondLine(Conversation conversation) {
+        BaseApplication app = (BaseApplication) getApplicationContext();
+        OpenPGPBridgeService openPGPBridgeService = app.getOpenPGPBridgeService();
+
+        if(openPGPBridgeService != null) {
+            BaseApplication.App.ThrowManager.ensureKreweEstablished(conversation, openPGPBridgeService);
+        }
+    }
+
 
     public void addConversation(Contact contact) {
         Conversation newConversation;
@@ -281,6 +301,8 @@ public class ChatActivity extends BaseActivity {
                 return;
             }
         }
+
+        establishSecondLine(newConversation);
 
         mSelectedConversation = newConversation;
         Profile.setLastConversationId(mSelectedConversation.id);

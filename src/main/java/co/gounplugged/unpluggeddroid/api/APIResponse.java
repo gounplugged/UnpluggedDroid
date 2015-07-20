@@ -10,19 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.exceptions.InvalidPhoneNumberException;
-import co.gounplugged.unpluggeddroid.models.Krewe;
 import co.gounplugged.unpluggeddroid.models.Mask;
 
 /**
  * Created by pili on 29/03/15.
  */
-public class JSONParser {
-    private final static String TAG = "JSONParser";
+public class APIResponse {
+    private final static String TAG = "APIResponse";
 
-    public static List<Mask> getMasks(String serverResponse, String filterByCountryCode) {
-        List<Mask> masks = new ArrayList<Mask>();
+    /**
+     * Returns all the mask from server.
+     * @param serverResponseString
+     * @param filterByCountryCode
+     * @return
+     */
+    public static List<Mask> getMasks(String serverResponseString, String filterByCountryCode) {
+        if (filterByCountryCode == null) return null;
+        List<Mask> masks = new ArrayList();
         try {
-            JSONArray jArray = new JSONArray(serverResponse);
+            JSONArray jArray = new JSONArray(serverResponseString);
             for (int i=0; i < jArray.length(); i++)
             {
                 try {
@@ -30,7 +36,7 @@ public class JSONParser {
                     String countryCode = oneObject.getString("country_code");
                     Log.d(TAG, countryCode);
 
-                    if(filterByCountryCode == null || countryCode.equals(filterByCountryCode)) {
+                    if(filterByCountryCode.equals("") || countryCode.equals(filterByCountryCode)) {
                         String phoneNumber = oneObject.getString("number");
                         Log.d(TAG, phoneNumber);
                         try {
@@ -39,7 +45,6 @@ public class JSONParser {
                             // Server should not accept invalid numbers to start with
                         }
                     }
-
                 } catch (JSONException e) {
                     // Oops
                 }
