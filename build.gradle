@@ -29,6 +29,11 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:cardview-v7:22.2.0'
     compile 'com.viewpagerindicator:library:2.4.1@aar'
+    compile 'com.facebook.stetho:stetho:+'
+    compile 'com.jakewharton:butterknife:+'
+    compile 'com.squareup.dagger:dagger:+'
+    compile 'com.android.support:support-v13:+'  //contains FragmentPagerAdapter for non-support fragments
+    compile 'org.jraf:android-switch-backport:2.0.1' //used for switch pref
 }
 
 android {

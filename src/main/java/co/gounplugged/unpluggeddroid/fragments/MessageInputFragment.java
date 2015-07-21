@@ -36,27 +36,12 @@ public class MessageInputFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        EventBus.getDefault().removeAllStickyEvents();
-//        EventBus.getDefault().unregister(this);
     }
-
-//    public void onEventMainThread(ConversationEvent event) {
-////        switch (event.getType()) {
-////            case SELECTED:
-////                break;
-////            case SWITCHED:
-////                setSubmitButtonImage(event.getConversation());
-////                setHint(event.getConversation());
-////                break;
-////        }
-//
-//    }
 
     public void updateViews() {
         final Conversation lastConversation = getLastConversation();
@@ -121,16 +106,19 @@ public class MessageInputFragment extends Fragment {
 
 
     private void setHint(Conversation lastConversation) {
-        String hint;
-        // TODO should really just not show text input on first run
-        if(lastConversation == null) {
-            hint = getString(R.string.new_post_text_hint_first_run);
-        } else {
-            String conversationName = lastConversation.getName();
-            hint = (getString(R.string.new_post_text_hint)) + " " + conversationName;
-        }
+        String hint = "";
+        if (getActivity() != null && !getActivity().isFinishing()) {
+            // TODO should really just not show text input on first run
+            if(lastConversation == null) {
+                hint = getString(R.string.new_post_text_hint_first_run);
+            } else {
+                String conversationName = lastConversation.getName();
+                hint = (getString(R.string.new_post_text_hint)) + " " + conversationName;
+            }
 
+        }
         newPostText.setHint(hint);
+
     }
 
     private void setSubmitButtonImage(Conversation conversation) {

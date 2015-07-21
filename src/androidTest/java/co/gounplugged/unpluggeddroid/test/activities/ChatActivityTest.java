@@ -1,8 +1,10 @@
 package co.gounplugged.unpluggeddroid.test.activities;
 
 import android.content.Context;
+import android.support.v7.internal.view.ContextThemeWrapper;
 import android.test.ActivityUnitTestCase;
 
+import co.gounplugged.unpluggeddroid.R;
 import co.gounplugged.unpluggeddroid.activities.ChatActivity;
 
 /**
@@ -19,13 +21,13 @@ public class ChatActivityTest extends ActivityUnitTestCase<ChatActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-//        mContext = this.getInstrumentation().getTargetContext();
-//        ContextThemeWrapper context = new ContextThemeWrapper(mContext, R.style.AppTheme);
-//        setActivityContext(context);
-//        // Don't change this, see: https://stackoverflow.com/questions/21611539/actionbaractivity-activityunittest-namenotfoundexception
-//        // and https://stackoverflow.com/questions/24760354/namenotfoundexception-at-activityunittestcase-with-actionbaractivity
-//        setActivity(launchActivity("co.gounplugged.unpluggeddroid", ChatActivity.class, null));
-//        mChatActivity = getActivity();
+        mContext = this.getInstrumentation().getTargetContext();
+        ContextThemeWrapper context = new ContextThemeWrapper(mContext, R.style.Theme_Unplugged);
+        setActivityContext(context);
+        // Don't change this, see: https://stackoverflow.com/questions/21611539/actionbaractivity-activityunittest-namenotfoundexception
+        // and https://stackoverflow.com/questions/24760354/namenotfoundexception-at-activityunittestcase-with-actionbaractivity
+        setActivity(launchActivity("co.gounplugged.unpluggeddroid", ChatActivity.class, null));
+        mChatActivity = getActivity();
     }
 
 //    public void testGetCurrentConversation() {

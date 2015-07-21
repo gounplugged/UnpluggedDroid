@@ -1,8 +1,12 @@
 package co.gounplugged.unpluggeddroid.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -31,5 +35,14 @@ public class ImageUtil {
             drawable = context.getResources().getDrawable(R.drawable.avatar);
         }
         return drawable;
+    }
+
+    public static RoundedBitmapDrawable getCircularDrawable(Context context, Bitmap bitmap) {
+        RoundedBitmapDrawable circularBitmapDrawable = //
+                RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
+
+        circularBitmapDrawable.setCornerRadius(bitmap.getWidth());
+
+        return circularBitmapDrawable;
     }
 }

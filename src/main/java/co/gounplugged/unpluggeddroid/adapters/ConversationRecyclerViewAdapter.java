@@ -35,44 +35,6 @@ public class ConversationRecyclerViewAdapter extends RecyclerView.Adapter<Conver
             this.mConversations = conversationList;
     }
 
-//    @Override
-//    public int getCount() {
-//        return mConversations.size();
-//    }
-//
-//    @Override
-//    public Object getItem(int position) {
-//        return mConversations.get(position);
-//    }
-//
-//    @Override
-//    public long getItemId(int position) {
-//        return 0;
-//    }
-//
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        final Conversation conversation = mConversations.get(position);
-//
-//        if (convertView == null) {
-//            convertView = mInflater.inflate(R.layout.list_item_conversation, parent, false);
-//        }
-//
-//        ViewHolder viewHolder;
-//        if (convertView.getTag() == null) {
-//            viewHolder = new ViewHolder(convertView, conversation);
-//            convertView.setTag(viewHolder);
-//        } else {
-//            viewHolder = (ViewHolder) convertView.getTag();
-//        }
-//
-//        //Load avatar
-//        Contact contact = conversation.getParticipant();
-//        ImageUtil.loadContactImage(mContext, contact, viewHolder.mImageView);
-//
-//        return convertView;
-//    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int position) {
         View view = LayoutInflater.from(parent.getContext())

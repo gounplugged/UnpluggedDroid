@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="19"
+        android:minSdkVersion="15"
         android:targetSdkVersion="20" />
 
     <uses-permission android:name="android.permission.SEND_SMS" />
@@ -54,6 +54,15 @@
         </activity>
         <activity
             android:name=".activities.ProfileActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.ChatActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatActivity" />
+        </activity>
+        <activity
+            android:name=".activities.IntroActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.ChatActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->

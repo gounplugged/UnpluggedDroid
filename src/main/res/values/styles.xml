@@ -9,6 +9,16 @@
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:windowBackground">@color/window_background</item>
+        <item name="vpiCirclePageIndicatorStyle">@style/CustomCirclePageIndicator</item>
+    </style>
+
+    <style name="CustomCirclePageIndicator">
+        <item name="fillColor">@color/color_accent</item>
+        <item name="strokeColor">@color/color_accent</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="radius">4dp</item>
+        <item name="centered">true</item>
+        <item name="asb_switchPreferenceStyle">@style/asb_Preference.SwitchPreference</item>
     </style>
 
     <style name="ThemeOverlay.Unplugged.Dark.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">

@@ -9,6 +9,8 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.facebook.stetho.Stetho;
+
 import java.util.List;
 
 import co.gounplugged.unpluggeddroid.api.APICaller;
@@ -67,6 +69,15 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "APPLICATION STARTED");
+
+        // Initialize Stetho, a debug bridge that will enable us to inspect the application
+        // (via chrome developper tools) and enable a command line interfact to app internals.
+        Stetho.initialize(Stetho.newInitializerBuilder(this)
+                .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                .build());
+
+        // Eager initialization of certain managers
         initManagers();
 
         Profile.loadProfile(getApplicationContext());
@@ -157,10 +168,10 @@ public class BaseApplication extends Application {
     }
 
     public boolean isDefaultSMSApp() {
-        String defaultApplication = Settings.Secure.getString(getContentResolver(),  SMS_DEFAULT_APPLICATION);
+        String defaultApplication = Settings.Secure.getString(getContentResolver(), SMS_DEFAULT_APPLICATION);
         String thisApplication = getApplicationContext().getPackageName();
 
-        return defaultApplication.equals(thisApplication);
+        return thisApplication.equals(defaultApplication);
     }
 
     public void checkDefaultSMSApp() {

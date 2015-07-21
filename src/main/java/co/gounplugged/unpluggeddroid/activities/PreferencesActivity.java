@@ -14,7 +14,8 @@ public class PreferencesActivity extends BaseActivity {
 
         setContentView(R.layout.activity_preferences);
 
-        setupToolbar(NAVIGATION_MAIN_SETTINGS);
+        setupToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, new ProfilePreferenceFragment());
