@@ -66,7 +66,7 @@ public class IntroActivity extends BaseActivity {
             if(currentPage == 0) {
                 viewPager.setCurrentItem(1, true);
             } else if (currentPage == 1) {
-                BaseApplication.getInstance(this).seedKnownMasks();
+                BaseApplication.getInstance(this).refreshKnownMasks();
                 startMain();
             }
         }
